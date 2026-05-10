@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../providers/shared_providers.dart';
+import '../providers/auth_provider.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -12,34 +13,40 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _emailController = TextEditingController();
+  final _userIdController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _loading = false;
+  bool _obscurePassword = true;
   String? _error;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _userIdController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
+    final userId = _userIdController.text.trim();
+    final password = _passwordController.text;
+
+    if (userId.isEmpty || password.isEmpty) {
+      setState(() => _error = 'Please enter your user ID and password.');
+      return;
+    }
+
     setState(() {
       _loading = true;
       _error = null;
     });
 
     try {
-      final api = ref.read(apiClientProvider);
-      // Auth not yet implemented on backend — store a placeholder token
-      // so the app can proceed. Replace this block when login endpoint exists.
-      await api.saveToken('dev-token');
+      await ref.read(authProvider.notifier).login(userId, password);
       if (mounted) context.go('/');
-    } catch (e) {
-      setState(() {
-        _error = 'Login failed. Check your credentials or internet connection.';
-      });
+    } on AuthException catch (e) {
+      setState(() => _error = e.message);
+    } catch (_) {
+      setState(() => _error = 'Something went wrong. Please try again.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -60,11 +67,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const Icon(Icons.account_balance_wallet,
                     size: 64, color: Colors.white),
                 const SizedBox(height: 12),
-                const Text('SHG Portal',
-                    style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white)),
+                const Text(
+                  'SHG Portal',
+                  style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
                 const Text('Sittilingi · SOFA',
                     style: TextStyle(color: Colors.white70)),
                 const SizedBox(height: 40),
@@ -72,33 +81,62 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        const Text(
+                          'Sign in',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 20),
                         TextField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
+                          controller: _userIdController,
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.next,
+                          autocorrect: false,
                           decoration: const InputDecoration(
-                            labelText: 'Email or phone',
+                            labelText: 'User ID',
                             border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.person_outline),
                           ),
                         ),
                         const SizedBox(height: 16),
                         TextField(
                           controller: _passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
+                          obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _loading ? null : _login(),
+                          decoration: InputDecoration(
                             labelText: 'Password',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              icon: Icon(_obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                              onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
+                            ),
                           ),
-                          onSubmitted: (_) => _login(),
                         ),
                         if (_error != null) ...[
                           const SizedBox(height: 12),
-                          Text(_error!,
-                              style: const TextStyle(color: Colors.red)),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.red.shade200),
+                            ),
+                            child: Text(
+                              _error!,
+                              style: TextStyle(
+                                  color: Colors.red.shade800, fontSize: 13),
+                            ),
+                          ),
                         ],
                         const SizedBox(height: 20),
                         SizedBox(
-                          width: double.infinity,
                           height: 48,
                           child: FilledButton(
                             onPressed: _loading ? null : _login,
@@ -106,14 +144,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               backgroundColor: const Color(0xFF2D6A4F),
                             ),
                             child: _loading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white)
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2),
+                                  )
                                 : const Text('Sign in'),
                           ),
                         ),
                       ],
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Contact your admin if you need access.',
+                  style: TextStyle(color: Colors.white60, fontSize: 12),
                 ),
               ],
             ),

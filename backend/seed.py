@@ -7,9 +7,36 @@ Usage:
     python seed.py
 """
 
+import bcrypt
+
 from app.db.session import SessionLocal
 from app.models.group import Group
 from app.models.month_entry import EntryMode, EntryStatus, MonthEntry
+from app.models.user import User, UserRole
+
+
+def _hash(password: str) -> str:
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+
+# ── Users ─────────────────────────────────────────────────────────────────────
+# Users are created manually by an admin — no sign-up in the app.
+# Add real field worker accounts here before deploying.
+
+USERS = [
+    {
+        "user_id": "admin",
+        "password_hash": _hash("admin123"),
+        "name": "Admin",
+        "role": UserRole.ADMIN,
+    },
+    {
+        "user_id": "field1",
+        "password_hash": _hash("sofa1234"),
+        "name": "Field Worker 1",
+        "role": UserRole.FIELD_WORKER,
+    },
+]
 
 # ── Groups ────────────────────────────────────────────────────────────────────
 
@@ -78,6 +105,16 @@ SAMPLE_ENTRIES = [
 
 def seed():
     db = SessionLocal()
+
+    # Users — skip any that already exist by user_id
+    existing_user_ids = {u.user_id for u in db.query(User.user_id).all()}
+    new_users = [User(**u) for u in USERS if u["user_id"] not in existing_user_ids]
+    if new_users:
+        db.add_all(new_users)
+        db.commit()
+        print(f"  Added {len(new_users)} user(s)")
+    else:
+        print("  Users already seeded — skipped")
 
     # Groups — skip any that already exist by code
     existing_codes = {g.code for g in db.query(Group.code).all()}

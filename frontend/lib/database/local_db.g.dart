@@ -3,6 +3,278 @@
 part of 'local_db.dart';
 
 // ignore_for_file: type=lint
+class $UserCacheTableTable extends UserCacheTable
+    with TableInfo<$UserCacheTableTable, UserCacheTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserCacheTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _passwordHashMeta =
+      const VerificationMeta('passwordHash');
+  @override
+  late final GeneratedColumn<String> passwordHash = GeneratedColumn<String>(
+      'password_hash', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _roleMeta = const VerificationMeta('role');
+  @override
+  late final GeneratedColumn<String> role = GeneratedColumn<String>(
+      'role', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [userId, passwordHash, name, role];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_cache';
+  @override
+  VerificationContext validateIntegrity(Insertable<UserCacheTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('password_hash')) {
+      context.handle(
+          _passwordHashMeta,
+          passwordHash.isAcceptableOrUnknown(
+              data['password_hash']!, _passwordHashMeta));
+    } else if (isInserting) {
+      context.missing(_passwordHashMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('role')) {
+      context.handle(
+          _roleMeta, role.isAcceptableOrUnknown(data['role']!, _roleMeta));
+    } else if (isInserting) {
+      context.missing(_roleMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId};
+  @override
+  UserCacheTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserCacheTableData(
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      passwordHash: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}password_hash'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      role: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}role'])!,
+    );
+  }
+
+  @override
+  $UserCacheTableTable createAlias(String alias) {
+    return $UserCacheTableTable(attachedDatabase, alias);
+  }
+}
+
+class UserCacheTableData extends DataClass
+    implements Insertable<UserCacheTableData> {
+  final String userId;
+  final String passwordHash;
+  final String name;
+  final String role;
+  const UserCacheTableData(
+      {required this.userId,
+      required this.passwordHash,
+      required this.name,
+      required this.role});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['password_hash'] = Variable<String>(passwordHash);
+    map['name'] = Variable<String>(name);
+    map['role'] = Variable<String>(role);
+    return map;
+  }
+
+  UserCacheTableCompanion toCompanion(bool nullToAbsent) {
+    return UserCacheTableCompanion(
+      userId: Value(userId),
+      passwordHash: Value(passwordHash),
+      name: Value(name),
+      role: Value(role),
+    );
+  }
+
+  factory UserCacheTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserCacheTableData(
+      userId: serializer.fromJson<String>(json['userId']),
+      passwordHash: serializer.fromJson<String>(json['passwordHash']),
+      name: serializer.fromJson<String>(json['name']),
+      role: serializer.fromJson<String>(json['role']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'passwordHash': serializer.toJson<String>(passwordHash),
+      'name': serializer.toJson<String>(name),
+      'role': serializer.toJson<String>(role),
+    };
+  }
+
+  UserCacheTableData copyWith(
+          {String? userId, String? passwordHash, String? name, String? role}) =>
+      UserCacheTableData(
+        userId: userId ?? this.userId,
+        passwordHash: passwordHash ?? this.passwordHash,
+        name: name ?? this.name,
+        role: role ?? this.role,
+      );
+  UserCacheTableData copyWithCompanion(UserCacheTableCompanion data) {
+    return UserCacheTableData(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      passwordHash: data.passwordHash.present
+          ? data.passwordHash.value
+          : this.passwordHash,
+      name: data.name.present ? data.name.value : this.name,
+      role: data.role.present ? data.role.value : this.role,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserCacheTableData(')
+          ..write('userId: $userId, ')
+          ..write('passwordHash: $passwordHash, ')
+          ..write('name: $name, ')
+          ..write('role: $role')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, passwordHash, name, role);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserCacheTableData &&
+          other.userId == this.userId &&
+          other.passwordHash == this.passwordHash &&
+          other.name == this.name &&
+          other.role == this.role);
+}
+
+class UserCacheTableCompanion extends UpdateCompanion<UserCacheTableData> {
+  final Value<String> userId;
+  final Value<String> passwordHash;
+  final Value<String> name;
+  final Value<String> role;
+  final Value<int> rowid;
+  const UserCacheTableCompanion({
+    this.userId = const Value.absent(),
+    this.passwordHash = const Value.absent(),
+    this.name = const Value.absent(),
+    this.role = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserCacheTableCompanion.insert({
+    required String userId,
+    required String passwordHash,
+    required String name,
+    required String role,
+    this.rowid = const Value.absent(),
+  })  : userId = Value(userId),
+        passwordHash = Value(passwordHash),
+        name = Value(name),
+        role = Value(role);
+  static Insertable<UserCacheTableData> custom({
+    Expression<String>? userId,
+    Expression<String>? passwordHash,
+    Expression<String>? name,
+    Expression<String>? role,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (passwordHash != null) 'password_hash': passwordHash,
+      if (name != null) 'name': name,
+      if (role != null) 'role': role,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserCacheTableCompanion copyWith(
+      {Value<String>? userId,
+      Value<String>? passwordHash,
+      Value<String>? name,
+      Value<String>? role,
+      Value<int>? rowid}) {
+    return UserCacheTableCompanion(
+      userId: userId ?? this.userId,
+      passwordHash: passwordHash ?? this.passwordHash,
+      name: name ?? this.name,
+      role: role ?? this.role,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (passwordHash.present) {
+      map['password_hash'] = Variable<String>(passwordHash.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (role.present) {
+      map['role'] = Variable<String>(role.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserCacheTableCompanion(')
+          ..write('userId: $userId, ')
+          ..write('passwordHash: $passwordHash, ')
+          ..write('name: $name, ')
+          ..write('role: $role, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $GroupsTableTable extends GroupsTable
     with TableInfo<$GroupsTableTable, GroupsTableData> {
   @override
@@ -1192,6 +1464,7 @@ class MonthEntriesTableCompanion
 abstract class _$LocalDb extends GeneratedDatabase {
   _$LocalDb(QueryExecutor e) : super(e);
   $LocalDbManager get managers => $LocalDbManager(this);
+  late final $UserCacheTableTable userCacheTable = $UserCacheTableTable(this);
   late final $GroupsTableTable groupsTable = $GroupsTableTable(this);
   late final $MonthEntriesTableTable monthEntriesTable =
       $MonthEntriesTableTable(this);
@@ -1200,7 +1473,119 @@ abstract class _$LocalDb extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [groupsTable, monthEntriesTable];
+      [userCacheTable, groupsTable, monthEntriesTable];
+}
+
+typedef $$UserCacheTableTableCreateCompanionBuilder = UserCacheTableCompanion
+    Function({
+  required String userId,
+  required String passwordHash,
+  required String name,
+  required String role,
+  Value<int> rowid,
+});
+typedef $$UserCacheTableTableUpdateCompanionBuilder = UserCacheTableCompanion
+    Function({
+  Value<String> userId,
+  Value<String> passwordHash,
+  Value<String> name,
+  Value<String> role,
+  Value<int> rowid,
+});
+
+class $$UserCacheTableTableTableManager extends RootTableManager<
+    _$LocalDb,
+    $UserCacheTableTable,
+    UserCacheTableData,
+    $$UserCacheTableTableFilterComposer,
+    $$UserCacheTableTableOrderingComposer,
+    $$UserCacheTableTableCreateCompanionBuilder,
+    $$UserCacheTableTableUpdateCompanionBuilder> {
+  $$UserCacheTableTableTableManager(_$LocalDb db, $UserCacheTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$UserCacheTableTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$UserCacheTableTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            Value<String> passwordHash = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> role = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserCacheTableCompanion(
+            userId: userId,
+            passwordHash: passwordHash,
+            name: name,
+            role: role,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String userId,
+            required String passwordHash,
+            required String name,
+            required String role,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserCacheTableCompanion.insert(
+            userId: userId,
+            passwordHash: passwordHash,
+            name: name,
+            role: role,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$UserCacheTableTableFilterComposer
+    extends FilterComposer<_$LocalDb, $UserCacheTableTable> {
+  $$UserCacheTableTableFilterComposer(super.$state);
+  ColumnFilters<String> get userId => $state.composableBuilder(
+      column: $state.table.userId,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get passwordHash => $state.composableBuilder(
+      column: $state.table.passwordHash,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get role => $state.composableBuilder(
+      column: $state.table.role,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$UserCacheTableTableOrderingComposer
+    extends OrderingComposer<_$LocalDb, $UserCacheTableTable> {
+  $$UserCacheTableTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get userId => $state.composableBuilder(
+      column: $state.table.userId,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get passwordHash => $state.composableBuilder(
+      column: $state.table.passwordHash,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get role => $state.composableBuilder(
+      column: $state.table.role,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
 typedef $$GroupsTableTableCreateCompanionBuilder = GroupsTableCompanion
@@ -1220,106 +1605,22 @@ typedef $$GroupsTableTableUpdateCompanionBuilder = GroupsTableCompanion
   Value<bool> isActive,
 });
 
-class $$GroupsTableTableFilterComposer
-    extends Composer<_$LocalDb, $GroupsTableTable> {
-  $$GroupsTableTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get villageName => $composableBuilder(
-      column: $table.villageName, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get code => $composableBuilder(
-      column: $table.code, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isActive => $composableBuilder(
-      column: $table.isActive, builder: (column) => ColumnFilters(column));
-}
-
-class $$GroupsTableTableOrderingComposer
-    extends Composer<_$LocalDb, $GroupsTableTable> {
-  $$GroupsTableTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get villageName => $composableBuilder(
-      column: $table.villageName, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get code => $composableBuilder(
-      column: $table.code, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isActive => $composableBuilder(
-      column: $table.isActive, builder: (column) => ColumnOrderings(column));
-}
-
-class $$GroupsTableTableAnnotationComposer
-    extends Composer<_$LocalDb, $GroupsTableTable> {
-  $$GroupsTableTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<String> get villageName => $composableBuilder(
-      column: $table.villageName, builder: (column) => column);
-
-  GeneratedColumn<String> get code =>
-      $composableBuilder(column: $table.code, builder: (column) => column);
-
-  GeneratedColumn<bool> get isActive =>
-      $composableBuilder(column: $table.isActive, builder: (column) => column);
-}
-
 class $$GroupsTableTableTableManager extends RootTableManager<
     _$LocalDb,
     $GroupsTableTable,
     GroupsTableData,
     $$GroupsTableTableFilterComposer,
     $$GroupsTableTableOrderingComposer,
-    $$GroupsTableTableAnnotationComposer,
     $$GroupsTableTableCreateCompanionBuilder,
-    $$GroupsTableTableUpdateCompanionBuilder,
-    (
-      GroupsTableData,
-      BaseReferences<_$LocalDb, $GroupsTableTable, GroupsTableData>
-    ),
-    GroupsTableData,
-    PrefetchHooks Function()> {
+    $$GroupsTableTableUpdateCompanionBuilder> {
   $$GroupsTableTableTableManager(_$LocalDb db, $GroupsTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$GroupsTableTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$GroupsTableTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$GroupsTableTableAnnotationComposer($db: db, $table: table),
+          filteringComposer:
+              $$GroupsTableTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$GroupsTableTableOrderingComposer(ComposerState(db, table)),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
@@ -1348,28 +1649,67 @@ class $$GroupsTableTableTableManager extends RootTableManager<
             code: code,
             isActive: isActive,
           ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
         ));
 }
 
-typedef $$GroupsTableTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDb,
-    $GroupsTableTable,
-    GroupsTableData,
-    $$GroupsTableTableFilterComposer,
-    $$GroupsTableTableOrderingComposer,
-    $$GroupsTableTableAnnotationComposer,
-    $$GroupsTableTableCreateCompanionBuilder,
-    $$GroupsTableTableUpdateCompanionBuilder,
-    (
-      GroupsTableData,
-      BaseReferences<_$LocalDb, $GroupsTableTable, GroupsTableData>
-    ),
-    GroupsTableData,
-    PrefetchHooks Function()>;
+class $$GroupsTableTableFilterComposer
+    extends FilterComposer<_$LocalDb, $GroupsTableTable> {
+  $$GroupsTableTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get villageName => $state.composableBuilder(
+      column: $state.table.villageName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get code => $state.composableBuilder(
+      column: $state.table.code,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get isActive => $state.composableBuilder(
+      column: $state.table.isActive,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$GroupsTableTableOrderingComposer
+    extends OrderingComposer<_$LocalDb, $GroupsTableTable> {
+  $$GroupsTableTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get villageName => $state.composableBuilder(
+      column: $state.table.villageName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get code => $state.composableBuilder(
+      column: $state.table.code,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get isActive => $state.composableBuilder(
+      column: $state.table.isActive,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
 typedef $$MonthEntriesTableTableCreateCompanionBuilder
     = MonthEntriesTableCompanion Function({
   required String localId,
@@ -1415,245 +1755,23 @@ typedef $$MonthEntriesTableTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$MonthEntriesTableTableFilterComposer
-    extends Composer<_$LocalDb, $MonthEntriesTableTable> {
-  $$MonthEntriesTableTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get localId => $composableBuilder(
-      column: $table.localId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get serverId => $composableBuilder(
-      column: $table.serverId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get groupId => $composableBuilder(
-      column: $table.groupId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get entryMonth => $composableBuilder(
-      column: $table.entryMonth, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get entryMode => $composableBuilder(
-      column: $table.entryMode, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get savingsCollected => $composableBuilder(
-      column: $table.savingsCollected,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get internalLoanPrincipalDisbursed =>
-      $composableBuilder(
-          column: $table.internalLoanPrincipalDisbursed,
-          builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get internalLoanInterestCollected => $composableBuilder(
-      column: $table.internalLoanInterestCollected,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get toBank => $composableBuilder(
-      column: $table.toBank, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get fromBank => $composableBuilder(
-      column: $table.fromBank, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get sofaLoanDisbursed => $composableBuilder(
-      column: $table.sofaLoanDisbursed,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get sofaLoanRepayment => $composableBuilder(
-      column: $table.sofaLoanRepayment,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get sofaLoanInterestCollected => $composableBuilder(
-      column: $table.sofaLoanInterestCollected,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get notes => $composableBuilder(
-      column: $table.notes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get warningFlags => $composableBuilder(
-      column: $table.warningFlags, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get syncStatus => $composableBuilder(
-      column: $table.syncStatus, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
-}
-
-class $$MonthEntriesTableTableOrderingComposer
-    extends Composer<_$LocalDb, $MonthEntriesTableTable> {
-  $$MonthEntriesTableTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get localId => $composableBuilder(
-      column: $table.localId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get serverId => $composableBuilder(
-      column: $table.serverId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get groupId => $composableBuilder(
-      column: $table.groupId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get entryMonth => $composableBuilder(
-      column: $table.entryMonth, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get entryMode => $composableBuilder(
-      column: $table.entryMode, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get savingsCollected => $composableBuilder(
-      column: $table.savingsCollected,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get internalLoanPrincipalDisbursed =>
-      $composableBuilder(
-          column: $table.internalLoanPrincipalDisbursed,
-          builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get internalLoanInterestCollected =>
-      $composableBuilder(
-          column: $table.internalLoanInterestCollected,
-          builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get toBank => $composableBuilder(
-      column: $table.toBank, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get fromBank => $composableBuilder(
-      column: $table.fromBank, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get sofaLoanDisbursed => $composableBuilder(
-      column: $table.sofaLoanDisbursed,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get sofaLoanRepayment => $composableBuilder(
-      column: $table.sofaLoanRepayment,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get sofaLoanInterestCollected => $composableBuilder(
-      column: $table.sofaLoanInterestCollected,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-      column: $table.notes, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get warningFlags => $composableBuilder(
-      column: $table.warningFlags,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get syncStatus => $composableBuilder(
-      column: $table.syncStatus, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
-}
-
-class $$MonthEntriesTableTableAnnotationComposer
-    extends Composer<_$LocalDb, $MonthEntriesTableTable> {
-  $$MonthEntriesTableTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get localId =>
-      $composableBuilder(column: $table.localId, builder: (column) => column);
-
-  GeneratedColumn<int> get serverId =>
-      $composableBuilder(column: $table.serverId, builder: (column) => column);
-
-  GeneratedColumn<int> get groupId =>
-      $composableBuilder(column: $table.groupId, builder: (column) => column);
-
-  GeneratedColumn<String> get entryMonth => $composableBuilder(
-      column: $table.entryMonth, builder: (column) => column);
-
-  GeneratedColumn<String> get entryMode =>
-      $composableBuilder(column: $table.entryMode, builder: (column) => column);
-
-  GeneratedColumn<double> get savingsCollected => $composableBuilder(
-      column: $table.savingsCollected, builder: (column) => column);
-
-  GeneratedColumn<double> get internalLoanPrincipalDisbursed =>
-      $composableBuilder(
-          column: $table.internalLoanPrincipalDisbursed,
-          builder: (column) => column);
-
-  GeneratedColumn<double> get internalLoanInterestCollected =>
-      $composableBuilder(
-          column: $table.internalLoanInterestCollected,
-          builder: (column) => column);
-
-  GeneratedColumn<double> get toBank =>
-      $composableBuilder(column: $table.toBank, builder: (column) => column);
-
-  GeneratedColumn<double> get fromBank =>
-      $composableBuilder(column: $table.fromBank, builder: (column) => column);
-
-  GeneratedColumn<double> get sofaLoanDisbursed => $composableBuilder(
-      column: $table.sofaLoanDisbursed, builder: (column) => column);
-
-  GeneratedColumn<double> get sofaLoanRepayment => $composableBuilder(
-      column: $table.sofaLoanRepayment, builder: (column) => column);
-
-  GeneratedColumn<double> get sofaLoanInterestCollected => $composableBuilder(
-      column: $table.sofaLoanInterestCollected, builder: (column) => column);
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<String> get warningFlags => $composableBuilder(
-      column: $table.warningFlags, builder: (column) => column);
-
-  GeneratedColumn<String> get syncStatus => $composableBuilder(
-      column: $table.syncStatus, builder: (column) => column);
-
-  GeneratedColumn<String> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<String> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-}
-
 class $$MonthEntriesTableTableTableManager extends RootTableManager<
     _$LocalDb,
     $MonthEntriesTableTable,
     MonthEntriesTableData,
     $$MonthEntriesTableTableFilterComposer,
     $$MonthEntriesTableTableOrderingComposer,
-    $$MonthEntriesTableTableAnnotationComposer,
     $$MonthEntriesTableTableCreateCompanionBuilder,
-    $$MonthEntriesTableTableUpdateCompanionBuilder,
-    (
-      MonthEntriesTableData,
-      BaseReferences<_$LocalDb, $MonthEntriesTableTable, MonthEntriesTableData>
-    ),
-    MonthEntriesTableData,
-    PrefetchHooks Function()> {
+    $$MonthEntriesTableTableUpdateCompanionBuilder> {
   $$MonthEntriesTableTableTableManager(
       _$LocalDb db, $MonthEntriesTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$MonthEntriesTableTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$MonthEntriesTableTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$MonthEntriesTableTableAnnotationComposer(
-                  $db: db, $table: table),
+          filteringComposer:
+              $$MonthEntriesTableTableFilterComposer(ComposerState(db, table)),
+          orderingComposer: $$MonthEntriesTableTableOrderingComposer(
+              ComposerState(db, table)),
           updateCompanionCallback: ({
             Value<String> localId = const Value.absent(),
             Value<int?> serverId = const Value.absent(),
@@ -1738,32 +1856,208 @@ class $$MonthEntriesTableTableTableManager extends RootTableManager<
             updatedAt: updatedAt,
             rowid: rowid,
           ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
         ));
 }
 
-typedef $$MonthEntriesTableTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDb,
-    $MonthEntriesTableTable,
-    MonthEntriesTableData,
-    $$MonthEntriesTableTableFilterComposer,
-    $$MonthEntriesTableTableOrderingComposer,
-    $$MonthEntriesTableTableAnnotationComposer,
-    $$MonthEntriesTableTableCreateCompanionBuilder,
-    $$MonthEntriesTableTableUpdateCompanionBuilder,
-    (
-      MonthEntriesTableData,
-      BaseReferences<_$LocalDb, $MonthEntriesTableTable, MonthEntriesTableData>
-    ),
-    MonthEntriesTableData,
-    PrefetchHooks Function()>;
+class $$MonthEntriesTableTableFilterComposer
+    extends FilterComposer<_$LocalDb, $MonthEntriesTableTable> {
+  $$MonthEntriesTableTableFilterComposer(super.$state);
+  ColumnFilters<String> get localId => $state.composableBuilder(
+      column: $state.table.localId,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get serverId => $state.composableBuilder(
+      column: $state.table.serverId,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get groupId => $state.composableBuilder(
+      column: $state.table.groupId,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get entryMonth => $state.composableBuilder(
+      column: $state.table.entryMonth,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get entryMode => $state.composableBuilder(
+      column: $state.table.entryMode,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get savingsCollected => $state.composableBuilder(
+      column: $state.table.savingsCollected,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get internalLoanPrincipalDisbursed =>
+      $state.composableBuilder(
+          column: $state.table.internalLoanPrincipalDisbursed,
+          builder: (column, joinBuilders) =>
+              ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get internalLoanInterestCollected =>
+      $state.composableBuilder(
+          column: $state.table.internalLoanInterestCollected,
+          builder: (column, joinBuilders) =>
+              ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get toBank => $state.composableBuilder(
+      column: $state.table.toBank,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get fromBank => $state.composableBuilder(
+      column: $state.table.fromBank,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get sofaLoanDisbursed => $state.composableBuilder(
+      column: $state.table.sofaLoanDisbursed,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get sofaLoanRepayment => $state.composableBuilder(
+      column: $state.table.sofaLoanRepayment,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get sofaLoanInterestCollected =>
+      $state.composableBuilder(
+          column: $state.table.sofaLoanInterestCollected,
+          builder: (column, joinBuilders) =>
+              ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get notes => $state.composableBuilder(
+      column: $state.table.notes,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get warningFlags => $state.composableBuilder(
+      column: $state.table.warningFlags,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get syncStatus => $state.composableBuilder(
+      column: $state.table.syncStatus,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$MonthEntriesTableTableOrderingComposer
+    extends OrderingComposer<_$LocalDb, $MonthEntriesTableTable> {
+  $$MonthEntriesTableTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get localId => $state.composableBuilder(
+      column: $state.table.localId,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get serverId => $state.composableBuilder(
+      column: $state.table.serverId,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get groupId => $state.composableBuilder(
+      column: $state.table.groupId,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get entryMonth => $state.composableBuilder(
+      column: $state.table.entryMonth,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get entryMode => $state.composableBuilder(
+      column: $state.table.entryMode,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get savingsCollected => $state.composableBuilder(
+      column: $state.table.savingsCollected,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get internalLoanPrincipalDisbursed =>
+      $state.composableBuilder(
+          column: $state.table.internalLoanPrincipalDisbursed,
+          builder: (column, joinBuilders) =>
+              ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get internalLoanInterestCollected =>
+      $state.composableBuilder(
+          column: $state.table.internalLoanInterestCollected,
+          builder: (column, joinBuilders) =>
+              ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get toBank => $state.composableBuilder(
+      column: $state.table.toBank,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get fromBank => $state.composableBuilder(
+      column: $state.table.fromBank,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get sofaLoanDisbursed => $state.composableBuilder(
+      column: $state.table.sofaLoanDisbursed,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get sofaLoanRepayment => $state.composableBuilder(
+      column: $state.table.sofaLoanRepayment,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get sofaLoanInterestCollected => $state
+      .composableBuilder(
+          column: $state.table.sofaLoanInterestCollected,
+          builder: (column, joinBuilders) =>
+              ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get notes => $state.composableBuilder(
+      column: $state.table.notes,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get warningFlags => $state.composableBuilder(
+      column: $state.table.warningFlags,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get syncStatus => $state.composableBuilder(
+      column: $state.table.syncStatus,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
 
 class $LocalDbManager {
   final _$LocalDb _db;
   $LocalDbManager(this._db);
+  $$UserCacheTableTableTableManager get userCacheTable =>
+      $$UserCacheTableTableTableManager(_db, _db.userCacheTable);
   $$GroupsTableTableTableManager get groupsTable =>
       $$GroupsTableTableTableManager(_db, _db.groupsTable);
   $$MonthEntriesTableTableTableManager get monthEntriesTable =>

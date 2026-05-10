@@ -73,8 +73,22 @@ Every entry is written **locally first** via Drift (SQLite on Android/iOS, Index
 
 **Auth** is not yet implemented — `users` table and `UserRole` enum exist but there is no login endpoint or JWT middleware.
 
+### Auth design (to be built)
+
+No sign-up flow. Users are created manually in the backend database by an admin.
+
+**Online login:** POST credentials to `/api/v1/auth/login` → receive JWT → store in `flutter_secure_storage`. On success, immediately run an initial sync (download groups + entries from server into local Drift DB).
+
+**Offline login:** compare entered password against a locally cached SHA-256 hash stored during the last successful online login. Offline login only works after at least one successful online login on that device.
+
+**Critical assumption:** field workers must complete their first login from a location with internet (e.g. the SOFA office). This seeds the local DB with credential cache, groups, and entries. Without it, offline mode does not work.
+
+On every subsequent online login the app re-syncs groups and entries to keep local data fresh.
+
 ### What's not built yet
 
+- Auth / JWT login endpoint and middleware
+- Initial sync (download) triggered on online login
+- Local credential cache table in Drift for offline login
 - AI image extraction (models defined, no service or upload endpoint)
-- Auth / JWT login endpoint  
 - Flutter `flutter_secure_storage` on web requires additional setup (falls back to `localStorage`)

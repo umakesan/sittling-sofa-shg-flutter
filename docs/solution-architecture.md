@@ -245,17 +245,30 @@ Warnings are informational and should not block save.
 
 V1 should support draft capture with later sync.
 
+### Prerequisite: first login must be online
+
+**A user must complete at least one successful online login before the app can be used offline.**
+
+During the first online login the app performs an initial sync (download) that:
+1. Caches the user's credentials locally (user ID + hashed password) so future offline logins are possible.
+2. Downloads all active groups from the server into the local database.
+3. Downloads the user's existing month entries from the server into the local database.
+
+Without this initial online session, there is no local credential cache and no local data — offline mode will not work. Field workers should be advised to complete their first login from a location with internet connectivity (e.g. the SOFA office) before going to the field.
+
 ### Local behavior
 
 - store draft form values locally
 - store pending upload metadata locally
 - mark entries as `draft` until sync succeeds
+- offline login is validated against locally cached credentials (user ID + SHA-256 hash of password)
 
 ### Sync rules
 
 - server owns final record IDs
 - client uses temporary local IDs
 - retries are idempotent by client submission key
+- on every successful online login the app re-syncs groups and entries from the server (keeps local data fresh)
 
 ## 10. Suggested implementation order
 

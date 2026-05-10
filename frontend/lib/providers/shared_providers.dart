@@ -5,6 +5,7 @@ import '../api/api_client.dart';
 import '../database/local_db.dart';
 import '../repositories/entry_repository.dart';
 import '../repositories/group_repository.dart';
+import '../services/auth_service.dart';
 
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
 
@@ -25,4 +26,11 @@ final entryRepositoryProvider = Provider<EntryRepository>((ref) {
   final api = ref.read(apiClientProvider);
   if (kIsWeb) return ApiEntryRepository(api: api);
   return LocalEntryRepository(db: ref.read(localDbProvider), api: api);
+});
+
+final authServiceProvider = Provider<AuthService>((ref) {
+  return AuthService(
+    api: ref.read(apiClientProvider),
+    db: kIsWeb ? null : ref.read(localDbProvider),
+  );
 });

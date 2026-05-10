@@ -50,8 +50,8 @@ class LedgerScreen extends ConsumerWidget {
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              headingRowColor: WidgetStatePropertyAll(
-                  const Color(0xFF2D6A4F).withValues(alpha: 0.1)),
+              headingRowColor: MaterialStatePropertyAll(
+                  const Color(0xFF2D6A4F).withOpacity(0.1)),
               columns: const [
                 DataColumn(label: Text('Month')),
                 DataColumn(label: Text('Savings'), numeric: true),

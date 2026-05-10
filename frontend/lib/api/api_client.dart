@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../models/app_user.dart';
 import '../models/group.dart';
 import '../models/month_entry.dart';
 
@@ -30,6 +31,20 @@ class ApiClient {
   }
 
   // -- Auth --
+
+  Future<({String token, AppUser user})> login(String userId, String password) async {
+    final response = await _dio.post('/auth/login', data: {
+      'user_id': userId,
+      'password': password,
+    });
+    final data = response.data as Map<String, dynamic>;
+    final user = AppUser(
+      userId: data['user_id'] as String,
+      name: data['name'] as String,
+      role: data['role'] as String,
+    );
+    return (token: data['token'] as String, user: user);
+  }
 
   Future<void> saveToken(String token) =>
       _storage.write(key: 'jwt_token', value: token);

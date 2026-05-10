@@ -6,6 +6,8 @@ import 'package:drift_flutter/drift_flutter.dart';
 import '../models/group.dart';
 import '../models/month_entry.dart';
 
+import '../models/app_user.dart';
+
 part 'local_db.g.dart';
 
 // ---------------------------------------------------------------------------
@@ -24,6 +26,19 @@ class GroupsTable extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+class UserCacheTable extends Table {
+  @override
+  String get tableName => 'user_cache';
+
+  TextColumn get userId => text().named('user_id')();
+  TextColumn get passwordHash => text().named('password_hash')();
+  TextColumn get name => text()();
+  TextColumn get role => text()();
+
+  @override
+  Set<Column> get primaryKey => {userId};
 }
 
 class MonthEntriesTable extends Table {
@@ -67,12 +82,36 @@ class MonthEntriesTable extends Table {
 // Database class
 // ---------------------------------------------------------------------------
 
-@DriftDatabase(tables: [GroupsTable, MonthEntriesTable])
+@DriftDatabase(tables: [UserCacheTable, GroupsTable, MonthEntriesTable])
 class LocalDb extends _$LocalDb {
   LocalDb() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
+
+  // -- User cache (offline auth) --
+
+  Future<void> upsertUserCache(AppUser user, String passwordHash) async {
+    await into(userCacheTable).insertOnConflictUpdate(
+      UserCacheTableCompanion.insert(
+        userId: user.userId,
+        passwordHash: passwordHash,
+        name: user.name,
+        role: user.role,
+      ),
+    );
+  }
+
+  Future<({String passwordHash, AppUser user})?> getCachedUser(String userId) async {
+    final row = await (select(userCacheTable)
+          ..where((t) => t.userId.equals(userId)))
+        .getSingleOrNull();
+    if (row == null) return null;
+    return (
+      passwordHash: row.passwordHash,
+      user: AppUser(userId: row.userId, name: row.name, role: row.role),
+    );
+  }
 
   // -- Groups --
 
@@ -153,6 +192,49 @@ class LocalDb extends _$LocalDb {
           ..where((t) => t.syncStatus.equals('pending_sync')))
         .get();
     return rows.map(_rowToEntry).toList();
+  }
+
+  // Downloads server entries without overwriting device-created ones that are already synced.
+  Future<void> upsertServerEntries(List<MonthEntry> entries) async {
+    final knownServerIds = await _getKnownServerIds();
+    final incoming = entries
+        .where((e) => e.serverId != null && !knownServerIds.contains(e.serverId))
+        .toList();
+    if (incoming.isEmpty) return;
+    await batch((b) {
+      b.insertAllOnConflictUpdate(
+        monthEntriesTable,
+        incoming.map(
+          (e) => MonthEntriesTableCompanion.insert(
+            localId: e.localId,
+            serverId: Value(e.serverId),
+            groupId: e.groupId,
+            entryMonth: e.entryMonth,
+            entryMode: Value(e.entryMode.name),
+            savingsCollected: Value(e.savingsCollected),
+            internalLoanPrincipalDisbursed: Value(e.internalLoanPrincipalDisbursed),
+            internalLoanInterestCollected: Value(e.internalLoanInterestCollected),
+            toBank: Value(e.toBank),
+            fromBank: Value(e.fromBank),
+            sofaLoanDisbursed: Value(e.sofaLoanDisbursed),
+            sofaLoanRepayment: Value(e.sofaLoanRepayment),
+            sofaLoanInterestCollected: Value(e.sofaLoanInterestCollected),
+            notes: Value(e.notes),
+            warningFlags: Value(jsonEncode(e.warningFlags)),
+            syncStatus: const Value('synced'),
+            createdAt: e.createdAt.toIso8601String(),
+            updatedAt: e.updatedAt.toIso8601String(),
+          ),
+        ),
+      );
+    });
+  }
+
+  Future<Set<int>> _getKnownServerIds() async {
+    final rows = await (select(monthEntriesTable)
+          ..where((t) => t.serverId.isNotNull()))
+        .get();
+    return rows.map((r) => r.serverId!).toSet();
   }
 
   Future<void> updateEntry(MonthEntry entry) async {

@@ -43,6 +43,32 @@ class MonthEntry {
     required this.updatedAt,
   });
 
+  factory MonthEntry.fromServerJson(Map<String, dynamic> json) {
+    final now = DateTime.now();
+    return MonthEntry(
+      localId: 'srv_${json['id']}',
+      serverId: json['id'] as int,
+      groupId: json['group_id'] as int,
+      entryMonth: json['entry_month'] as String,
+      entryMode: json['entry_mode'] == 'prefill' ? EntryMode.prefill : EntryMode.manual,
+      savingsCollected: (json['savings_collected'] as num).toDouble(),
+      internalLoanPrincipalDisbursed:
+          (json['internal_loan_principal_disbursed'] as num).toDouble(),
+      internalLoanInterestCollected:
+          (json['internal_loan_interest_collected'] as num).toDouble(),
+      toBank: (json['to_bank'] as num).toDouble(),
+      fromBank: (json['from_bank'] as num).toDouble(),
+      sofaLoanDisbursed: (json['sofa_loan_disbursed'] as num).toDouble(),
+      sofaLoanRepayment: (json['sofa_loan_repayment'] as num).toDouble(),
+      sofaLoanInterestCollected: (json['sofa_loan_interest_collected'] as num).toDouble(),
+      notes: json['notes'] as String?,
+      warningFlags: List<String>.from((json['warning_flags'] as List?) ?? []),
+      syncStatus: SyncStatus.synced,
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ?? now,
+      updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? '') ?? now,
+    );
+  }
+
   // Build the JSON body to POST to FastAPI
   Map<String, dynamic> toApiPayload() => {
         'group_id': groupId,
