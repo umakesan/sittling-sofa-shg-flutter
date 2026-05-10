@@ -15,6 +15,7 @@ Sittilingi SHG Portal — a Flutter mobile app (offline-first) paired with a Fas
 - Flutter 3.19+ (`flutter doctor` should pass)
 - Docker Desktop (for local Postgres)
 - Git
+- **For Android APK builds only:** Android Studio with Android SDK Platform 35 installed (see step 9)
 
 ### 1 — Clone and enter the repo
 ```bash
@@ -131,6 +132,59 @@ Done.
 
 The script is idempotent — re-running it upserts without creating duplicates.
 
+### 9 — Android APK build setup (only needed for mobile builds)
+
+The `android/` directory and all Gradle config are already committed. You only need to install the correct Android SDK on your machine.
+
+#### Install Android SDK Platform 35
+
+1. Open **Android Studio** → **SDK Manager** (or **More Actions → SDK Manager** from the welcome screen).
+2. Under **SDK Platforms**, check **Android API 35** and click Apply / OK.
+3. Wait for the download to complete (total SDK directory for API 35 is ~127 MB).
+
+#### Point Flutter at the SDK (if `flutter doctor` complains)
+
+**Windows** — Flutter sometimes finds a stale legacy SDK at `C:\Users\<you>\AppData\Local\Android\sdk` (lowercase). If `flutter doctor` reports a wrong SDK path, run:
+```powershell
+flutter config --android-sdk "C:\Users\<you>\AppData\Local\Android\Sdk"
+```
+The correct path (uppercase `Sdk`) is where Android Studio installs by default.
+
+**macOS** — Flutter auto-detects the SDK at `~/Library/Android/sdk`. If `flutter doctor` complains, run:
+```bash
+flutter config --android-sdk ~/Library/Android/sdk
+```
+
+#### Verify everything is ready
+```bash
+flutter doctor -v
+```
+All items should be green. The important ones are `Flutter`, `Android toolchain`, and `Android Studio`.
+
+#### Build the APK
+
+Use the `/build-apk` Claude Code skill (`.claude/commands/build-apk.md`) or run manually:
+```bash
+cd frontend
+
+# Against the shared dev server (http://139.59.60.230:8000)
+flutter build apk --dart-define-from-file=.env.dev.json --release
+
+# Against your local backend (use 10.0.2.2 not localhost if testing in emulator)
+flutter build apk --dart-define-from-file=.env.local.json --release
+```
+
+Output: `frontend/build/app/outputs/flutter-apk/app-release.apk`
+
+Install on a running emulator or device:
+```bash
+# macOS/Linux
+adb install -r build/app/outputs/flutter-apk/app-release.apk
+
+# Windows (if adb not on PATH)
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" install -r build/app/outputs/flutter-apk/app-release.apk
+```
+
 ---
 
 ## Development commands
@@ -189,7 +243,7 @@ Key identifiers:
 
 **Navigation:** `go_router` in `main.dart`. Routes: `/login` → `/` (HomeScreen) → `/entries/new` → `/ledger/:groupId` → `/dashboard`.
 
-**Local DB:** Drift schema in `database/local_db.dart`. After any schema change, run `build_runner build` to regenerate `local_db.g.dart`.
+**Local DB:** Drift schema in `database/local_db.dart`. After any schema change, run `build_runner build` to regenerate `local_db.g.dart`. The SQLite connection uses `NativeDatabase.createBackgroundConnection()` directly (with `sqlite3_flutter_libs` + `path_provider`) — **do not add `drift_flutter` as a dependency**; it requires Dart 3.4+ and was removed specifically because the current SDK is 3.3.x.
 
 **Warning logic is duplicated intentionally:** `entries_provider.dart::_buildWarnings()` mirrors `backend/app/services/validation.py::build_warning_flags()`. Both must stay in sync.
 
@@ -273,6 +327,22 @@ A `ConsumerStatefulWidget` Drawer attached to `HomeScreen`. Behaviour differs by
 | Drawer sync button | Hidden | Visible with pending count |
 
 Auto-sync on launch: `AuthService.restoreSession()` fires `_initialSync()` in the background (non-blocking). Fetches fresh groups and entries from server, upserts into local Drift DB. UI loads from local DB instantly.
+
+### Android build toolchain
+
+The committed Gradle config targets these exact versions — do not downgrade them:
+
+| Component | Version | File |
+|-----------|---------|------|
+| Android Gradle Plugin (AGP) | 8.3.0 | `android/settings.gradle` |
+| Gradle wrapper | 8.4 | `android/gradle/wrapper/gradle-wrapper.properties` |
+| Kotlin Android plugin | 1.9.22 | `android/settings.gradle` |
+| `compileSdk` / `targetSdkVersion` | 35 | `android/app/build.gradle` |
+| `minSdkVersion` | 21 (Android 5+) | `android/app/build.gradle` |
+
+AGP 8.3.0 is the minimum that can parse Android API 35 resource files. Older AGP versions (e.g. 7.x) produce `AAPT2: RES_TABLE_TYPE_TYPE entry offsets overlap` errors.
+
+The app declares `<supports-screens>` for all screen sizes and uses `ConstrainedBox(maxWidth: 640)` on content-heavy screens to avoid stretch on tablets.
 
 ### Known data notes
 
