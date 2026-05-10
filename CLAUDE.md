@@ -6,6 +6,83 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Sittilingi SHG Portal — a Flutter mobile app (offline-first) paired with a FastAPI backend for SHG monthly bookkeeping used by SOFA field workers. Full product requirements and API spec are in `docs/solution-architecture.md`.
 
+## First-time setup (new developer)
+
+### Prerequisites
+- Python 3.11+
+- Flutter 3.19+ (`flutter doctor` should pass)
+- Docker Desktop (for local Postgres)
+- Git
+
+### 1 — Clone and enter the repo
+```bash
+git clone https://github.com/umakesan/sittling-sofa-shg-flutter
+cd sittling-sofa-shg-flutter
+```
+
+### 2 — Backend: create `.env`
+Create `backend/.env` — this file is gitignored and must be created manually:
+```
+DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/sittilingi_shg
+CORS_ORIGINS=["http://localhost:4200","http://localhost:8000","http://localhost"]
+JWT_SECRET_KEY=change-me-in-production
+```
+For the production server use the real DB credentials instead of the defaults above.
+
+### 3 — Backend: install dependencies and run migrations
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+```
+Start Postgres (Docker):
+```bash
+cd ..
+docker compose up -d db
+```
+Apply migrations and seed data:
+```bash
+cd backend
+alembic upgrade head
+python seed.py
+```
+
+### 4 — Flutter: install dependencies
+```bash
+cd frontend
+flutter pub get
+# local_db.g.dart is committed — no need to run build_runner unless schema changes
+```
+
+### 5 — API URL
+- **Web builds** call `http://139.59.60.230:8000` (live server) — no change needed
+- **Native (Android/iOS) dev** calls `localhost:8000` — run the backend locally first
+- To point anywhere else, edit `baseUrl` in `frontend/lib/providers/shared_providers.dart`
+
+### 6 — Run
+```bash
+# Backend
+cd backend && uvicorn app.main:app --reload
+
+# Flutter web (in a separate terminal)
+cd frontend
+flutter build web --profile
+cd build/web && python -m http.server 4200
+# then open http://localhost:4200
+
+# Flutter native
+cd frontend && flutter run
+```
+
+### Default login credentials (seeded)
+| User ID | Password | Role |
+|---------|----------|------|
+| `admin` | `admin123` | Admin |
+| `field1` | `sofa1234` | Field Worker |
+
+---
+
 ## Development commands
 
 ### Database (Docker)
@@ -71,24 +148,20 @@ Every entry is written **locally first** via Drift (SQLite on Android/iOS, Index
 
 **Tests** use SQLite in-memory (no Postgres needed). `conftest.py` seeds two Groups and a User, overrides `db_session`, and suppresses startup events.
 
-**Auth** is not yet implemented — `users` table and `UserRole` enum exist but there is no login endpoint or JWT middleware.
+### Auth
 
-### Auth design (to be built)
+No sign-up flow. Users are created manually in the backend database by an admin (via `seed.py` or direct DB insert).
 
-No sign-up flow. Users are created manually in the backend database by an admin.
+**Online login:** POST credentials to `/api/v1/auth/login` → JWT (7-day expiry) stored in `flutter_secure_storage`. On success, groups and entries are synced from server into local Drift DB.
 
-**Online login:** POST credentials to `/api/v1/auth/login` → receive JWT → store in `flutter_secure_storage`. On success, immediately run an initial sync (download groups + entries from server into local Drift DB).
+**Offline login:** compares entered password against a SHA-256 hash cached locally during the last successful online login. Requires at least one prior online login on that device.
 
-**Offline login:** compare entered password against a locally cached SHA-256 hash stored during the last successful online login. Offline login only works after at least one successful online login on that device.
+**Critical assumption:** field workers must first log in from a location with internet (e.g. the SOFA office). This seeds the local DB with credentials, groups, and entries needed for offline use.
 
-**Critical assumption:** field workers must complete their first login from a location with internet (e.g. the SOFA office). This seeds the local DB with credential cache, groups, and entries. Without it, offline mode does not work.
-
-On every subsequent online login the app re-syncs groups and entries to keep local data fresh.
+**Web:** always online — no local DB used. Auth and data come entirely from the API.
 
 ### What's not built yet
 
-- Auth / JWT login endpoint and middleware
-- Initial sync (download) triggered on online login
-- Local credential cache table in Drift for offline login
 - AI image extraction (models defined, no service or upload endpoint)
-- Flutter `flutter_secure_storage` on web requires additional setup (falls back to `localStorage`)
+- Month-on-month jump validation
+- Role-based access enforcement beyond the `role` field in JWT
