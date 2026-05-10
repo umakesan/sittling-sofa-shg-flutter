@@ -13,6 +13,7 @@ frontend/build/
 frontend/.flutter-plugins
 frontend/.flutter-plugins-dependencies
 frontend/.packages
+frontend/windows/
 
 # Env
 .env
