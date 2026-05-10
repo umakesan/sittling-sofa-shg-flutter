@@ -173,22 +173,6 @@ def run():
     print(f"\nTotal month-records to insert: {len(all_records)}")
 
     with Session(engine) as session:
-        # --- villages ---
-        village_names = sorted({r["village_name"] for r in all_records})
-        village_id: dict[str, int] = {}
-        for name in village_names:
-            result = session.execute(
-                text("""
-                    INSERT INTO villages (name, created_at, updated_at)
-                    VALUES (:name, NOW(), NOW())
-                    ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
-                    RETURNING id
-                """),
-                {"name": name},
-            )
-            village_id[name] = result.scalar_one()
-        print(f"Inserted {len(village_id)} villages")
-
         # --- groups ---
         group_keys = {(r["group_name"], r["village_name"]) for r in all_records}
         group_id: dict[tuple[str, str], int] = {}
