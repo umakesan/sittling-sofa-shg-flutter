@@ -1,0 +1,464 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
+import '../models/month_entry.dart';
+import '../providers/entries_provider.dart';
+import '../providers/groups_provider.dart';
+import '../widgets/warning_panel.dart';
+
+class NewEntryScreen extends ConsumerStatefulWidget {
+  const NewEntryScreen({super.key});
+
+  @override
+  ConsumerState<NewEntryScreen> createState() => _NewEntryScreenState();
+}
+
+class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
+  int _step = 1;
+
+  // Step 1
+  int? _groupId;
+  DateTime? _month;
+
+  // Step 2
+  EntryMode _mode = EntryMode.manual;
+
+  // Step 3 — form fields
+  final _savings = TextEditingController();
+  final _internalPrincipal = TextEditingController();
+  final _internalInterest = TextEditingController();
+  final _toBank = TextEditingController();
+  final _fromBank = TextEditingController();
+  final _sofaDisbursed = TextEditingController();
+  final _sofaRepayment = TextEditingController();
+  final _sofaInterest = TextEditingController();
+  final _notes = TextEditingController();
+
+  bool _saving = false;
+  String? _saveError;
+
+  @override
+  void dispose() {
+    for (final c in [
+      _savings, _internalPrincipal, _internalInterest,
+      _toBank, _fromBank, _sofaDisbursed, _sofaRepayment,
+      _sofaInterest, _notes,
+    ]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  double _val(TextEditingController c) =>
+      double.tryParse(c.text.trim()) ?? 0;
+
+  List<String> get _warnings {
+    final w = <String>[];
+    final savings = _val(_savings);
+    final interest = _val(_internalInterest);
+    final toBank = _val(_toBank);
+    final fromBank = _val(_fromBank);
+    if (toBank > savings + interest + 1) {
+      w.add('To bank exceeds visible collections. Check the figures.');
+    }
+    if (fromBank > 0 && toBank == 0) {
+      w.add('Bank withdrawal present with no deposit this month.');
+    }
+    return w;
+  }
+
+  Future<void> _save() async {
+    setState(() { _saving = true; _saveError = null; });
+    try {
+      await ref.read(entriesProvider.notifier).createEntry(
+        groupId: _groupId!,
+        entryMonth: DateFormat('yyyy-MM-01').format(_month!),
+        entryMode: _mode,
+        savingsCollected: _val(_savings),
+        internalLoanPrincipalDisbursed: _val(_internalPrincipal),
+        internalLoanInterestCollected: _val(_internalInterest),
+        toBank: _val(_toBank),
+        fromBank: _val(_fromBank),
+        sofaLoanDisbursed: _val(_sofaDisbursed),
+        sofaLoanRepayment: _val(_sofaRepayment),
+        sofaLoanInterestCollected: _val(_sofaInterest),
+        notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      );
+      if (mounted) context.go('/');
+    } catch (e) {
+      setState(() { _saveError = 'Failed to save. Please try again.'; });
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF2D6A4F),
+        foregroundColor: Colors.white,
+        title: Text('New Entry — Step $_step of 3'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (_step > 1) {
+              setState(() => _step--);
+            } else {
+              context.go('/');
+            }
+          },
+        ),
+      ),
+      body: SafeArea(
+        child: switch (_step) {
+          1 => _StepSelectGroup(
+              selectedGroupId: _groupId,
+              selectedMonth: _month,
+              onGroupSelected: (id) => setState(() => _groupId = id),
+              onMonthSelected: (m) => setState(() => _month = m),
+              onContinue: () => setState(() => _step = 2),
+            ),
+          2 => _StepChooseMode(
+              mode: _mode,
+              onModeChanged: (m) => setState(() => _mode = m),
+              onContinue: () => setState(() => _step = 3),
+            ),
+          _ => _StepForm(
+              savings: _savings,
+              internalPrincipal: _internalPrincipal,
+              internalInterest: _internalInterest,
+              toBank: _toBank,
+              fromBank: _fromBank,
+              sofaDisbursed: _sofaDisbursed,
+              sofaRepayment: _sofaRepayment,
+              sofaInterest: _sofaInterest,
+              notes: _notes,
+              warnings: _warnings,
+              saving: _saving,
+              saveError: _saveError,
+              onSave: _save,
+            ),
+        },
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 1 — Select group and month
+// ---------------------------------------------------------------------------
+
+class _StepSelectGroup extends ConsumerWidget {
+  final int? selectedGroupId;
+  final DateTime? selectedMonth;
+  final ValueChanged<int> onGroupSelected;
+  final ValueChanged<DateTime> onMonthSelected;
+  final VoidCallback onContinue;
+
+  const _StepSelectGroup({
+    required this.selectedGroupId,
+    required this.selectedMonth,
+    required this.onGroupSelected,
+    required this.onMonthSelected,
+    required this.onContinue,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final groupsAsync = ref.watch(groupsProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 20, 16, 12),
+          child: Text('Select group and month',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        ),
+        Expanded(
+          child: groupsAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text('Could not load groups: $e',
+                  style: const TextStyle(color: Colors.red)),
+            ),
+            data: (groups) => ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: groups.length,
+              itemBuilder: (context, i) {
+                final g = groups[i];
+                return RadioListTile<int>(
+                  title: Text(g.name),
+                  subtitle: Text(g.villageName),
+                  value: g.id,
+                  groupValue: selectedGroupId,
+                  onChanged: (v) => onGroupSelected(v!),
+                  activeColor: const Color(0xFF2D6A4F),
+                  tileColor: selectedGroupId == g.id
+                      ? const Color(0xFFD1FAE5)
+                      : null,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                );
+              },
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              OutlinedButton.icon(
+                icon: const Icon(Icons.calendar_month),
+                label: Text(selectedMonth == null
+                    ? 'Select month'
+                    : DateFormat('MMMM yyyy').format(selectedMonth!)),
+                onPressed: () async {
+                  final now = DateTime.now();
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: selectedMonth ?? now,
+                    firstDate: DateTime(2020),
+                    lastDate: now,
+                    initialEntryMode: DatePickerEntryMode.calendarOnly,
+                    helpText: 'Select month',
+                  );
+                  if (picked != null) {
+                    onMonthSelected(DateTime(picked.year, picked.month));
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: selectedGroupId != null && selectedMonth != null
+                    ? onContinue
+                    : null,
+                style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF2D6A4F),
+                    minimumSize: const Size(double.infinity, 48)),
+                child: const Text('Continue →'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 2 — Choose entry mode
+// ---------------------------------------------------------------------------
+
+class _StepChooseMode extends StatelessWidget {
+  final EntryMode mode;
+  final ValueChanged<EntryMode> onModeChanged;
+  final VoidCallback onContinue;
+
+  const _StepChooseMode({
+    required this.mode,
+    required this.onModeChanged,
+    required this.onContinue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('How will you enter the data?',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
+          _ModeCard(
+            icon: Icons.camera_alt,
+            title: 'Upload register images',
+            description: 'AI reads the register, you verify the numbers.',
+            selected: mode == EntryMode.prefill,
+            onTap: () => onModeChanged(EntryMode.prefill),
+          ),
+          const SizedBox(height: 12),
+          _ModeCard(
+            icon: Icons.edit,
+            title: 'Enter manually',
+            description: 'Type the monthly totals directly from your register.',
+            selected: mode == EntryMode.manual,
+            onTap: () => onModeChanged(EntryMode.manual),
+          ),
+          const Spacer(),
+          FilledButton(
+            onPressed: onContinue,
+            style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF2D6A4F),
+                minimumSize: const Size(double.infinity, 48)),
+            child: const Text('Continue →'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModeCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ModeCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: selected ? const Color(0xFF2D6A4F) : Colors.grey.shade300,
+            width: selected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          color: selected ? const Color(0xFFD1FAE5) : Colors.white,
+        ),
+        child: Row(
+          children: [
+            Icon(icon,
+                size: 32,
+                color: selected ? const Color(0xFF2D6A4F) : Colors.grey),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text(description,
+                      style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 3 — Financial totals form
+// ---------------------------------------------------------------------------
+
+class _StepForm extends StatelessWidget {
+  final TextEditingController savings;
+  final TextEditingController internalPrincipal;
+  final TextEditingController internalInterest;
+  final TextEditingController toBank;
+  final TextEditingController fromBank;
+  final TextEditingController sofaDisbursed;
+  final TextEditingController sofaRepayment;
+  final TextEditingController sofaInterest;
+  final TextEditingController notes;
+  final List<String> warnings;
+  final bool saving;
+  final String? saveError;
+  final VoidCallback onSave;
+
+  const _StepForm({
+    required this.savings,
+    required this.internalPrincipal,
+    required this.internalInterest,
+    required this.toBank,
+    required this.fromBank,
+    required this.sofaDisbursed,
+    required this.sofaRepayment,
+    required this.sofaInterest,
+    required this.notes,
+    required this.warnings,
+    required this.saving,
+    required this.saveError,
+    required this.onSave,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Review monthly totals',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          _MoneyField(label: 'Savings collected (₹)', controller: savings),
+          _MoneyField(label: 'Internal loan principal disbursed (₹)', controller: internalPrincipal),
+          _MoneyField(label: 'Internal loan interest collected (₹)', controller: internalInterest),
+          _MoneyField(label: 'To bank (₹)', controller: toBank),
+          _MoneyField(label: 'From bank (₹)', controller: fromBank),
+          _MoneyField(label: 'SOFA loan disbursed (₹)', controller: sofaDisbursed),
+          _MoneyField(label: 'SOFA loan repayment (₹)', controller: sofaRepayment),
+          _MoneyField(label: 'SOFA loan interest collected (₹)', controller: sofaInterest),
+          TextField(
+            controller: notes,
+            decoration: const InputDecoration(
+              labelText: 'Notes (optional)',
+              border: OutlineInputBorder(),
+            ),
+            maxLines: 2,
+          ),
+          const SizedBox(height: 16),
+          WarningPanel(warnings: warnings),
+          if (saveError != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(saveError!,
+                  style: const TextStyle(color: Colors.red)),
+            ),
+          FilledButton(
+            onPressed: saving ? null : onSave,
+            style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF2D6A4F),
+                minimumSize: const Size(double.infinity, 48)),
+            child: Text(saving ? 'Saving…' : 'Save entry →'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MoneyField extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+
+  const _MoneyField({required this.label, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: TextField(
+        controller: controller,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          prefixText: '₹ ',
+        ),
+      ),
+    );
+  }
+}
