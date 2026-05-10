@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../models/month_entry.dart';
@@ -58,7 +59,7 @@ class LedgerScreen extends ConsumerWidget {
                 DataColumn(label: Text('SOFA Loan'), numeric: true),
                 DataColumn(label: Text('Status')),
               ],
-              rows: groupEntries.map((e) => _entryRow(e)).toList(),
+              rows: groupEntries.map((e) => _entryRow(context, e)).toList(),
             ),
           );
         },
@@ -66,12 +67,14 @@ class LedgerScreen extends ConsumerWidget {
     );
   }
 
-  DataRow _entryRow(MonthEntry e) {
+  DataRow _entryRow(BuildContext context, MonthEntry e) {
     final month =
         DateFormat('MMM yyyy').format(DateTime.parse(e.entryMonth));
     final fmt = NumberFormat('#,##0', 'en_IN');
 
-    return DataRow(cells: [
+    return DataRow(
+      onSelectChanged: (_) => context.push('/entries/edit', extra: e),
+      cells: [
       DataCell(Text(month)),
       DataCell(Text('₹${fmt.format(e.savingsCollected)}')),
       DataCell(Text('₹${fmt.format(e.internalLoanPrincipalDisbursed)}')),

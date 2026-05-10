@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,6 +18,8 @@ class _SyncButtonState extends ConsumerState<SyncButton> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) return const SizedBox.shrink();
+
     final pendingCount = ref.watch(pendingCountProvider);
 
     final label = pendingCount > 0
