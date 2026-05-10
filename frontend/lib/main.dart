@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/new_entry_screen.dart';
+import 'screens/edit_entry_screen.dart';
 import 'screens/ledger_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'models/month_entry.dart';
 
 void main() {
   runApp(
@@ -30,6 +32,13 @@ final _router = GoRouter(
     GoRoute(
       path: '/entries/new',
       builder: (context, state) => const NewEntryScreen(),
+    ),
+    GoRoute(
+      path: '/entries/edit',
+      builder: (context, state) {
+        final entry = state.extra as MonthEntry;
+        return EditEntryScreen(entry: entry);
+      },
     ),
     GoRoute(
       path: '/ledger/:groupId',

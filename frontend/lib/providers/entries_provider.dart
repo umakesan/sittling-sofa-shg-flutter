@@ -1,17 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import '../database/local_db.dart';
 import '../database/sync_service.dart';
 import '../models/month_entry.dart';
 import 'shared_providers.dart';
 
 class EntriesNotifier extends AsyncNotifier<List<MonthEntry>> {
   @override
-  Future<List<MonthEntry>> build() async {
-    final db = ref.read(localDbProvider);
-    return db.getAllEntries();
-  }
+  Future<List<MonthEntry>> build() =>
+      ref.read(entryRepositoryProvider).getAll();
 
   Future<MonthEntry> createEntry({
     required int groupId,
@@ -27,7 +24,6 @@ class EntriesNotifier extends AsyncNotifier<List<MonthEntry>> {
     double sofaLoanInterestCollected = 0,
     String? notes,
   }) async {
-    final db = ref.read(localDbProvider);
     final now = DateTime.now();
     final entry = MonthEntry(
       localId: const Uuid().v4(),
@@ -52,13 +48,12 @@ class EntriesNotifier extends AsyncNotifier<List<MonthEntry>> {
       createdAt: now,
       updatedAt: now,
     );
-    await db.insertEntry(entry);
+    final saved = await ref.read(entryRepositoryProvider).insert(entry);
     ref.invalidateSelf();
-    return entry;
+    return saved;
   }
 
   Future<void> updateEntry(MonthEntry entry) async {
-    final db = ref.read(localDbProvider);
     final updated = entry.copyWith(
       warningFlags: _buildWarnings(
         savingsCollected: entry.savingsCollected,
@@ -68,15 +63,12 @@ class EntriesNotifier extends AsyncNotifier<List<MonthEntry>> {
       ),
       updatedAt: DateTime.now(),
     );
-    await db.updateEntry(updated);
+    await ref.read(entryRepositoryProvider).update(updated);
     ref.invalidateSelf();
   }
 
   Future<SyncReport> sync() async {
-    final db = ref.read(localDbProvider);
-    final api = ref.read(apiClientProvider);
-    final service = SyncService(db: db, api: api);
-    final report = await service.syncPending();
+    final report = await ref.read(entryRepositoryProvider).sync();
     if (report.synced > 0) ref.invalidateSelf();
     return report;
   }

@@ -168,6 +168,7 @@ class _EntryTile extends StatelessWidget {
       child: ListTile(
         title: Text(groupName),
         subtitle: Text('$villageName · $month'),
+        onTap: () => context.push('/entries/edit', extra: entry),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

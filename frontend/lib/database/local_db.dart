@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 
 import '../models/group.dart';
 import '../models/month_entry.dart';
@@ -118,7 +115,7 @@ class LocalDb extends _$LocalDb {
         serverId: Value(entry.serverId),
         groupId: entry.groupId,
         entryMonth: entry.entryMonth,
-        entryMode: entry.entryMode.name,
+        entryMode: Value(entry.entryMode.name),
         savingsCollected: Value(entry.savingsCollected),
         internalLoanPrincipalDisbursed: Value(entry.internalLoanPrincipalDisbursed),
         internalLoanInterestCollected: Value(entry.internalLoanInterestCollected),

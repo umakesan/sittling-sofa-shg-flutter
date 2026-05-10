@@ -191,18 +191,18 @@ class _StepSelectGroup extends ConsumerWidget {
               itemCount: groups.length,
               itemBuilder: (context, i) {
                 final g = groups[i];
-                return RadioListTile<int>(
+                final selected = g.id == selectedGroupId;
+                return ListTile(
                   title: Text(g.name),
                   subtitle: Text(g.villageName),
-                  value: g.id,
-                  groupValue: selectedGroupId,
-                  onChanged: (v) => onGroupSelected(v!),
-                  activeColor: const Color(0xFF2D6A4F),
-                  tileColor: selectedGroupId == g.id
-                      ? const Color(0xFFD1FAE5)
-                      : null,
+                  leading: Icon(
+                    selected ? Icons.check_circle : Icons.circle_outlined,
+                    color: selected ? const Color(0xFF2D6A4F) : Colors.grey,
+                  ),
+                  tileColor: selected ? const Color(0xFFD1FAE5) : null,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
+                  onTap: () => onGroupSelected(g.id),
                 );
               },
             ),
