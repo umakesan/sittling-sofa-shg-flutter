@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     app_name: str = "Sittilingi SHG Portal API"
     api_v1_prefix: str = "/api/v1"
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/sittilingi_shg"
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174", "http://localhost:4200"]
+    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174", "http://localhost:4200", "http://localhost:4201"]
 
     jwt_secret_key: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
