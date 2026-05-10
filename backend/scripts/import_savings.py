@@ -167,7 +167,7 @@ def run():
             continue
         ws = wb[sheet_name]
         records = parse_sheet(ws, village_name)
-        print(f"  {sheet_name:22s} → {village_name:22s}  {len(records):4d} month-records")
+        print(f"  {sheet_name:22s} -> {village_name:22s}  {len(records):4d} month-records")
         all_records.extend(records)
 
     print(f"\nTotal month-records to insert: {len(all_records)}")
@@ -223,7 +223,7 @@ def run():
                         sofa_loan_disbursed, sofa_loan_repayment, sofa_loan_interest_collected,
                         warning_flags, source_count, created_at, updated_at
                     ) VALUES (
-                        :group_id, :entry_month, 'manual', 'synced',
+                        :group_id, :entry_month, 'MANUAL', 'SYNCED',
                         :savings, :int_principal, :int_interest, :to_bank, :from_bank,
                         :sofa_dis, :sofa_ret, :sofa_int,
                         '[]', 0, NOW(), NOW()
