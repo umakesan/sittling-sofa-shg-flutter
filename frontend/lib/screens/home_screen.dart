@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../models/month_entry.dart';
 import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
-import '../widgets/sync_button.dart';
+import '../widgets/app_drawer.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -17,6 +17,7 @@ class HomeScreen extends ConsumerWidget {
     final groupsAsync = ref.watch(groupsProvider);
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('SHG Portal'),
         backgroundColor: const Color(0xFF2D6A4F),
@@ -25,7 +26,7 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.bar_chart),
             tooltip: 'Dashboard',
-            onPressed: () => context.go('/dashboard'),
+            onPressed: () => context.push('/dashboard'),
           ),
         ],
       ),
@@ -46,8 +47,6 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
 
-            const SizedBox(height: 12),
-            const SyncButton(),
             const SizedBox(height: 24),
 
             // Pending entries

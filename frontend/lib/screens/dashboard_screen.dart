@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../models/month_entry.dart';
@@ -17,6 +18,7 @@ class DashboardScreen extends ConsumerWidget {
         title: const Text('Dashboard'),
         backgroundColor: const Color(0xFF2D6A4F),
         foregroundColor: Colors.white,
+        leading: BackButton(onPressed: () => context.pop()),
       ),
       body: entriesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
