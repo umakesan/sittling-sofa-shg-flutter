@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../api/api_client.dart';
-import '../database/local_db.dart';
 import '../models/group.dart';
 import 'shared_providers.dart';
 

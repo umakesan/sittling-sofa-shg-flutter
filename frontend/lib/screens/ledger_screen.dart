@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../models/month_entry.dart';
-import '../models/group.dart';
 import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
 
@@ -51,7 +50,7 @@ class LedgerScreen extends ConsumerWidget {
             scrollDirection: Axis.horizontal,
             child: DataTable(
               headingRowColor: WidgetStatePropertyAll(
-                  const Color(0xFF2D6A4F).withOpacity(0.1)),
+                  const Color(0xFF2D6A4F).withValues(alpha: 0.1)),
               columns: const [
                 DataColumn(label: Text('Month')),
                 DataColumn(label: Text('Savings'), numeric: true),

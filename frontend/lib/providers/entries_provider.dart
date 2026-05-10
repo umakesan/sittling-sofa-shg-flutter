@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import '../database/local_db.dart';
 import '../database/sync_service.dart';
 import '../models/month_entry.dart';
 import 'shared_providers.dart';
