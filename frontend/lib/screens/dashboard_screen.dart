@@ -27,7 +27,11 @@ class DashboardScreen extends ConsumerWidget {
         ),
         data: (entries) {
           final summary = _summarise(entries);
-          return ListView(
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
               const Text('Village-wide totals',
@@ -66,6 +70,8 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ),
             ],
+              ),
+            ),
           );
         },
       ),

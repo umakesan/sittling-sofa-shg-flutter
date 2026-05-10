@@ -32,7 +32,11 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(groupsProvider.notifier).refreshFromServer(),
-        child: ListView(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             // Primary action
@@ -116,6 +120,8 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           ],
+            ),
+          ),
         ),
       ),
     );

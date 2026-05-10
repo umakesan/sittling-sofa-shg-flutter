@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
+  cupertino_icons:
+    dependency: "direct main"
+    description:
+      name: cupertino_icons
+      sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.8"
   dart_style:
     dependency: transitive
     description:
@@ -237,26 +245,18 @@ packages:
     dependency: "direct main"
     description:
       name: drift
-      sha256: "4e0ffee40d23f0b809e6cff1ad202886f51d629649073ed42d9cd1d194ea943e"
+      sha256: "93864ec5b4851da784c994b301444e6b6f739e814483661ba035302b49a7fc79"
       url: "https://pub.dev"
     source: hosted
-    version: "2.19.1+1"
+    version: "2.19.0"
   drift_dev:
     dependency: "direct dev"
     description:
       name: drift_dev
-      sha256: ac7647c6cedca99724ca300cff9181f6dd799428f8ed71f94159ed0528eaec26
+      sha256: "349b5d51d19117806a29a57af947d4da1d7f024f79dc0f4a0996852577f92e3b"
       url: "https://pub.dev"
     source: hosted
-    version: "2.19.1"
-  drift_flutter:
-    dependency: "direct main"
-    description:
-      name: drift_flutter
-      sha256: c670c947fe17ad149678a43fdbbfdb69321f0c83d315043e34e8ad2729e11f49
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
+    version: "2.19.0"
   fake_async:
     dependency: transitive
     description:
@@ -537,7 +537,7 @@ packages:
     source: hosted
     version: "2.1.0"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
@@ -545,7 +545,7 @@ packages:
     source: hosted
     version: "1.9.0"
   path_provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_provider
       sha256: fec0d61223fba3154d87759e3cc27fe2c8dc498f6386c6d6fc80d1afdd1bf378
@@ -694,7 +694,7 @@ packages:
     source: hosted
     version: "1.10.0"
   sqlite3:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: sqlite3
       sha256: b384f598b813b347c5a7e5ffad82cbaff1bec3d1561af267041e66f6f0899295
@@ -702,7 +702,7 @@ packages:
     source: hosted
     version: "2.4.3"
   sqlite3_flutter_libs:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: sqlite3_flutter_libs
       sha256: eeb9e3a45207649076b808f8a5a74d68770d0b7f26ccef6d5f43106eee5375ad

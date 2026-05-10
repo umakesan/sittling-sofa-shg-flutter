@@ -113,35 +113,41 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
         ),
       ),
       body: SafeArea(
-        child: switch (_step) {
-          1 => _StepSelectGroup(
-              selectedGroupId: _groupId,
-              selectedMonth: _month,
-              onGroupSelected: (id) => setState(() => _groupId = id),
-              onMonthSelected: (m) => setState(() => _month = m),
-              onContinue: () => setState(() => _step = 2),
-            ),
-          2 => _StepChooseMode(
-              mode: _mode,
-              onModeChanged: (m) => setState(() => _mode = m),
-              onContinue: () => setState(() => _step = 3),
-            ),
-          _ => _StepForm(
-              savings: _savings,
-              internalPrincipal: _internalPrincipal,
-              internalInterest: _internalInterest,
-              toBank: _toBank,
-              fromBank: _fromBank,
-              sofaDisbursed: _sofaDisbursed,
-              sofaRepayment: _sofaRepayment,
-              sofaInterest: _sofaInterest,
-              notes: _notes,
-              warnings: _warnings,
-              saving: _saving,
-              saveError: _saveError,
-              onSave: _save,
-            ),
-        },
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: switch (_step) {
+              1 => _StepSelectGroup(
+                  selectedGroupId: _groupId,
+                  selectedMonth: _month,
+                  onGroupSelected: (id) => setState(() => _groupId = id),
+                  onMonthSelected: (m) => setState(() => _month = m),
+                  onContinue: () => setState(() => _step = 2),
+                ),
+              2 => _StepChooseMode(
+                  mode: _mode,
+                  onModeChanged: (m) => setState(() => _mode = m),
+                  onContinue: () => setState(() => _step = 3),
+                ),
+              _ => _StepForm(
+                  savings: _savings,
+                  internalPrincipal: _internalPrincipal,
+                  internalInterest: _internalInterest,
+                  toBank: _toBank,
+                  fromBank: _fromBank,
+                  sofaDisbursed: _sofaDisbursed,
+                  sofaRepayment: _sofaRepayment,
+                  sofaInterest: _sofaInterest,
+                  notes: _notes,
+                  warnings: _warnings,
+                  saving: _saving,
+                  saveError: _saveError,
+                  onSave: _save,
+                ),
+            },
+          ),
+        ),
       ),
     );
   }
