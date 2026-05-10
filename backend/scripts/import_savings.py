@@ -193,9 +193,8 @@ def run():
             group_id[(group_name, vill_name)] = result.scalar_one()
         print(f"Inserted {len(group_id)} groups")
 
-        # --- month_entries + sofa_loan_entries ---
+        # --- month_entries ---
         entry_count = 0
-        sofa_count = 0
         for r in all_records:
             gid = group_id[(r["group_name"], r["village_name"])]
             result = session.execute(
@@ -237,40 +236,11 @@ def run():
                     "sofa_int": r["sofa1_int"] + r["sofa2_int"],
                 },
             )
-            entry_id = result.scalar_one()
             entry_count += 1
-
-            # Insert non-zero SOFA loan slots
-            for slot, (dis, ret, interest) in enumerate(
-                [
-                    (r["sofa1_dis"], r["sofa1_ret"], r["sofa1_int"]),
-                    (r["sofa2_dis"], r["sofa2_ret"], r["sofa2_int"]),
-                ],
-                start=1,
-            ):
-                if dis == 0.0 and ret == 0.0 and interest == 0.0:
-                    continue
-                session.execute(
-                    text("""
-                        INSERT INTO sofa_loan_entries
-                            (month_entry_id, loan_slot, disbursed, repayment,
-                             interest_collected, created_at, updated_at)
-                        VALUES
-                            (:entry_id, :slot, :dis, :ret, :interest, NOW(), NOW())
-                        ON CONFLICT (month_entry_id, loan_slot) DO UPDATE SET
-                            disbursed           = EXCLUDED.disbursed,
-                            repayment           = EXCLUDED.repayment,
-                            interest_collected  = EXCLUDED.interest_collected,
-                            updated_at          = NOW()
-                    """),
-                    {"entry_id": entry_id, "slot": slot, "dis": dis, "ret": ret, "interest": interest},
-                )
-                sofa_count += 1
 
         session.commit()
 
     print(f"Inserted {entry_count} month_entries")
-    print(f"Inserted {sofa_count} sofa_loan_entries")
     print("Done.")
 
 
