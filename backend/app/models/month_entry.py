@@ -39,11 +39,6 @@ class MonthEntry(Base):
     )
     to_bank: Mapped[float] = mapped_column(Numeric(12, 2), default=0, nullable=False)
     from_bank: Mapped[float] = mapped_column(Numeric(12, 2), default=0, nullable=False)
-    sofa_loan_disbursed: Mapped[float] = mapped_column(Numeric(12, 2), default=0, nullable=False)
-    sofa_loan_repayment: Mapped[float] = mapped_column(Numeric(12, 2), default=0, nullable=False)
-    sofa_loan_interest_collected: Mapped[float] = mapped_column(
-        Numeric(12, 2), default=0, nullable=False
-    )
     notes: Mapped[str | None] = mapped_column(String(1000))
     warning_flags: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     source_count: Mapped[int] = mapped_column(default=0, nullable=False)

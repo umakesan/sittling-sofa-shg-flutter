@@ -131,14 +131,43 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
               const Text('Edit monthly totals',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
-              _MoneyField(label: 'Savings collected (₹)', controller: _savings),
-              _MoneyField(label: 'Internal loan principal disbursed (₹)', controller: _internalPrincipal),
-              _MoneyField(label: 'Internal loan interest collected (₹)', controller: _internalInterest),
-              _MoneyField(label: 'To bank (₹)', controller: _toBank),
-              _MoneyField(label: 'From bank (₹)', controller: _fromBank),
-              _MoneyField(label: 'SOFA loan disbursed (₹)', controller: _sofaDisbursed),
-              _MoneyField(label: 'SOFA loan repayment (₹)', controller: _sofaRepayment),
-              _MoneyField(label: 'SOFA loan interest collected (₹)', controller: _sofaInterest),
+
+              const _SectionHeader('SAVINGS'),
+              _MoneyField(label: 'Savings Collected', controller: _savings),
+              _MoneyField(label: 'Int. Loan Principal', controller: _internalPrincipal),
+              _MoneyField(label: 'Overall Interest', controller: _internalInterest),
+              ListenableBuilder(
+                listenable: Listenable.merge([_savings, _internalPrincipal, _internalInterest]),
+                builder: (_, __) {
+                  final total = (double.tryParse(_savings.text.trim()) ?? 0) +
+                      (double.tryParse(_internalPrincipal.text.trim()) ?? 0) +
+                      (double.tryParse(_internalInterest.text.trim()) ?? 0);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Total Amount',
+                            style: TextStyle(fontWeight: FontWeight.w600)),
+                        Text('₹ ${NumberFormat('#,##0').format(total)}',
+                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
+              const _SectionHeader('BANK / CASH'),
+              _MoneyField(label: 'To Bank', controller: _toBank),
+              _MoneyField(label: 'From Bank', controller: _fromBank),
+              const SizedBox(height: 6),
+
+              const _SectionHeader('SOFA LOAN'),
+              _MoneyField(label: 'Loan Disbursed', controller: _sofaDisbursed),
+              _MoneyField(label: 'Loan Return', controller: _sofaRepayment),
+              _MoneyField(label: 'Interest', controller: _sofaInterest),
+              const SizedBox(height: 6),
+
               TextField(
                 controller: _notes,
                 decoration: const InputDecoration(
@@ -169,6 +198,30 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 12),
+      child: Row(
+        children: [
+          Text(title,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  letterSpacing: 0.8,
+                  color: Colors.black54)),
+          const SizedBox(width: 8),
+          const Expanded(child: Divider()),
+        ],
       ),
     );
   }

@@ -403,14 +403,43 @@ class _StepForm extends StatelessWidget {
           const Text('Review monthly totals',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
-          _MoneyField(label: 'Savings collected (₹)', controller: savings),
-          _MoneyField(label: 'Internal loan principal disbursed (₹)', controller: internalPrincipal),
-          _MoneyField(label: 'Internal loan interest collected (₹)', controller: internalInterest),
-          _MoneyField(label: 'To bank (₹)', controller: toBank),
-          _MoneyField(label: 'From bank (₹)', controller: fromBank),
-          _MoneyField(label: 'SOFA loan disbursed (₹)', controller: sofaDisbursed),
-          _MoneyField(label: 'SOFA loan repayment (₹)', controller: sofaRepayment),
-          _MoneyField(label: 'SOFA loan interest collected (₹)', controller: sofaInterest),
+
+          const _SectionHeader('SAVINGS'),
+          _MoneyField(label: 'Savings Collected', controller: savings),
+          _MoneyField(label: 'Int. Loan Principal', controller: internalPrincipal),
+          _MoneyField(label: 'Overall Interest', controller: internalInterest),
+          ListenableBuilder(
+            listenable: Listenable.merge([savings, internalPrincipal, internalInterest]),
+            builder: (_, __) {
+              final total = (double.tryParse(savings.text.trim()) ?? 0) +
+                  (double.tryParse(internalPrincipal.text.trim()) ?? 0) +
+                  (double.tryParse(internalInterest.text.trim()) ?? 0);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Total Amount',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    Text('₹ ${NumberFormat('#,##0').format(total)}',
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              );
+            },
+          ),
+
+          const _SectionHeader('BANK / CASH'),
+          _MoneyField(label: 'To Bank', controller: toBank),
+          _MoneyField(label: 'From Bank', controller: fromBank),
+          const SizedBox(height: 6),
+
+          const _SectionHeader('SOFA LOAN'),
+          _MoneyField(label: 'Loan Disbursed', controller: sofaDisbursed),
+          _MoneyField(label: 'Loan Return', controller: sofaRepayment),
+          _MoneyField(label: 'Interest', controller: sofaInterest),
+          const SizedBox(height: 6),
+
           TextField(
             controller: notes,
             decoration: const InputDecoration(
@@ -434,6 +463,30 @@ class _StepForm extends StatelessWidget {
                 minimumSize: const Size(double.infinity, 48)),
             child: Text(saving ? 'Saving…' : 'Save entry →'),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 12),
+      child: Row(
+        children: [
+          Text(title,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  letterSpacing: 0.8,
+                  color: Colors.black54)),
+          const SizedBox(width: 8),
+          const Expanded(child: Divider()),
         ],
       ),
     );
