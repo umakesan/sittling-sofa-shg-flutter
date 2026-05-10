@@ -7,9 +7,14 @@ import '../repositories/entry_repository.dart';
 import '../repositories/group_repository.dart';
 import '../services/auth_service.dart';
 
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(
-  baseUrl: 'http://139.59.60.230:8000',
-));
+// Set via --dart-define-from-file=.env.json at build/run time.
+// Defaults to localhost for local development.
+const _apiUrl = String.fromEnvironment(
+  'API_URL',
+  defaultValue: 'http://localhost:8000',
+);
+
+final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(baseUrl: _apiUrl));
 
 // Only instantiated on native — Riverpod providers are lazy.
 final localDbProvider = Provider<LocalDb>((ref) {

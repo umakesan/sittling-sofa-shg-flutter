@@ -48,10 +48,18 @@ class AuthService {
         return null;
       }
 
-      return AppUser.fromJsonString(userJson);
+      final user = AppUser.fromJsonString(userJson);
+      // Fire-and-forget background sync so local DB stays fresh on each app open.
+      // Non-blocking — UI loads instantly from local DB, sync updates it silently.
+      _syncInBackground();
+      return user;
     } catch (_) {
       return null;
     }
+  }
+
+  void _syncInBackground() {
+    _initialSync(); // intentionally not awaited
   }
 
   Future<AppUser> login(String userId, String password) async {

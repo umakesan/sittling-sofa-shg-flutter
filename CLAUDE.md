@@ -55,24 +55,35 @@ flutter pub get
 # local_db.g.dart is committed — no need to run build_runner unless schema changes
 ```
 
-### 5 — API URL
-- **Web builds** call `http://139.59.60.230:8000` (live server) — no change needed
-- **Native (Android/iOS) dev** calls `localhost:8000` — run the backend locally first
-- To point anywhere else, edit `baseUrl` in `frontend/lib/providers/shared_providers.dart`
+### 5 — API URL (env-based switching)
+The API URL is set via `--dart-define-from-file` at build/run time. Two env files are provided (both gitignored):
+
+| File | Points to |
+|------|-----------|
+| `frontend/.env.local.json` | `http://localhost:8000` (local backend) |
+| `frontend/.env.dev.json` | `http://139.59.60.230:8000` (dev server) |
+
+Copy `.env.example.json` as a starting point if these don't exist yet.
 
 ### 6 — Run
 ```bash
-# Backend
+# Backend (local)
 cd backend && uvicorn app.main:app --reload
 
-# Flutter web (in a separate terminal)
+# Flutter web — local backend
 cd frontend
-flutter build web --profile
+flutter build web --profile --dart-define-from-file=.env.local.json
 cd build/web && python -m http.server 4200
-# then open http://localhost:4200
 
-# Flutter native
-cd frontend && flutter run
+# Flutter web — dev server
+cd frontend
+flutter build web --profile --dart-define-from-file=.env.dev.json
+cd build/web && python -m http.server 4200
+
+# Flutter native (Android/iOS)
+cd frontend && flutter run --dart-define-from-file=.env.local.json
+# or against dev server:
+cd frontend && flutter run --dart-define-from-file=.env.dev.json
 ```
 
 ### Default login credentials (seeded)

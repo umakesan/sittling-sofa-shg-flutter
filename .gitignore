@@ -18,6 +18,8 @@ frontend/windows/
 # Env
 .env
 *.local
+frontend/.env.local.json
+frontend/.env.dev.json
 
 # macOS
 .DS_Store
