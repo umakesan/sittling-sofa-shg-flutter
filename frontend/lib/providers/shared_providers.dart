@@ -8,7 +8,7 @@ import '../repositories/group_repository.dart';
 import '../services/auth_service.dart';
 
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(
-  baseUrl: kIsWeb ? 'http://139.59.60.230:8000' : 'http://localhost:8000',
+  baseUrl: 'http://139.59.60.230:8000',
 ));
 
 // Only instantiated on native — Riverpod providers are lazy.
