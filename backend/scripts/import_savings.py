@@ -193,19 +193,18 @@ def run():
         group_keys = {(r["group_name"], r["village_name"]) for r in all_records}
         group_id: dict[tuple[str, str], int] = {}
         for group_name, vill_name in sorted(group_keys):
-            vid = village_id[vill_name]
-            # Code includes village to guarantee global uniqueness
-            code = f"{group_name} ({vill_name})"
+            # Code includes village to guarantee global uniqueness (max 50 chars)
+            code = f"{group_name} ({vill_name})"[:50]
             result = session.execute(
                 text("""
                     INSERT INTO groups
-                        (name, village_id, code, register_template, is_active, created_at, updated_at)
+                        (name, village_name, code, register_template, is_active, created_at, updated_at)
                     VALUES
-                        (:name, :village_id, :code, 'default_v1', true, NOW(), NOW())
+                        (:name, :village_name, :code, 'default_v1', true, NOW(), NOW())
                     ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name
                     RETURNING id
                 """),
-                {"name": group_name, "village_id": vid, "code": code},
+                {"name": group_name, "village_name": vill_name, "code": code},
             )
             group_id[(group_name, vill_name)] = result.scalar_one()
         print(f"Inserted {len(group_id)} groups")
@@ -221,10 +220,12 @@ def run():
                         group_id, entry_month, entry_mode, status,
                         savings_collected, internal_loan_principal_disbursed,
                         internal_loan_interest_collected, to_bank, from_bank,
+                        sofa_loan_disbursed, sofa_loan_repayment, sofa_loan_interest_collected,
                         warning_flags, source_count, created_at, updated_at
                     ) VALUES (
                         :group_id, :entry_month, 'manual', 'synced',
                         :savings, :int_principal, :int_interest, :to_bank, :from_bank,
+                        :sofa_dis, :sofa_ret, :sofa_int,
                         '[]', 0, NOW(), NOW()
                     )
                     ON CONFLICT (group_id, entry_month) DO UPDATE SET
@@ -233,6 +234,9 @@ def run():
                         internal_loan_interest_collected = EXCLUDED.internal_loan_interest_collected,
                         to_bank                         = EXCLUDED.to_bank,
                         from_bank                       = EXCLUDED.from_bank,
+                        sofa_loan_disbursed             = EXCLUDED.sofa_loan_disbursed,
+                        sofa_loan_repayment             = EXCLUDED.sofa_loan_repayment,
+                        sofa_loan_interest_collected    = EXCLUDED.sofa_loan_interest_collected,
                         updated_at                      = NOW()
                     RETURNING id
                 """),
@@ -244,6 +248,9 @@ def run():
                     "int_interest": r["int_interest"],
                     "to_bank": r["to_bank"],
                     "from_bank": r["from_bank"],
+                    "sofa_dis": r["sofa1_dis"] + r["sofa2_dis"],
+                    "sofa_ret": r["sofa1_ret"] + r["sofa2_ret"],
+                    "sofa_int": r["sofa1_int"] + r["sofa2_int"],
                 },
             )
             entry_id = result.scalar_one()
