@@ -237,6 +237,48 @@ cd /opt/shg-portal && git pull
 systemctl restart shg-api
 ```
 
+### Navigation
+
+`go_router` routes: `/login` → `/` (HomeScreen) → `/entries/new` → `/entries/edit` → `/ledger/:groupId` → `/dashboard`.
+
+- Use `context.push(route)` when you need a back-button stack (e.g. Home → Dashboard).
+- Use `context.go(route)` only for full-stack replacements (e.g. login → home after auth, logout → login).
+- `DashboardScreen` has an explicit `BackButton` on the AppBar that calls `context.pop()`.
+
+### App drawer (`frontend/lib/widgets/app_drawer.dart`)
+
+A `ConsumerStatefulWidget` Drawer attached to `HomeScreen`. Behaviour differs by platform:
+
+| Item | Web (`kIsWeb`) | Native (Android/iOS) |
+|------|---------------|----------------------|
+| User header (name + role) | ✓ | ✓ |
+| **Sync data** | hidden | shown with pending-count Badge |
+| **Logout** | ✓ | ✓ |
+
+**Sync flow (native only):**
+1. Checks connectivity via `Connectivity().checkConnectivity()` before attempting.
+2. Shows a friendly inline error if offline — does not attempt sync.
+3. Calls `ref.read(entriesProvider.notifier).sync()` → `SyncService.syncPending()`.
+4. Displays result message (entries uploaded / partial failure / nothing to sync).
+
+**Logout:** calls `authProvider.notifier.logout()` then `context.go('/login')`.
+
+### Platform data flow summary
+
+| | Web | Native (Android/iOS) |
+|--|-----|----------------------|
+| Data store | API only (no Drift) | Drift SQLite (local) |
+| Reads/Writes | Direct API call | Local DB only |
+| Sync | N/A (always online) | Manual (drawer) + auto on launch |
+| Drawer sync button | Hidden | Visible with pending count |
+
+Auto-sync on launch: `AuthService.restoreSession()` fires `_initialSync()` in the background (non-blocking). Fetches fresh groups and entries from server, upserts into local Drift DB. UI loads from local DB instantly.
+
+### Known data notes
+
+- **Negative values in historical entries**: The Excel import (`import_savings.py`) contains months with negative `savings_collected` / `internal_loan_interest_collected` (ledger correction rows). The Pydantic **response** schema (`MonthEntryRead`) allows these; only the **input** schemas (`MonthEntryCreate`, `MonthEntryUpdate`) enforce `ge=0`.
+- **CORS**: The dev server `.env` explicitly lists `http://localhost:4200` and `http://localhost:4201` in `CORS_ORIGINS`. `backend/app/main.py` also has `allow_origin_regex=r"http://localhost:\d+"` as a blanket fallback for any localhost port.
+
 ### What's not built yet
 
 - AI image extraction (models defined, no service or upload endpoint)
