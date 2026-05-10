@@ -45,4 +45,14 @@ class MonthEntryRead(MonthEntryBase):
     created_at: datetime
     updated_at: datetime
 
+    # Historical data may contain negative values (ledger corrections) — remove ge=0
+    savings_collected: float = 0
+    internal_loan_principal_disbursed: float = 0
+    internal_loan_interest_collected: float = 0
+    to_bank: float = 0
+    from_bank: float = 0
+    sofa_loan_disbursed: float = 0
+    sofa_loan_repayment: float = 0
+    sofa_loan_interest_collected: float = 0
+
     model_config = {"from_attributes": True}
