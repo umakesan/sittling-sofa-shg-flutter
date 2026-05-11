@@ -215,6 +215,7 @@ pytest tests/test_month_entry_flow.py::test_create_month_entry_marks_warning_sta
 cd frontend
 flutter pub get
 flutter pub run build_runner build    # regenerate drift local_db.g.dart (only on schema change)
+flutter gen-l10n                      # regenerate l10n dart files (only if .arb files change)
 flutter run -d chrome                 # web (uses default env — no --dart-define = localhost:8000)
 flutter run -d android
 flutter test
@@ -236,29 +237,47 @@ Key identifiers:
 
 ### Flutter frontend (`frontend/lib/`)
 
-**State management:** Riverpod. Root providers in `providers/shared_providers.dart`:
+**State management:** Riverpod. Key providers:
 - `apiClientProvider` — single `ApiClient`, base URL set at compile time via `--dart-define-from-file`
-- `localDbProvider` — single `LocalDb` instance (native only; null on web)
+- `localDbProvider` — single `LocalDb` instance (native only; throws on web)
 - `groupRepositoryProvider` / `entryRepositoryProvider` — use `ApiGroupRepository`/`ApiEntryRepository` on web, `LocalGroupRepository`/`LocalEntryRepository` on native
+- `connectivityProvider` — `StreamProvider<List<ConnectivityResult>>` tracking network state
+- `isOnlineProvider` — derived bool; defaults to `true` if stream has no data yet
+- `localeProvider` — `StateNotifier<Locale>`; persisted in `flutter_secure_storage`
 
-**Navigation:** `go_router` in `main.dart`. Routes: `/login` → `/` (HomeScreen) → `/entries/new` → `/ledger/:groupId` → `/dashboard`.
+**Navigation:** `go_router` in `main.dart`. Routes:
+- `/login` → Login screen
+- `/` → HomeScreen (wrapped in `AppShell` on tablet ≥600px)
+- `/dashboard` → DashboardScreen
+- `/entries/new` → NewEntryScreen
+- `/entries/edit` → EditEntryScreen (entry passed as route extra)
+- `/ledger/:groupId` → LedgerScreen
+- `/admin/create-village` → CreateVillageScreen (admin only)
+- `/admin/create-group` → CreateGroupScreen (admin only)
 
-**Local DB:** Drift schema in `database/local_db.dart`. After any schema change, run `build_runner build` to regenerate `local_db.g.dart`. The SQLite connection uses `NativeDatabase.createBackgroundConnection()` directly (with `sqlite3_flutter_libs` + `path_provider`) — **do not add `drift_flutter` as a dependency**; it requires Dart 3.4+ and was removed specifically because the current SDK is 3.3.x.
+Use `context.push()` for stack navigation (back button), `context.go()` only for full replacements (login → home).
 
-**Warning logic is duplicated intentionally:** `entries_provider.dart::_buildWarnings()` mirrors `backend/app/services/validation.py::build_warning_flags()`. Both must stay in sync.
+**Local DB:** Drift schema in `database/local_db.dart`. After any schema change, run `build_runner build` to regenerate `local_db.g.dart`. The SQLite connection is split by platform: `database/connection/native.dart` uses `NativeDatabase.createBackgroundConnection()` (with `sqlite3_flutter_libs` + `path_provider`); `database/connection/web.dart` throws `UnsupportedError`. **Do not add `drift_flutter`** — it requires Dart 3.4+ and was removed because the project is locked to 3.3.x.
 
-**API client:** `api/api_client.dart` uses Dio + `flutter_secure_storage` for JWT. Base URL set via `String.fromEnvironment('API_URL')` — never hardcoded.
+**Warning logic is duplicated intentionally:** `entries_provider.dart::_buildWarnings()` mirrors `backend/app/services/validation.py::build_warning_flags()`. Both must stay in sync. See `docs/warning-logic.txt` for the full spec.
+
+**API client:** `api/api_client.dart` uses Dio + `flutter_secure_storage` for JWT. Base URL set via `String.fromEnvironment('API_URL')` — never hardcoded. Methods: `login`, `fetchGroups`, `createGroup`, `fetchVillageNames`, `createVillage`, `createEntry`, `updateEntry`, `fetchEntries`, `fetchDashboard`.
+
+**Theme:** `theme/app_theme.dart` — Material 3, Noto Sans (Google Fonts), 56px minimum button height for field-worker use. Color palette in `theme/app_colors.dart` (forest green primary, high-contrast status colors). Do not hardcode colors — always reference `AppColors` constants.
+
+**Localization:** Full i18n in `lib/l10n/`. Supported locales: English (`en`), Tamil (`ta`), Tamil+English mixed (`ta_IN`). Source of truth: `lib/l10n/app_en.arb`. After editing `.arb` files run `flutter gen-l10n`. All UI strings must use `AppLocalizations.of(context)!.keyName` — no hardcoded English strings in widgets.
 
 ### Backend (`backend/app/`)
 
-**Request path:** `main.py` → `api/router.py` → `api/v1/endpoints/{groups,month_entries,reports}.py`
+**Request path:** `main.py` → `api/router.py` → `api/v1/endpoints/{auth,groups,villages,month_entries,reports}.py`
 
 - `api/deps.py` — yields SQLAlchemy `Session` via `Depends(db_session)`.
 - `services/validation.py` — `build_warning_flags(entry)` + `derive_status()` called on every create/update.
 - `core/config.py` — Pydantic-settings; reads `.env`. Key: `DATABASE_URL`, `CORS_ORIGINS`.
 - The `month_entries` table has a unique constraint on `(group_id, entry_month)`.
-- The `groups` table has `village_name` as a direct `VARCHAR(120)` column (not a FK — the `villages` table was removed in a later migration).
+- The `groups` table now has a `village_id` FK to the `villages` table (`villages` table exists; earlier migration note about removal is obsolete).
 - Enum values in the DB are uppercase: `MANUAL`, `PREFILL`, `DRAFT`, `SAVED`, `SAVED_WITH_WARNINGS`, `SYNCED`.
+- **Villages endpoint** (`/api/v1/villages`): `GET` returns list ordered by name; `POST` creates a new village (admin only, 409 if name already exists).
 
 **Tests** use SQLite in-memory (no Postgres needed). `conftest.py` seeds two Groups and a User, overrides `db_session`, and suppresses startup events.
 
@@ -293,29 +312,47 @@ systemctl restart shg-api
 
 ### Navigation
 
-`go_router` routes: `/login` → `/` (HomeScreen) → `/entries/new` → `/entries/edit` → `/ledger/:groupId` → `/dashboard`.
+`go_router` routes (all registered in `main.dart`):
 
-- Use `context.push(route)` when you need a back-button stack (e.g. Home → Dashboard).
-- Use `context.go(route)` only for full-stack replacements (e.g. login → home after auth, logout → login).
-- `DashboardScreen` has an explicit `BackButton` on the AppBar that calls `context.pop()`.
+| Route | Screen | Notes |
+|-------|--------|-------|
+| `/login` | LoginScreen | Redirected to if no JWT |
+| `/` | HomeScreen | Wrapped in AppShell on tablet |
+| `/dashboard` | DashboardScreen | Village-wide totals |
+| `/ledger/:groupId` | LedgerScreen | Entry history for one group |
+| `/entries/new` | NewEntryScreen | Two-step form |
+| `/entries/edit` | EditEntryScreen | Entry passed as route extra |
+| `/admin/create-village` | CreateVillageScreen | Admin only |
+| `/admin/create-group` | CreateGroupScreen | Admin only |
+
+- Use `context.push(route)` when you need a back-button stack.
+- Use `context.go(route)` only for full-stack replacements (login → home, logout → login).
+- `DashboardScreen` has an explicit `BackButton` that calls `context.pop()`.
 
 ### App drawer (`frontend/lib/widgets/app_drawer.dart`)
 
-A `ConsumerStatefulWidget` Drawer attached to `HomeScreen`. Behaviour differs by platform:
+A `ConsumerStatefulWidget` Drawer attached to `HomeScreen` on mobile. On tablet (width ≥ 600px), navigation is provided by `AppShell` (`widgets/app_shell.dart`) with a `NavigationRail` instead.
 
 | Item | Web (`kIsWeb`) | Native (Android/iOS) |
 |------|---------------|----------------------|
 | User header (name + role) | ✓ | ✓ |
+| **Language switcher** (En / Ta / Mixed) | ✓ | ✓ |
 | **Sync data** | hidden | shown with pending-count Badge |
+| **Admin: Create Village** | admin only | admin only |
+| **Admin: Create Group** | admin only | admin only |
 | **Logout** | ✓ | ✓ |
 
 **Sync flow (native only):**
-1. Checks connectivity via `Connectivity().checkConnectivity()` before attempting.
+1. Reads `isOnlineProvider` before attempting.
 2. Shows a friendly inline error if offline — does not attempt sync.
 3. Calls `ref.read(entriesProvider.notifier).sync()` → `SyncService.syncPending()`.
-4. Displays result message (entries uploaded / partial failure / nothing to sync).
+4. Displays result from `SyncResult` enum (success, noPending, partialFailure, noInternet).
 
 **Logout:** calls `authProvider.notifier.logout()` then `context.go('/login')`.
+
+### AppShell (`frontend/lib/widgets/app_shell.dart`)
+
+Wraps home and dashboard on tablet (viewport ≥ 600px). Renders a `NavigationRail` on the left with Home and Dashboard destinations, plus a language popup menu at the bottom. On mobile this widget is unused — drawer handles navigation instead.
 
 ### Platform data flow summary
 
@@ -325,8 +362,32 @@ A `ConsumerStatefulWidget` Drawer attached to `HomeScreen`. Behaviour differs by
 | Reads/Writes | Direct API call | Local DB only |
 | Sync | N/A (always online) | Manual (drawer) + auto on launch |
 | Drawer sync button | Hidden | Visible with pending count |
+| Connectivity bar | Hidden | Shown when offline or entries pending |
+| Navigation | Drawer (mobile) | Drawer (mobile) / NavigationRail (tablet) |
 
 Auto-sync on launch: `AuthService.restoreSession()` fires `_initialSync()` in the background (non-blocking). Fetches fresh groups and entries from server, upserts into local Drift DB. UI loads from local DB instantly.
+
+### Warning logic
+
+Three checks run on every entry (see `docs/warning-logic.txt` for full spec):
+
+| # | Condition | Flag |
+|---|-----------|------|
+| 1 | `to_bank > savings_collected + internal_loan_interest_collected + 1` | `bank_deposit_exceeds_visible_collections` |
+| 2 | `from_bank > 0` AND `to_bank == 0` | `bank_withdrawal_present_check_context` |
+| 3 | `entry_mode == "prefill"` AND `source_count == 0` | `prefill_mode_without_images` (backend only) |
+
+Warnings are non-blocking — entry is saved with status `SAVED_WITH_WARNINGS`. Checks 1 & 2 are implemented identically in both frontend (`entries_provider.dart`) and backend (`services/validation.py`). They must stay in sync.
+
+### Key widgets
+
+| Widget | File | Purpose |
+|--------|------|---------|
+| `AppShell` | `widgets/app_shell.dart` | NavigationRail for tablet (≥600px) |
+| `ConnectivityBar` | `widgets/connectivity_bar.dart` | Offline/pending-sync indicator (native only) |
+| `StatusPill` | `widgets/status_pill.dart` | Colored status badge per entry |
+| `ShimmerCard` | `widgets/shimmer_loader.dart` | Loading placeholder cards |
+| `AppDrawer` | `widgets/app_drawer.dart` | Mobile nav: sync, language, admin, logout |
 
 ### Android build toolchain
 
@@ -354,3 +415,4 @@ The app declares `<supports-screens>` for all screen sizes and uses `Constrained
 - AI image extraction (models defined, no service or upload endpoint)
 - Month-on-month jump validation
 - Role-based access enforcement beyond the `role` field in JWT
+- Prefill warning (check #3 — `prefill_mode_without_images`) exists in backend only; frontend has no image upload yet
