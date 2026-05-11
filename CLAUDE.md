@@ -267,7 +267,7 @@ Use `context.push()` for stack navigation (back button), `context.go()` only for
 
 **API client:** `api/api_client.dart` uses Dio + `flutter_secure_storage` for JWT. Base URL set via `String.fromEnvironment('API_URL')` — never hardcoded. Methods: `login`, `fetchGroups`, `createGroup`, `fetchVillageNames`, `createVillage`, `createEntry`, `updateEntry`, `fetchEntries`, `fetchDashboard`.
 
-**Group Dart model** (`models/group.dart`): includes `villageName` (String) and `openingBankBalance` (double). `createGroup` sends `village_name` as a plain string — no village ID.
+**Group Dart model** (`models/group.dart`): includes `villageName` (String), `villageId` (int?), `openingBankBalance` (double), and `meetingDay` (String?). `createGroup` sends `village_name` as a plain string; the backend resolves it to a `village_id` FK via the villages table.
 
 **Theme:** `theme/app_theme.dart` — Material 3, Noto Sans (Google Fonts), 56px minimum button height for field-worker use. Color palette in `theme/app_colors.dart` (forest green primary, high-contrast status colors). Typography in `theme/app_text_styles.dart` (`AppTextStyles` class — fixed `height: 1.55` on all styles to prevent Tamil script clipping). Do not hardcode colors or text styles — always reference `AppColors` and `AppTextStyles` constants.
 
@@ -281,11 +281,11 @@ Use `context.push()` for stack navigation (back button), `context.go()` only for
 - `services/validation.py` — `build_warning_flags(entry)` + `derive_status()` called on every create/update.
 - `core/config.py` — Pydantic-settings; reads `.env`. Key: `DATABASE_URL`, `CORS_ORIGINS`.
 - The `month_entries` table has a unique constraint on `(group_id, entry_month)`.
-- The `groups` table stores `village_name` as a plain `VARCHAR(120)` column (denormalized). Migration `b2c3d4e5f6a7` replaced the old `village_id` FK and dropped the `villages` table.
-- `groups` also has `opening_bank_balance NUMERIC(12,2)` (added in migration `c3d4e5f6a7b8`).
+- The `groups` table uses a `village_id` FK to the `villages` table (migration `e5f6a7b8c9d0` re-created `villages`, backfilled from `village_name`, wired up the FK, and dropped `village_name`). Groups also have `opening_bank_balance NUMERIC(12,2)` (migration `c3d4e5f6a7b8`) and `meeting_day VARCHAR(10)` nullable (migration `e5f6a7b8c9d0`).
 - `month_entries` has three SOFA-specific columns added in migration `d4e5f6a7b8c9`: `sofa_loan_disbursed`, `sofa_loan_repayment`, `sofa_loan_interest_collected` (all `NUMERIC(12,2)`, default 0).
 - Enum values in the DB are **lowercase**: `manual`, `prefill`, `draft`, `saved`, `saved_with_warnings`, `synced`. SQLAlchemy models use `values_callable=lambda x: [e.value for e in x]` to store the `.value` string, not the enum name.
-- **Villages endpoint** (`/api/v1/villages`): `GET` returns list ordered by name; `POST` creates a new village (admin only, 409 if name already exists). Note: the `villages` table was dropped by migration `b2c3d4e5f6a7`; this endpoint still references the `Village` model and needs to be updated to derive distinct village names from the `groups` table.
+- **Villages endpoint** (`/api/v1/villages`): `GET` returns list ordered by name; `POST` creates a new village (admin only, 409 if name already exists). The `villages` table exists; `createGroup` on the backend accepts `village_name` as a string, looks it up in `villages`, and stores the FK — returns 422 if the village doesn't exist yet.
+- **`seed.py`** creates villages before groups (upserts by name, then resolves `village_id`). **`scripts/import_savings.py`** does the same — upserts all village names first, then inserts groups with `village_id`.
 
 **Tests** use SQLite in-memory (no Postgres needed). `conftest.py` seeds two Groups and a User, overrides `db_session`, and suppresses startup events.
 

@@ -13,6 +13,7 @@ from app.db.session import SessionLocal
 from app.models.group import Group
 from app.models.month_entry import EntryMode, EntryStatus, MonthEntry
 from app.models.user import User, UserRole
+from app.models.village import Village
 
 
 def _hash(password: str) -> str:
@@ -116,9 +117,25 @@ def seed():
     else:
         print("  Users already seeded — skipped")
 
+    # Villages — upsert distinct village names referenced by GROUPS
+    village_names = {g["village_name"] for g in GROUPS}
+    existing_villages = {v.name: v.id for v in db.query(Village).all()}
+    for vname in sorted(village_names):
+        if vname not in existing_villages:
+            v = Village(name=vname)
+            db.add(v)
+    db.commit()
+    village_id_map = {v.name: v.id for v in db.query(Village).all()}
+
     # Groups — skip any that already exist by code
     existing_codes = {g.code for g in db.query(Group.code).all()}
-    new_groups = [Group(**g) for g in GROUPS if g["code"] not in existing_codes]
+    new_groups = []
+    for g in GROUPS:
+        if g["code"] in existing_codes:
+            continue
+        gdata = {k: v for k, v in g.items() if k != "village_name"}
+        gdata["village_id"] = village_id_map[g["village_name"]]
+        new_groups.append(Group(**gdata))
     if new_groups:
         db.add_all(new_groups)
         db.commit()
