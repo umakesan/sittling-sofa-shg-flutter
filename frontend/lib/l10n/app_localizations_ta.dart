@@ -1,8 +1,6 @@
-// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-import 'app_localizations.dart';
 
-// ignore_for_file: type=lint
+import 'app_localizations.dart';
 
 /// The translations for Tamil (`ta`).
 class AppLocalizationsTa extends AppLocalizations {
@@ -27,16 +25,13 @@ class AppLocalizationsTa extends AppLocalizations {
   String get signingIn => 'உள்நுழைகிறது…';
 
   @override
-  String get enterCredentials =>
-      'உங்கள் பயனர் ID மற்றும் கடவுச்சொல்லை உள்ளிடவும்.';
+  String get enterCredentials => 'உங்கள் பயனர் ID மற்றும் கடவுச்சொல்லை உள்ளிடவும்.';
 
   @override
-  String get somethingWentWrong =>
-      'ஏதோ தவறாகிவிட்டது. மீண்டும் முயற்சிக்கவும்.';
+  String get somethingWentWrong => 'ஏதோ தவறாகிவிட்டது. மீண்டும் முயற்சிக்கவும்.';
 
   @override
-  String get contactAdmin =>
-      'அணுகல் தேவைப்பட்டால் உங்கள் நிர்வாகியை தொடர்பு கொள்ளவும்.';
+  String get contactAdmin => 'அணுகல் தேவைப்பட்டால் உங்கள் நிர்வாகியை தொடர்பு கொள்ளவும்.';
 
   @override
   String get home => 'முகப்பு';
@@ -122,8 +117,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get selectMonth => 'மாதத்தைத் தேர்ந்தெடுக்கவும்';
 
   @override
-  String get couldNotLoadGroups =>
-      'குழுக்களை ஏற்ற முடியவில்லை. உங்கள் இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
+  String get couldNotLoadGroups => 'குழுக்களை ஏற்ற முடியவில்லை. உங்கள் இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String get continueButton => 'தொடர்க';
@@ -256,8 +250,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get newGroup => 'புதிய குழு';
 
   @override
-  String get syncNoInternet =>
-      'இணைய இணைப்பு இல்லை. இணைத்து மீண்டும் முயற்சிக்கவும்.';
+  String get syncNoInternet => 'இணைய இணைப்பு இல்லை. இணைத்து மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String syncSuccessCount(int count) {
@@ -270,8 +263,7 @@ class AppLocalizationsTa extends AppLocalizations {
   }
 
   @override
-  String get nothingToSync =>
-      'ஒத்திசைக்க எதுவும் இல்லை — அனைத்தும் புதுப்பித்தலாகும்.';
+  String get nothingToSync => 'ஒத்திசைக்க எதுவும் இல்லை — அனைத்தும் புதுப்பித்தலாகும்.';
 
   @override
   String get syncUpToDate => 'ஒத்திசைவு (புதுப்பித்தலாகும்)';
@@ -285,12 +277,10 @@ class AppLocalizationsTa extends AppLocalizations {
   String get errorFailedToSave => 'சேமிக்க தவறியது. மீண்டும் முயற்சிக்கவும்.';
 
   @override
-  String get warningToBankExceedsCollections =>
-      'வங்கிக்கு செலுத்திய தொகை சேகரிப்பை மீறுகிறது. தொகைகளை சரிபார்க்கவும்.';
+  String get warningToBankExceedsCollections => 'வங்கிக்கு செலுத்திய தொகை சேகரிப்பை மீறுகிறது. தொகைகளை சரிபார்க்கவும்.';
 
   @override
-  String get warningBankWithdrawalNoDeposit =>
-      'இந்த மாதம் வைப்பு இல்லாமல் வங்கி திரும்பப்பெறுதல் உள்ளது.';
+  String get warningBankWithdrawalNoDeposit => 'இந்த மாதம் வைப்பு இல்லாமல் வங்கி திரும்பப்பெறுதல் உள்ளது.';
 
   @override
   String warningsCount(int count) {
@@ -325,10 +315,14 @@ class AppLocalizationsTa extends AppLocalizations {
   String get interestEarned => 'வட்டி வருமானம்';
 
   @override
-  String villagesCount(int count) => '$count கிராமங்கள்';
+  String villagesCount(int count) {
+    return '$count கிராமங்கள்';
+  }
 
   @override
-  String groupsCount(int count) => '$count குழுக்கள்';
+  String groupsCount(int count) {
+    return '$count குழுக்கள்';
+  }
 
   @override
   String get monthlyLedger => 'மாதாந்திர கணக்கு';
@@ -337,7 +331,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get noEntriesYet => 'இன்னும் பதிவுகள் இல்லை.';
 
   @override
-  String lastEntryMonth(String month) => 'கடைசி: $month';
+  String lastEntryMonth(String month) {
+    return 'கடைசி: $month';
+  }
 
   @override
   String get sortBy => 'வரிசையிடு';
@@ -366,24 +362,59 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get comingSoon => 'விரைவில் வரும்';
 
-  @override String get sofaLoansReport => 'SOFA கடன்கள்';
-  @override String get bankFlowReport => 'வங்கி பாய்வு';
-  @override String get villageCompareReport => 'கிராம ஒப்பீடு';
-  @override String get overdueAlertsReport => 'தாமதமான எச்சரிக்கைகள்';
-  @override String get trendsReport => 'போக்குகள்';
-  @override String get groupHealthReport => 'குழு ஆரோக்கியம்';
-  @override String get recoveryRateReport => 'மீட்பு விகிதம்';
-  @override String get auditLogReport => 'தணிக்கை பதிவு';
-  @override String get outstanding => 'நிலுவை';
-  @override String get recoveryRate => 'மீட்பு %';
-  @override String get netFlow => 'நிகர பாய்வு';
-  @override String get deposited => 'வைப்பு';
-  @override String get withdrawn => 'எடுப்பு';
-  @override String get noAlerts => 'அனைத்து குழுக்களும் சரியாக உள்ளன';
-  @override String get regularity => 'ஒழுங்குமுறை';
-  @override String get missingMonths => 'காணாத மாதங்கள்';
-  @override String get corpusGrowth => 'நிதி வளர்ச்சி';
-  @override String get monthlyContributions => 'மாதாந்திர பங்களிப்புகள்';
+  @override
+  String get sofaLoansReport => 'SOFA கடன்கள்';
+
+  @override
+  String get bankFlowReport => 'வங்கி பாய்வு';
+
+  @override
+  String get villageCompareReport => 'கிராம ஒப்பீடு';
+
+  @override
+  String get overdueAlertsReport => 'தாமதமான எச்சரிக்கைகள்';
+
+  @override
+  String get trendsReport => 'போக்குகள்';
+
+  @override
+  String get groupHealthReport => 'குழு ஆரோக்கியம்';
+
+  @override
+  String get recoveryRateReport => 'மீட்பு விகிதம்';
+
+  @override
+  String get auditLogReport => 'தணிக்கை பதிவு';
+
+  @override
+  String get outstanding => 'நிலுவை';
+
+  @override
+  String get recoveryRate => 'மீட்பு %';
+
+  @override
+  String get netFlow => 'நிகர பாய்வு';
+
+  @override
+  String get deposited => 'வைப்பு';
+
+  @override
+  String get withdrawn => 'எடுப்பு';
+
+  @override
+  String get noAlerts => 'அனைத்து குழுக்களும் சரியாக உள்ளன';
+
+  @override
+  String get regularity => 'ஒழுங்குமுறை';
+
+  @override
+  String get missingMonths => 'காணாத மாதங்கள்';
+
+  @override
+  String get corpusGrowth => 'நிதி வளர்ச்சி';
+
+  @override
+  String get monthlyContributions => 'மாதாந்திர பங்களிப்புகள்';
 
   @override
   String get thisMonthSavings => 'இந்த மாத சேமிப்பு';
@@ -420,11 +451,71 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get stripAfterSave => 'சேமிப்புக்கு பின்';
+
+  @override
+  String get ledgerColOpening => 'தொடக்கம்';
+
+  @override
+  String get ledgerColThisMonth => 'இந்த மாதம்';
+
+  @override
+  String get ledgerColClosing => 'இறுதி';
+
+  @override
+  String get collectionThisMonth => 'இந்த மாத வசூல்';
+
+  @override
+  String get openingBalanceInitial => 'ஆரம்ப இருப்பு';
+
+  @override
+  String get initialTag => '(ஆரம்பம்)';
+
+  @override
+  String get priorMonths => 'முந்தைய மாதங்கள்';
+
+  @override
+  String get totalToBank => 'மொத்த வங்கி வரவு';
+
+  @override
+  String get totalFromBank => 'மொத்த வங்கி செலவு';
+
+  @override
+  String get closingBalance => 'இறுதி இருப்பு';
+
+  @override
+  String get sofaDisbursedSection => 'SOFA கடன் வழங்கல்';
+
+  @override
+  String get loanRepaidSection => 'கடன் திரும்ப செலுத்தல்';
+
+  @override
+  String get totalDisbursed => 'மொத்த வழங்கல்';
+
+  @override
+  String get totalRepaid => 'மொத்த திரும்ப செலுத்தல்';
+
+  @override
+  String get loanBalance => 'கடன் இருப்பு';
+
+  @override
+  String get interestCollected => 'வட்டி வசூல்';
+
+  @override
+  String get interestIncomeNote => 'கூட்டமைப்பிற்கு வருமானம் — கடன் இருப்பை பாதிக்காது';
+
+  @override
+  String get totalInterest => 'மொத்த வட்டி';
+
+  @override
+  String get warnBankNegative => 'வங்கி இருப்பு எதிர்மறையாக உள்ளது — வரவு மற்றும் செலவை சரிபார்க்கவும்.';
+
+  @override
+  String get warnSofaNegative => 'SOFA கடன் இருப்பு எதிர்மறையாக உள்ளது — திரும்ப செலுத்தல் அதிகமாக உள்ளது.';
 }
 
 /// The translations for Tamil, as used in India (`ta_IN`).
 class AppLocalizationsTaIn extends AppLocalizationsTa {
-  AppLocalizationsTaIn() : super('ta_IN');
+  AppLocalizationsTaIn(): super('ta_IN');
 
   @override
   String get appTitle => 'SHG Portal';
@@ -445,8 +536,7 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   String get signingIn => 'உள்நுழைகிறது…';
 
   @override
-  String get enterCredentials =>
-      'உங்கள் User ID மற்றும் கடவுச்சொல்லை உள்ளிடவும்.';
+  String get enterCredentials => 'உங்கள் User ID மற்றும் கடவுச்சொல்லை உள்ளிடவும்.';
 
   @override
   String get somethingWentWrong => 'ஏதோ தவறாகிவிட்டது. மீண்டும் try செய்யவும்.';
@@ -538,8 +628,7 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   String get selectMonth => 'மாதத்தைத் தேர்ந்தெடுக்கவும்';
 
   @override
-  String get couldNotLoadGroups =>
-      'குழுக்களை load செய்ய முடியவில்லை. Connection சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
+  String get couldNotLoadGroups => 'குழுக்களை load செய்ய முடியவில்லை. Connection சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String get continueButton => 'தொடர்க';
@@ -672,8 +761,7 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   String get newGroup => 'புதிய குழு';
 
   @override
-  String get syncNoInternet =>
-      'Internet இணைப்பு இல்லை. Connect ஆகி மீண்டும் முயற்சிக்கவும்.';
+  String get syncNoInternet => 'Internet இணைப்பு இல்லை. Connect ஆகி மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String syncSuccessCount(int count) {
@@ -686,8 +774,7 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   }
 
   @override
-  String get nothingToSync =>
-      'Sync செய்ய எதுவும் இல்லை — அனைத்தும் up to date.';
+  String get nothingToSync => 'Sync செய்ய எதுவும் இல்லை — அனைத்தும் up to date.';
 
   @override
   String get syncUpToDate => 'Sync (up to date)';
@@ -701,12 +788,10 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   String get errorFailedToSave => 'Save ஆகவில்லை. மீண்டும் try செய்யவும்.';
 
   @override
-  String get warningToBankExceedsCollections =>
-      'வங்கிக்கு செலுத்திய தொகை சேகரிப்பை மீறுகிறது. தொகைகளை சரிபார்க்கவும்.';
+  String get warningToBankExceedsCollections => 'வங்கிக்கு செலுத்திய தொகை சேகரிப்பை மீறுகிறது. தொகைகளை சரிபார்க்கவும்.';
 
   @override
-  String get warningBankWithdrawalNoDeposit =>
-      'இந்த மாதம் deposit இல்லாமல் bank withdrawal உள்ளது.';
+  String get warningBankWithdrawalNoDeposit => 'இந்த மாதம் deposit இல்லாமல் bank withdrawal உள்ளது.';
 
   @override
   String warningsCount(int count) {
@@ -767,24 +852,59 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   @override
   String get comingSoon => 'Coming soon';
 
-  @override String get sofaLoansReport => 'SOFA Loans';
-  @override String get bankFlowReport => 'Bank Flow';
-  @override String get villageCompareReport => 'Village Compare';
-  @override String get overdueAlertsReport => 'Overdue Alerts';
-  @override String get trendsReport => 'Trends';
-  @override String get groupHealthReport => 'Group Health';
-  @override String get recoveryRateReport => 'Recovery Rate';
-  @override String get auditLogReport => 'Audit Log';
-  @override String get outstanding => 'Outstanding';
-  @override String get recoveryRate => 'Recovery %';
-  @override String get netFlow => 'Net Flow';
-  @override String get deposited => 'Deposited';
-  @override String get withdrawn => 'Withdrawn';
-  @override String get noAlerts => 'All groups are up to date';
-  @override String get regularity => 'Regularity';
-  @override String get missingMonths => 'Missing months';
-  @override String get corpusGrowth => 'Corpus Growth';
-  @override String get monthlyContributions => 'Monthly Contributions';
+  @override
+  String get sofaLoansReport => 'SOFA Loans';
+
+  @override
+  String get bankFlowReport => 'Bank Flow';
+
+  @override
+  String get villageCompareReport => 'Village Compare';
+
+  @override
+  String get overdueAlertsReport => 'Overdue Alerts';
+
+  @override
+  String get trendsReport => 'Trends';
+
+  @override
+  String get groupHealthReport => 'Group Health';
+
+  @override
+  String get recoveryRateReport => 'Recovery Rate';
+
+  @override
+  String get auditLogReport => 'Audit Log';
+
+  @override
+  String get outstanding => 'Outstanding';
+
+  @override
+  String get recoveryRate => 'Recovery %';
+
+  @override
+  String get netFlow => 'Net Flow';
+
+  @override
+  String get deposited => 'Deposited';
+
+  @override
+  String get withdrawn => 'Withdrawn';
+
+  @override
+  String get noAlerts => 'All groups are up to date';
+
+  @override
+  String get regularity => 'Regularity';
+
+  @override
+  String get missingMonths => 'Missing months';
+
+  @override
+  String get corpusGrowth => 'Corpus Growth';
+
+  @override
+  String get monthlyContributions => 'Monthly Contributions';
 
   @override
   String get thisMonthSavings => 'இந்த மாத Savings';
@@ -821,4 +941,64 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
 
   @override
   String get stripAfterSave => 'சேமிப்புக்கு பின்';
+
+  @override
+  String get ledgerColOpening => 'Opening';
+
+  @override
+  String get ledgerColThisMonth => 'This Month';
+
+  @override
+  String get ledgerColClosing => 'Closing';
+
+  @override
+  String get collectionThisMonth => 'இந்த மாத Collection';
+
+  @override
+  String get openingBalanceInitial => 'Opening Balance';
+
+  @override
+  String get initialTag => '(initial)';
+
+  @override
+  String get priorMonths => 'முந்தைய மாதங்கள்';
+
+  @override
+  String get totalToBank => 'Total To Bank';
+
+  @override
+  String get totalFromBank => 'Total From Bank';
+
+  @override
+  String get closingBalance => 'Closing Balance';
+
+  @override
+  String get sofaDisbursedSection => 'SOFA Disbursed';
+
+  @override
+  String get loanRepaidSection => 'Loan Repaid';
+
+  @override
+  String get totalDisbursed => 'Total Disbursed';
+
+  @override
+  String get totalRepaid => 'Total Repaid';
+
+  @override
+  String get loanBalance => 'Loan Balance';
+
+  @override
+  String get interestCollected => 'வட்டி வசூல்';
+
+  @override
+  String get interestIncomeNote => 'Federation-க்கு வருமானம் — கடன் இருப்பை பாதிக்காது';
+
+  @override
+  String get totalInterest => 'Total Interest';
+
+  @override
+  String get warnBankNegative => 'Bank balance negative — deposits மற்றும் withdrawals-ஐ சரிபார்க்கவும்.';
+
+  @override
+  String get warnSofaNegative => 'SOFA balance negative — repayment அதிகமாக உள்ளது.';
 }

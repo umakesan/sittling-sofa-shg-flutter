@@ -8,8 +8,6 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_en.dart';
 import 'app_localizations_ta.dart';
 
-// ignore_for_file: type=lint
-
 /// Callers can lookup localized strings with an instance of AppLocalizations
 /// returned by `AppLocalizations.of(context)`.
 ///
@@ -62,8 +60,7 @@ import 'app_localizations_ta.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +68,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,8 +80,7 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -651,95 +646,416 @@ abstract class AppLocalizations {
   /// **'This month'**
   String get metricThisMonth;
 
-  /// In en: **'Savings Overview'**
+  /// No description provided for @savingsOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings Overview'**
   String get savingsOverview;
 
-  /// In en: **'Total Savings Asset'**
+  /// No description provided for @totalSavingsAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Savings Asset'**
   String get totalSavingsAsset;
 
-  /// In en: **'Savings Corpus'**
+  /// No description provided for @savingsCorpus.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings Corpus'**
   String get savingsCorpus;
 
-  /// In en: **'Interest Earned'**
+  /// No description provided for @interestEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest Earned'**
   String get interestEarned;
 
-  /// In en: **'{count, plural, one{{count} village} other{{count} villages}}'**
+  /// No description provided for @villagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} village} other{{count} villages}}'**
   String villagesCount(int count);
 
-  /// In en: **'{count, plural, one{{count} group} other{{count} groups}}'**
+  /// No description provided for @groupsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} group} other{{count} groups}}'**
   String groupsCount(int count);
 
-  /// In en: **'Monthly Ledger'**
+  /// No description provided for @monthlyLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Ledger'**
   String get monthlyLedger;
 
-  /// In en: **'No entries recorded yet.'**
+  /// No description provided for @noEntriesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries recorded yet.'**
   String get noEntriesYet;
 
-  /// In en: **'Last: {month}'**
+  /// No description provided for @lastEntryMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last: {month}'**
   String lastEntryMonth(String month);
 
-  /// In en: **'Sort by'**
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
   String get sortBy;
 
-  /// In en: **'Highest first'**
+  /// No description provided for @sortHighestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest first'**
   String get sortHighestFirst;
 
-  /// In en: **'By name'**
+  /// No description provided for @sortByName.
+  ///
+  /// In en, this message translates to:
+  /// **'By name'**
   String get sortByName;
 
-  /// In en: **'Cumulative'**
+  /// No description provided for @cumulative.
+  ///
+  /// In en, this message translates to:
+  /// **'Cumulative'**
   String get cumulative;
 
-  /// In en: **'Reports'**
+  /// No description provided for @reportsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
   String get reportsSection;
 
-  /// In en: **'Internal Loans'**
+  /// No description provided for @internalLoansReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal Loans'**
   String get internalLoansReport;
 
-  /// In en: **'Bank Transactions'**
+  /// No description provided for @bankTransactionsReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Transactions'**
   String get bankTransactionsReport;
 
-  /// In en: **'Group Activity'**
+  /// No description provided for @groupActivityReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Activity'**
   String get groupActivityReport;
 
-  /// In en: **'Coming soon'**
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
   String get comingSoon;
 
+  /// No description provided for @sofaLoansReport.
+  ///
+  /// In en, this message translates to:
+  /// **'SOFA Loans'**
   String get sofaLoansReport;
+
+  /// No description provided for @bankFlowReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Flow'**
   String get bankFlowReport;
+
+  /// No description provided for @villageCompareReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Village Compare'**
   String get villageCompareReport;
+
+  /// No description provided for @overdueAlertsReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue Alerts'**
   String get overdueAlertsReport;
+
+  /// No description provided for @trendsReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Trends'**
   String get trendsReport;
+
+  /// No description provided for @groupHealthReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Health'**
   String get groupHealthReport;
+
+  /// No description provided for @recoveryRateReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery Rate'**
   String get recoveryRateReport;
+
+  /// No description provided for @auditLogReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit Log'**
   String get auditLogReport;
+
+  /// No description provided for @outstanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding'**
   String get outstanding;
+
+  /// No description provided for @recoveryRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery %'**
   String get recoveryRate;
+
+  /// No description provided for @netFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Flow'**
   String get netFlow;
+
+  /// No description provided for @deposited.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposited'**
   String get deposited;
+
+  /// No description provided for @withdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawn'**
   String get withdrawn;
+
+  /// No description provided for @noAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups are up to date'**
   String get noAlerts;
+
+  /// No description provided for @regularity.
+  ///
+  /// In en, this message translates to:
+  /// **'Regularity'**
   String get regularity;
+
+  /// No description provided for @missingMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing months'**
   String get missingMonths;
+
+  /// No description provided for @corpusGrowth.
+  ///
+  /// In en, this message translates to:
+  /// **'Corpus Growth'**
   String get corpusGrowth;
+
+  /// No description provided for @monthlyContributions.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Contributions'**
   String get monthlyContributions;
 
+  /// No description provided for @thisMonthSavings.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s savings'**
   String get thisMonthSavings;
+
+  /// No description provided for @sectionToday.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY'**
   String get sectionToday;
+
+  /// No description provided for @sectionRestOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'REST OF MONTH'**
   String get sectionRestOfMonth;
+
+  /// No description provided for @notYetCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet collected'**
   String get notYetCollected;
+
+  /// No description provided for @searchGroupsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search groups…'**
   String get searchGroupsHint;
+
+  /// No description provided for @sortTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
   String get sortTooltip;
+
+  /// No description provided for @sortByDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting date'**
   String get sortByDate;
+
+  /// No description provided for @sortByGroupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
   String get sortByGroupName;
+
+  /// No description provided for @sortByVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Village'**
   String get sortByVillage;
+
+  /// No description provided for @noGroupsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups found'**
   String get noGroupsFound;
+
+  /// No description provided for @stripOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening'**
   String get stripOpening;
+
+  /// No description provided for @stripAfterSave.
+  ///
+  /// In en, this message translates to:
+  /// **'After save'**
   String get stripAfterSave;
+
+  /// No description provided for @ledgerColOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening'**
+  String get ledgerColOpening;
+
+  /// No description provided for @ledgerColThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get ledgerColThisMonth;
+
+  /// No description provided for @ledgerColClosing.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing'**
+  String get ledgerColClosing;
+
+  /// No description provided for @collectionThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection this month'**
+  String get collectionThisMonth;
+
+  /// No description provided for @openingBalanceInitial.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Balance'**
+  String get openingBalanceInitial;
+
+  /// No description provided for @initialTag.
+  ///
+  /// In en, this message translates to:
+  /// **'(initial)'**
+  String get initialTag;
+
+  /// No description provided for @priorMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Prior months'**
+  String get priorMonths;
+
+  /// No description provided for @totalToBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Total To Bank'**
+  String get totalToBank;
+
+  /// No description provided for @totalFromBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Total From Bank'**
+  String get totalFromBank;
+
+  /// No description provided for @closingBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing Balance'**
+  String get closingBalance;
+
+  /// No description provided for @sofaDisbursedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'SOFA Disbursed'**
+  String get sofaDisbursedSection;
+
+  /// No description provided for @loanRepaidSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan Repaid'**
+  String get loanRepaidSection;
+
+  /// No description provided for @totalDisbursed.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Disbursed'**
+  String get totalDisbursed;
+
+  /// No description provided for @totalRepaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Repaid'**
+  String get totalRepaid;
+
+  /// No description provided for @loanBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan Balance'**
+  String get loanBalance;
+
+  /// No description provided for @interestCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest Collected'**
+  String get interestCollected;
+
+  /// No description provided for @interestIncomeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Income to federation — does not reduce balance'**
+  String get interestIncomeNote;
+
+  /// No description provided for @totalInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Interest'**
+  String get totalInterest;
+
+  /// No description provided for @warnBankNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing bank balance is negative — check deposits and withdrawals.'**
+  String get warnBankNegative;
+
+  /// No description provided for @warnSofaNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'SOFA balance is negative — repayment exceeds outstanding loan.'**
+  String get warnSofaNegative;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -748,37 +1064,34 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'ta'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'ta'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
   // Lookup logic when language+country codes are specified.
   switch (locale.languageCode) {
-    case 'ta':
-      {
-        switch (locale.countryCode) {
-          case 'IN':
-            return AppLocalizationsTaIn();
-        }
-        break;
-      }
+    case 'ta': {
+  switch (locale.countryCode) {
+    case 'IN': return AppLocalizationsTaIn();
+   }
+  break;
+   }
   }
 
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'ta':
-      return AppLocalizationsTa();
+    case 'en': return AppLocalizationsEn();
+    case 'ta': return AppLocalizationsTa();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
 }

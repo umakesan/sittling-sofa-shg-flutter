@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:shg_portal/l10n/app_localizations.dart';
 
 import '../database/sync_service.dart';
-import '../providers/auth_provider.dart';
 import '../providers/entries_provider.dart';
 import '../providers/locale_provider.dart';
 import 'sofa_logo.dart';
@@ -22,8 +21,6 @@ class AppShell extends ConsumerWidget {
 
     final l10n = AppLocalizations.of(context);
     final location = GoRouterState.of(context).matchedLocation;
-    final user = ref.watch(authProvider);
-    final isAdmin = user?.isAdmin == true;
     final currentLocale = ref.watch(localeProvider);
 
     final selectedIndex = _locationToIndex(location);
@@ -33,7 +30,7 @@ class AppShell extends ConsumerWidget {
         children: [
           NavigationRail(
             selectedIndex: selectedIndex,
-            onDestinationSelected: (i) => _onNav(context, i, isAdmin),
+            onDestinationSelected: (i) => _onNav(context, i),
             leading: const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
               child: SofaLogo(size: 36),
@@ -49,18 +46,6 @@ class AppShell extends ConsumerWidget {
                 selectedIcon: const Icon(Icons.bar_chart_rounded),
                 label: Text(l10n.dashboard),
               ),
-              if (isAdmin) ...[
-                NavigationRailDestination(
-                  icon: const Icon(Icons.location_city_outlined),
-                  selectedIcon: const Icon(Icons.location_city_rounded),
-                  label: Text(l10n.newVillage),
-                ),
-                NavigationRailDestination(
-                  icon: const Icon(Icons.group_add_outlined),
-                  selectedIcon: const Icon(Icons.group_add_rounded),
-                  label: Text(l10n.newGroup),
-                ),
-              ],
             ],
             trailing: Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -108,16 +93,12 @@ class AppShell extends ConsumerWidget {
     return 0;
   }
 
-  void _onNav(BuildContext context, int i, bool isAdmin) {
+  void _onNav(BuildContext context, int i) {
     switch (i) {
       case 0:
         context.go('/');
       case 1:
         context.go('/dashboard');
-      case 2:
-        if (isAdmin) context.push('/admin/create-village');
-      case 3:
-        if (isAdmin) context.push('/admin/create-group');
     }
   }
 

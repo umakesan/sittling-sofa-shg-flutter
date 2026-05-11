@@ -194,33 +194,6 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
             const Divider(),
           ],
 
-          // Admin section
-          if (user?.isAdmin == true) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-              child: Text(_l10n.adminSection,
-                  style: AppTextStyles.sectionHeader),
-            ),
-            ListTile(
-              leading: const Icon(Icons.location_city_outlined,
-                  color: AppColors.textSecondary),
-              title: Text(_l10n.newVillage, style: AppTextStyles.body),
-              onTap: () {
-                Navigator.of(context).pop();
-                context.push('/admin/create-village');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.group_add_outlined,
-                  color: AppColors.textSecondary),
-              title: Text(_l10n.newGroup, style: AppTextStyles.body),
-              onTap: () {
-                Navigator.of(context).pop();
-                context.push('/admin/create-group');
-              },
-            ),
-            const Divider(),
-          ],
 
           const Spacer(),
 

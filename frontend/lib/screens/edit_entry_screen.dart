@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:shg_portal/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/month_entry.dart';
 import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-
-final _numFmt = NumberFormat('#,##0');
+import 'entry_form_body.dart';
 
 class EditEntryScreen extends ConsumerStatefulWidget {
   final MonthEntry entry;
-
   const EditEntryScreen({super.key, required this.entry});
 
   @override
@@ -39,52 +36,65 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
   void initState() {
     super.initState();
     final e = widget.entry;
-    _savings = TextEditingController(text: _fmt(e.savingsCollected));
-    _internalPrincipal = TextEditingController(text: _fmt(e.internalLoanPrincipalDisbursed));
+    _savings          = TextEditingController(text: _fmt(e.savingsCollected));
+    _internalPrincipal= TextEditingController(text: _fmt(e.internalLoanPrincipalDisbursed));
     _internalInterest = TextEditingController(text: _fmt(e.internalLoanInterestCollected));
-    _toBank = TextEditingController(text: _fmt(e.toBank));
-    _fromBank = TextEditingController(text: _fmt(e.fromBank));
-    _sofaDisbursed = TextEditingController(text: _fmt(e.sofaLoanDisbursed));
-    _sofaRepayment = TextEditingController(text: _fmt(e.sofaLoanRepayment));
-    _sofaInterest = TextEditingController(text: _fmt(e.sofaLoanInterestCollected));
-    _notes = TextEditingController(text: e.notes ?? '');
+    _toBank           = TextEditingController(text: _fmt(e.toBank));
+    _fromBank         = TextEditingController(text: _fmt(e.fromBank));
+    _sofaDisbursed    = TextEditingController(text: _fmt(e.sofaLoanDisbursed));
+    _sofaRepayment    = TextEditingController(text: _fmt(e.sofaLoanRepayment));
+    _sofaInterest     = TextEditingController(text: _fmt(e.sofaLoanInterestCollected));
+    _notes            = TextEditingController(text: e.notes ?? '');
   }
 
   @override
   void dispose() {
     for (final c in [
       _savings, _internalPrincipal, _internalInterest,
-      _toBank, _fromBank, _sofaDisbursed, _sofaRepayment,
-      _sofaInterest, _notes,
-    ]) {
-      c.dispose();
-    }
+      _toBank, _fromBank, _sofaDisbursed, _sofaRepayment, _sofaInterest, _notes,
+    ]) { c.dispose(); }
     super.dispose();
   }
 
-  String _fmt(double v) =>
-      v == 0 ? '' : v.toStringAsFixed(v.truncateToDouble() == v ? 0 : 2);
-  double _val(TextEditingController c) =>
-      double.tryParse(c.text.trim()) ?? 0;
+  String _fmt(double v) {
+    if (v == 0) return '';
+    final n = v.round();
+    var s = n.toString();
+    if (s.length <= 3) return '₹ $s';
+    final last3 = s.substring(s.length - 3);
+    s = s.substring(0, s.length - 3);
+    final parts = <String>[];
+    while (s.length > 2) {
+      parts.insert(0, s.substring(s.length - 2));
+      s = s.substring(0, s.length - 2);
+    }
+    if (s.isNotEmpty) parts.insert(0, s);
+    return '₹ ${parts.join(',')},$last3';
+  }
+
+  double _val(TextEditingController c) {
+    final raw = c.text.replaceAll(RegExp(r'[₹,\s]'), '');
+    return double.tryParse(raw) ?? 0;
+  }
 
   Future<void> _save(AppLocalizations l10n) async {
     setState(() { _saving = true; _saveError = null; });
     try {
       final updated = widget.entry.copyWith(
-        savingsCollected: _val(_savings),
+        savingsCollected:              _val(_savings),
         internalLoanPrincipalDisbursed: _val(_internalPrincipal),
-        internalLoanInterestCollected: _val(_internalInterest),
-        toBank: _val(_toBank),
-        fromBank: _val(_fromBank),
-        sofaLoanDisbursed: _val(_sofaDisbursed),
-        sofaLoanRepayment: _val(_sofaRepayment),
-        sofaLoanInterestCollected: _val(_sofaInterest),
+        internalLoanInterestCollected:  _val(_internalInterest),
+        toBank:                        _val(_toBank),
+        fromBank:                      _val(_fromBank),
+        sofaLoanDisbursed:             _val(_sofaDisbursed),
+        sofaLoanRepayment:             _val(_sofaRepayment),
+        sofaLoanInterestCollected:     _val(_sofaInterest),
         notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
       );
       await ref.read(entriesProvider.notifier).updateEntry(updated);
       if (mounted) context.pop();
-    } catch (e) {
-      setState(() { _saveError = l10n.errorFailedToSave; });
+    } catch (_) {
+      setState(() { _saveError = AppLocalizations.of(context).errorFailedToSave; });
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -100,7 +110,9 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
       orElse: () => null,
     );
     final groupName = group?.name ?? '${l10n.groupLedger} ${widget.entry.groupId}';
+    final month = DateFormat('MMMM yyyy').format(DateTime.parse(widget.entry.entryMonth));
 
+    // Compute prior values: Σ all entries before this month for this group
     final allEntries = ref.watch(entriesProvider).maybeWhen(
       data: (list) => list,
       orElse: () => <MonthEntry>[],
@@ -109,110 +121,14 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
         e.groupId == widget.entry.groupId &&
         e.entryMonth.compareTo(widget.entry.entryMonth) < 0).toList();
 
-    final openingSavings   = prior.fold(0.0, (s, e) => s + e.savingsCollected);
-    final openingPrincipal = prior.fold(0.0, (s, e) => s + e.internalLoanPrincipalDisbursed);
-    final openingInterest  = prior.fold(0.0, (s, e) => s + e.internalLoanInterestCollected);
-    final openingBank = (group?.openingBankBalance ?? 0) +
-        prior.fold(0.0, (s, e) => s + e.toBank - e.fromBank);
-    final openingSofa = prior.fold(0.0, (s, e) => s + e.sofaLoanDisbursed - e.sofaLoanRepayment);
-
-    final month =
-        DateFormat('MMMM yyyy').format(DateTime.parse(widget.entry.entryMonth));
-
-    final isTablet = MediaQuery.sizeOf(context).width >= 720;
-
-    final totalRow = ListenableBuilder(
-      listenable:
-          Listenable.merge([_savings, _internalPrincipal, _internalInterest]),
-      builder: (_, __) {
-        final total = (double.tryParse(_savings.text.trim()) ?? 0) +
-            (double.tryParse(_internalPrincipal.text.trim()) ?? 0) +
-            (double.tryParse(_internalInterest.text.trim()) ?? 0);
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(l10n.totalAmount, style: AppTextStyles.title),
-              Text('₹ ${NumberFormat('#,##0').format(total)}',
-                  style: AppTextStyles.amount),
-            ],
-          ),
-        );
-      },
-    );
-
-    final leftFields = <Widget>[
-      _SectionHeader(l10n.savingsSection),
-      _MoneyField(label: l10n.savingsCollected, controller: _savings),
-      _BalanceStrip(
-        opening: openingSavings,
-        listenable: _savings,
-        getDelta: () => _val(_savings),
-        openingLabel: l10n.stripOpening,
-        afterSaveLabel: l10n.stripAfterSave,
-      ),
-      _MoneyField(label: l10n.intLoanPrincipal, controller: _internalPrincipal),
-      _BalanceStrip(
-        opening: openingPrincipal,
-        listenable: _internalPrincipal,
-        getDelta: () => _val(_internalPrincipal),
-        openingLabel: l10n.stripOpening,
-        afterSaveLabel: l10n.stripAfterSave,
-      ),
-      _MoneyField(label: l10n.overallInterest, controller: _internalInterest),
-      _BalanceStrip(
-        opening: openingInterest,
-        listenable: _internalInterest,
-        getDelta: () => _val(_internalInterest),
-        openingLabel: l10n.stripOpening,
-        afterSaveLabel: l10n.stripAfterSave,
-      ),
-      totalRow,
-      _SectionHeader(l10n.bankCashSection),
-      _MoneyField(label: l10n.toBank, controller: _toBank),
-      _MoneyField(label: l10n.fromBank, controller: _fromBank),
-      _BalanceStrip(
-        opening: openingBank,
-        listenable: Listenable.merge([_toBank, _fromBank]),
-        getDelta: () => _val(_toBank) - _val(_fromBank),
-        openingLabel: l10n.stripOpening,
-        afterSaveLabel: l10n.stripAfterSave,
-      ),
-    ];
-
-    final rightFields = <Widget>[
-      _SectionHeader(l10n.sofaLoanSection),
-      _MoneyField(label: l10n.loanDisbursed, controller: _sofaDisbursed),
-      _MoneyField(label: l10n.loanReturn, controller: _sofaRepayment),
-      _MoneyField(label: l10n.interest, controller: _sofaInterest),
-      _BalanceStrip(
-        opening: openingSofa,
-        listenable: Listenable.merge([_sofaDisbursed, _sofaRepayment]),
-        getDelta: () => _val(_sofaDisbursed) - _val(_sofaRepayment),
-        openingLabel: l10n.stripOpening,
-        afterSaveLabel: l10n.stripAfterSave,
-      ),
-      const SizedBox(height: 6),
-      TextField(
-        controller: _notes,
-        decoration: InputDecoration(labelText: l10n.notesOptional),
-        maxLines: 2,
-      ),
-      const SizedBox(height: 16),
-      if (_saveError != null)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Text(_saveError!,
-              style: AppTextStyles.body.copyWith(color: AppColors.error)),
-        ),
-      FilledButton(
-        onPressed: _saving ? null : () => _save(l10n),
-        style: FilledButton.styleFrom(
-            minimumSize: const Size(double.infinity, 56)),
-        child: Text(_saving ? l10n.saving : l10n.saveChanges),
-      ),
-    ];
+    final priorSavings    = prior.fold(0.0, (s, e) => s + e.savingsCollected);
+    final priorPrincipal  = prior.fold(0.0, (s, e) => s + e.internalLoanPrincipalDisbursed);
+    final priorInterest   = prior.fold(0.0, (s, e) => s + e.internalLoanInterestCollected);
+    final priorToBank     = prior.fold(0.0, (s, e) => s + e.toBank);
+    final priorFromBank   = prior.fold(0.0, (s, e) => s + e.fromBank);
+    final priorSofaDis    = prior.fold(0.0, (s, e) => s + e.sofaLoanDisbursed);
+    final priorSofaRep    = prior.fold(0.0, (s, e) => s + e.sofaLoanRepayment);
+    final priorSofaInt    = prior.fold(0.0, (s, e) => s + e.sofaLoanInterestCollected);
 
     return Scaffold(
       appBar: AppBar(
@@ -220,154 +136,35 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(groupName, style: AppTextStyles.appBarTitle),
-            Text(month, style: AppTextStyles.appBarSubtitle),
+            Text(month,     style: AppTextStyles.appBarSubtitle),
           ],
         ),
       ),
       body: SafeArea(
-        child: isTablet
-            ? SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l10n.editMonthlyTotals,
-                        style: AppTextStyles.headline),
-                    const SizedBox(height: 20),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: leftFields,
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: rightFields,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              )
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l10n.editMonthlyTotals,
-                        style: AppTextStyles.headline),
-                    const SizedBox(height: 20),
-                    ...leftFields,
-                    const SizedBox(height: 6),
-                    ...rightFields,
-                  ],
-                ),
-              ),
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader(this.title);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 4, bottom: 12),
-      child: Row(
-        children: [
-          Text(title, style: AppTextStyles.sectionHeader),
-          const SizedBox(width: 10),
-          const Expanded(child: Divider()),
-        ],
-      ),
-    );
-  }
-}
-
-class _MoneyField extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-
-  const _MoneyField({required this.label, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: TextField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: label,
-          prefixText: '₹ ',
+        child: EntryFormBody(
+          savings:           _savings,
+          internalPrincipal: _internalPrincipal,
+          internalInterest:  _internalInterest,
+          toBank:            _toBank,
+          fromBank:          _fromBank,
+          sofaDisbursed:     _sofaDisbursed,
+          sofaRepayment:     _sofaRepayment,
+          sofaInterest:      _sofaInterest,
+          notes:             _notes,
+          priorSavings:    priorSavings,
+          priorPrincipal:  priorPrincipal,
+          priorInterest:   priorInterest,
+          openingBankBalance: group?.openingBankBalance ?? 0,
+          priorToBank:     priorToBank,
+          priorFromBank:   priorFromBank,
+          priorSofaDisbursed: priorSofaDis,
+          priorSofaRepayment: priorSofaRep,
+          priorSofaInterest:  priorSofaInt,
+          saving:    _saving,
+          saveError: _saveError,
+          saveLabel: l10n.saveChanges,
+          onSave:    () => _save(l10n),
         ),
-      ),
-    );
-  }
-}
-
-class _BalanceStrip extends StatelessWidget {
-  final double opening;
-  final Listenable listenable;
-  final double Function() getDelta;
-  final String openingLabel;
-  final String afterSaveLabel;
-
-  const _BalanceStrip({
-    required this.opening,
-    required this.listenable,
-    required this.getDelta,
-    required this.openingLabel,
-    required this.afterSaveLabel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: ListenableBuilder(
-        listenable: listenable,
-        builder: (_, __) {
-          final current = opening + getDelta();
-          final labelStyle = AppTextStyles.label;
-          final valueStyle = AppTextStyles.label.copyWith(
-            fontFeatures: [const FontFeature.tabularFigures()],
-          );
-          final currentStyle = valueStyle.copyWith(
-            color: AppColors.primary,
-            fontWeight: FontWeight.w600,
-          );
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Text(openingLabel, style: labelStyle),
-                const SizedBox(width: 6),
-                Text('₹ ${_numFmt.format(opening)}', style: valueStyle),
-                const Spacer(),
-                const Icon(Icons.arrow_forward_rounded,
-                    size: 13, color: AppColors.textTertiary),
-                const Spacer(),
-                Text('₹ ${_numFmt.format(current)}', style: currentStyle),
-                const SizedBox(width: 6),
-                Text(afterSaveLabel, style: labelStyle),
-              ],
-            ),
-          );
-        },
       ),
     );
   }

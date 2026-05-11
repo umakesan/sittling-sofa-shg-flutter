@@ -196,5 +196,26 @@
   "sortByVillage": "கிராமம்",
   "noGroupsFound": "குழுக்கள் கிடைக்கவில்லை",
   "stripOpening": "தொடக்கம்",
-  "stripAfterSave": "சேமிப்புக்கு பின்"
+  "stripAfterSave": "சேமிப்புக்கு பின்",
+
+  "ledgerColOpening": "தொடக்கம்",
+  "ledgerColThisMonth": "இந்த மாதம்",
+  "ledgerColClosing": "இறுதி",
+  "collectionThisMonth": "இந்த மாத வசூல்",
+  "openingBalanceInitial": "ஆரம்ப இருப்பு",
+  "initialTag": "(ஆரம்பம்)",
+  "priorMonths": "முந்தைய மாதங்கள்",
+  "totalToBank": "மொத்த வங்கி வரவு",
+  "totalFromBank": "மொத்த வங்கி செலவு",
+  "closingBalance": "இறுதி இருப்பு",
+  "sofaDisbursedSection": "SOFA கடன் வழங்கல்",
+  "loanRepaidSection": "கடன் திரும்ப செலுத்தல்",
+  "totalDisbursed": "மொத்த வழங்கல்",
+  "totalRepaid": "மொத்த திரும்ப செலுத்தல்",
+  "loanBalance": "கடன் இருப்பு",
+  "interestCollected": "வட்டி வசூல்",
+  "interestIncomeNote": "கூட்டமைப்பிற்கு வருமானம் — கடன் இருப்பை பாதிக்காது",
+  "totalInterest": "மொத்த வட்டி",
+  "warnBankNegative": "வங்கி இருப்பு எதிர்மறையாக உள்ளது — வரவு மற்றும் செலவை சரிபார்க்கவும்.",
+  "warnSofaNegative": "SOFA கடன் இருப்பு எதிர்மறையாக உள்ளது — திரும்ப செலுத்தல் அதிகமாக உள்ளது."
 }

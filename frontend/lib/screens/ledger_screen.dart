@@ -311,15 +311,8 @@ class _LedgerRow extends StatelessWidget {
     final monthLabel = DateFormat('MMM').format(date).toUpperCase();
     final yearLabel = DateFormat('yyyy').format(date);
     final fmt = NumberFormat('#,##0', 'en_IN');
-    // Recompute warnings locally — mirrors entries_provider._buildWarnings()
-    // so the ledger icon always matches what the edit screen shows, regardless
-    // of whether the stored warning_flags from the server is up-to-date.
-    final hasWarning = entry.warningFlags.isNotEmpty ||
-        entry.toBank > entry.savingsCollected + entry.internalLoanInterestCollected + 1 ||
-        (entry.fromBank > 0 && entry.toBank == 0);
-
-    final Color badgeBg = hasWarning ? AppColors.warningBg : AppColors.syncedBg;
-    final Color badgeText = hasWarning ? AppColors.warning : AppColors.synced;
+    const Color badgeBg = AppColors.syncedBg;
+    const Color badgeText = AppColors.synced;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -359,7 +352,7 @@ class _LedgerRow extends StatelessWidget {
                     Text(
                       monthLabel,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: badgeText,
@@ -405,12 +398,6 @@ class _LedgerRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              if (hasWarning)
-                const Icon(Icons.warning_amber_rounded,
-                    size: 18, color: AppColors.warningIcon)
-              else
-                const Icon(Icons.check_circle_rounded,
-                    size: 18, color: AppColors.synced),
             ],
           ),
         ),

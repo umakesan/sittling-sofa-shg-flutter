@@ -1,8 +1,6 @@
-// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-import 'app_localizations.dart';
 
-// ignore_for_file: type=lint
+import 'app_localizations.dart';
 
 /// The translations for English (`en`).
 class AppLocalizationsEn extends AppLocalizations {
@@ -125,8 +123,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectMonth => 'Select month';
 
   @override
-  String get couldNotLoadGroups =>
-      'Could not load groups. Please check your connection and try again.';
+  String get couldNotLoadGroups => 'Could not load groups. Please check your connection and try again.';
 
   @override
   String get continueButton => 'Continue';
@@ -271,8 +268,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newGroup => 'New group';
 
   @override
-  String get syncNoInternet =>
-      'No internet connection. Please connect and try again.';
+  String get syncNoInternet => 'No internet connection. Please connect and try again.';
 
   @override
   String syncSuccessCount(int count) {
@@ -311,12 +307,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorFailedToSave => 'Failed to save. Please try again.';
 
   @override
-  String get warningToBankExceedsCollections =>
-      'To bank exceeds visible collections. Check the figures.';
+  String get warningToBankExceedsCollections => 'To bank exceeds visible collections. Check the figures.';
 
   @override
-  String get warningBankWithdrawalNoDeposit =>
-      'Bank withdrawal present with no deposit this month.';
+  String get warningBankWithdrawalNoDeposit => 'Bank withdrawal present with no deposit this month.';
 
   @override
   String warningsCount(int count) {
@@ -385,7 +379,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noEntriesYet => 'No entries recorded yet.';
 
   @override
-  String lastEntryMonth(String month) => 'Last: $month';
+  String lastEntryMonth(String month) {
+    return 'Last: $month';
+  }
 
   @override
   String get sortBy => 'Sort by';
@@ -414,24 +410,59 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get comingSoon => 'Coming soon';
 
-  @override String get sofaLoansReport => 'SOFA Loans';
-  @override String get bankFlowReport => 'Bank Flow';
-  @override String get villageCompareReport => 'Village Compare';
-  @override String get overdueAlertsReport => 'Overdue Alerts';
-  @override String get trendsReport => 'Trends';
-  @override String get groupHealthReport => 'Group Health';
-  @override String get recoveryRateReport => 'Recovery Rate';
-  @override String get auditLogReport => 'Audit Log';
-  @override String get outstanding => 'Outstanding';
-  @override String get recoveryRate => 'Recovery %';
-  @override String get netFlow => 'Net Flow';
-  @override String get deposited => 'Deposited';
-  @override String get withdrawn => 'Withdrawn';
-  @override String get noAlerts => 'All groups are up to date';
-  @override String get regularity => 'Regularity';
-  @override String get missingMonths => 'Missing months';
-  @override String get corpusGrowth => 'Corpus Growth';
-  @override String get monthlyContributions => 'Monthly Contributions';
+  @override
+  String get sofaLoansReport => 'SOFA Loans';
+
+  @override
+  String get bankFlowReport => 'Bank Flow';
+
+  @override
+  String get villageCompareReport => 'Village Compare';
+
+  @override
+  String get overdueAlertsReport => 'Overdue Alerts';
+
+  @override
+  String get trendsReport => 'Trends';
+
+  @override
+  String get groupHealthReport => 'Group Health';
+
+  @override
+  String get recoveryRateReport => 'Recovery Rate';
+
+  @override
+  String get auditLogReport => 'Audit Log';
+
+  @override
+  String get outstanding => 'Outstanding';
+
+  @override
+  String get recoveryRate => 'Recovery %';
+
+  @override
+  String get netFlow => 'Net Flow';
+
+  @override
+  String get deposited => 'Deposited';
+
+  @override
+  String get withdrawn => 'Withdrawn';
+
+  @override
+  String get noAlerts => 'All groups are up to date';
+
+  @override
+  String get regularity => 'Regularity';
+
+  @override
+  String get missingMonths => 'Missing months';
+
+  @override
+  String get corpusGrowth => 'Corpus Growth';
+
+  @override
+  String get monthlyContributions => 'Monthly Contributions';
 
   @override
   String get thisMonthSavings => 'This month\'s savings';
@@ -468,4 +499,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stripAfterSave => 'After save';
+
+  @override
+  String get ledgerColOpening => 'Opening';
+
+  @override
+  String get ledgerColThisMonth => 'This Month';
+
+  @override
+  String get ledgerColClosing => 'Closing';
+
+  @override
+  String get collectionThisMonth => 'Collection this month';
+
+  @override
+  String get openingBalanceInitial => 'Opening Balance';
+
+  @override
+  String get initialTag => '(initial)';
+
+  @override
+  String get priorMonths => 'Prior months';
+
+  @override
+  String get totalToBank => 'Total To Bank';
+
+  @override
+  String get totalFromBank => 'Total From Bank';
+
+  @override
+  String get closingBalance => 'Closing Balance';
+
+  @override
+  String get sofaDisbursedSection => 'SOFA Disbursed';
+
+  @override
+  String get loanRepaidSection => 'Loan Repaid';
+
+  @override
+  String get totalDisbursed => 'Total Disbursed';
+
+  @override
+  String get totalRepaid => 'Total Repaid';
+
+  @override
+  String get loanBalance => 'Loan Balance';
+
+  @override
+  String get interestCollected => 'Interest Collected';
+
+  @override
+  String get interestIncomeNote => 'Income to federation — does not reduce balance';
+
+  @override
+  String get totalInterest => 'Total Interest';
+
+  @override
+  String get warnBankNegative => 'Closing bank balance is negative — check deposits and withdrawals.';
+
+  @override
+  String get warnSofaNegative => 'SOFA balance is negative — repayment exceeds outstanding loan.';
 }
