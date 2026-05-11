@@ -102,7 +102,7 @@ class LedgerScreen extends ConsumerWidget {
   }
 }
 
-// â”€â”€ Hero card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Hero card ─────────────────────────────────────────────────────────────────
 
 class _LedgerHero extends StatelessWidget {
   final Group? group;
@@ -125,7 +125,7 @@ class _LedgerHero extends StatelessWidget {
     final day = group != null ? _extractDay(group!.name) : null;
     final lastMonthText = lastEntry != null
         ? DateFormat('MMM yyyy').format(DateTime.parse(lastEntry!.entryMonth))
-        : 'â€”';
+        : '—';
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -297,7 +297,7 @@ class _HeroStat extends StatelessWidget {
   }
 }
 
-// â”€â”€ Ledger row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Ledger row ────────────────────────────────────────────────────────────────
 
 class _LedgerRow extends StatelessWidget {
   final MonthEntry entry;
@@ -311,7 +311,7 @@ class _LedgerRow extends StatelessWidget {
     final monthLabel = DateFormat('MMM').format(date).toUpperCase();
     final yearLabel = DateFormat('yyyy').format(date);
     final fmt = NumberFormat('#,##0', 'en_IN');
-    // Recompute warnings locally â€” mirrors entries_provider._buildWarnings()
+    // Recompute warnings locally — mirrors entries_provider._buildWarnings()
     // so the ledger icon always matches what the edit screen shows, regardless
     // of whether the stored warning_flags from the server is up-to-date.
     final hasWarning = entry.warningFlags.isNotEmpty ||

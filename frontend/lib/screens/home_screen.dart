@@ -15,7 +15,7 @@ import '../widgets/connectivity_bar.dart';
 import '../widgets/shimmer_loader.dart';
 import '../widgets/sofa_logo.dart';
 
-// Extracts meeting day from group names like "Iyarkai - SL- 14" â†’ 14
+// Extracts meeting day from group names like "Iyarkai - SL- 14" → 14
 final _dayRegex = RegExp(r'[-\s]+(\d{1,2})\s*$');
 
 int? _extractDay(String name) {
@@ -320,7 +320,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 SliverToBoxAdapter(
                   child: _SectionDivider(
                     label:
-                        'ðŸ“… ${l10n.sectionToday} Â· $today $monthName',
+                        '📅 ${l10n.sectionToday} · $today $monthName',
                     isToday: true,
                   ),
                 ),
@@ -422,7 +422,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-// â”€â”€ Hero card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Hero card ─────────────────────────────────────────────────────────────────
 
 class _HeroCard extends StatelessWidget {
   final DateTime now;
@@ -453,11 +453,11 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final amtText = loading ? 'â€”' : _fmt(thisMonthSavings);
-    final loansText = loading ? 'â€”' : _fmt(loansDisbursed);
-    final allTimeText = loading ? 'â€”' : _fmt(allTimeSavings);
+    final amtText = loading ? '—' : _fmt(thisMonthSavings);
+    final loansText = loading ? '—' : _fmt(loansDisbursed);
+    final allTimeText = loading ? '—' : _fmt(allTimeSavings);
     final groupsText = loading
-        ? 'â€” / $totalGroups groups'
+        ? '— / $totalGroups groups'
         : '$groupsThisMonth / $totalGroups groups';
 
     return Container(
@@ -671,7 +671,7 @@ class _HeroStat extends StatelessWidget {
   }
 }
 
-// â”€â”€ Section divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Section divider ───────────────────────────────────────────────────────────
 
 class _SectionDivider extends StatelessWidget {
   final String label;
@@ -706,7 +706,7 @@ class _SectionDivider extends StatelessWidget {
   }
 }
 
-// â”€â”€ Group tile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Group tile ────────────────────────────────────────────────────────────────
 
 class _GroupTile extends StatelessWidget {
   final Group group;
