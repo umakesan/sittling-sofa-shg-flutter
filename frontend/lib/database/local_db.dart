@@ -1,12 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
-import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
-import 'package:sqlite3/sqlite3.dart';
+
+import 'connection/native.dart' if (dart.library.html) 'connection/web.dart';
 
 import '../models/group.dart';
 import '../models/month_entry.dart';
@@ -89,7 +85,7 @@ class MonthEntriesTable extends Table {
 
 @DriftDatabase(tables: [UserCacheTable, GroupsTable, MonthEntriesTable])
 class LocalDb extends _$LocalDb {
-  LocalDb() : super(_openConnection());
+  LocalDb() : super(openConnection());
 
   @override
   int get schemaVersion => 1;
@@ -283,16 +279,3 @@ class LocalDb extends _$LocalDb {
       );
 }
 
-// Opens SQLite on mobile via NativeDatabase (no drift_flutter dependency needed)
-QueryExecutor _openConnection() {
-  return DatabaseConnection.delayed(Future(() async {
-    if (Platform.isAndroid) {
-      await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
-    }
-    final cacheDir = (await getTemporaryDirectory()).path;
-    sqlite3.tempDirectory = cacheDir;
-    final dbDir = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbDir.path, 'shg_portal.sqlite'));
-    return NativeDatabase.createBackgroundConnection(file);
-  }));
-}

@@ -22,10 +22,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   int? _groupId;
   DateTime? _month;
 
-  // Step 2
-  EntryMode _mode = EntryMode.manual;
-
-  // Step 3 — form fields
+  // Step 2 — form fields
   final _savings = TextEditingController();
   final _internalPrincipal = TextEditingController();
   final _internalInterest = TextEditingController();
@@ -75,7 +72,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
       await ref.read(entriesProvider.notifier).createEntry(
         groupId: _groupId!,
         entryMonth: DateFormat('yyyy-MM-01').format(_month!),
-        entryMode: _mode,
+        entryMode: EntryMode.manual,
         savingsCollected: _val(_savings),
         internalLoanPrincipalDisbursed: _val(_internalPrincipal),
         internalLoanInterestCollected: _val(_internalInterest),
@@ -100,7 +97,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF2D6A4F),
         foregroundColor: Colors.white,
-        title: Text('New Entry — Step $_step of 3'),
+        title: Text('New Entry — Step $_step of 2'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -124,11 +121,6 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
                   onGroupSelected: (id) => setState(() => _groupId = id),
                   onMonthSelected: (m) => setState(() => _month = m),
                   onContinue: () => setState(() => _step = 2),
-                ),
-              2 => _StepChooseMode(
-                  mode: _mode,
-                  onModeChanged: (m) => setState(() => _mode = m),
-                  onContinue: () => setState(() => _step = 3),
                 ),
               _ => _StepForm(
                   savings: _savings,
@@ -194,26 +186,55 @@ class _StepSelectGroup extends ConsumerWidget {
                 style: TextStyle(color: Colors.red),
               ),
             ),
-            data: (groups) => ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: groups.length,
-              itemBuilder: (context, i) {
-                final g = groups[i];
-                final selected = g.id == selectedGroupId;
-                return ListTile(
-                  title: Text(g.name),
-                  subtitle: Text(g.villageName),
-                  leading: Icon(
-                    selected ? Icons.check_circle : Icons.circle_outlined,
-                    color: selected ? const Color(0xFF2D6A4F) : Colors.grey,
-                  ),
-                  tileColor: selected ? const Color(0xFFD1FAE5) : null,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  onTap: () => onGroupSelected(g.id),
-                );
-              },
-            ),
+            data: (groups) {
+              final villageMap = <String, List<dynamic>>{};
+              for (final g in groups) {
+                villageMap.putIfAbsent(g.villageName, () => []).add(g);
+              }
+              final villages = villageMap.keys.toList()..sort();
+              final selectedVillage = selectedGroupId == null
+                  ? null
+                  : groups
+                      .firstWhere((g) => g.id == selectedGroupId,
+                          orElse: () => groups.first)
+                      .villageName;
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: villages.length,
+                itemBuilder: (context, i) {
+                  final village = villages[i];
+                  final villageGroups = villageMap[village]!;
+                  return ExpansionTile(
+                    key: PageStorageKey(village),
+                    initiallyExpanded: village == selectedVillage,
+                    leading: const Icon(Icons.location_on_outlined,
+                        color: Color(0xFF2D6A4F)),
+                    title: Text(village,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    trailing: Text('${villageGroups.length}',
+                        style: const TextStyle(color: Colors.grey)),
+                    children: villageGroups.map<Widget>((g) {
+                      final selected = g.id == selectedGroupId;
+                      return ListTile(
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 24),
+                        title: Text(g.name),
+                        leading: Icon(
+                          selected ? Icons.check_circle : Icons.circle_outlined,
+                          color: selected
+                              ? const Color(0xFF2D6A4F)
+                              : Colors.grey,
+                        ),
+                        tileColor: selected ? const Color(0xFFD1FAE5) : null,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        onTap: () => onGroupSelected(g.id),
+                      );
+                    }).toList(),
+                  );
+                },
+              );
+            },
           ),
         ),
         Padding(
@@ -260,114 +281,7 @@ class _StepSelectGroup extends ConsumerWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Step 2 — Choose entry mode
-// ---------------------------------------------------------------------------
-
-class _StepChooseMode extends StatelessWidget {
-  final EntryMode mode;
-  final ValueChanged<EntryMode> onModeChanged;
-  final VoidCallback onContinue;
-
-  const _StepChooseMode({
-    required this.mode,
-    required this.onModeChanged,
-    required this.onContinue,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('How will you enter the data?',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 24),
-          _ModeCard(
-            icon: Icons.camera_alt,
-            title: 'Upload register images',
-            description: 'AI reads the register, you verify the numbers.',
-            selected: mode == EntryMode.prefill,
-            onTap: () => onModeChanged(EntryMode.prefill),
-          ),
-          const SizedBox(height: 12),
-          _ModeCard(
-            icon: Icons.edit,
-            title: 'Enter manually',
-            description: 'Type the monthly totals directly from your register.',
-            selected: mode == EntryMode.manual,
-            onTap: () => onModeChanged(EntryMode.manual),
-          ),
-          const Spacer(),
-          FilledButton(
-            onPressed: onContinue,
-            style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF2D6A4F),
-                minimumSize: const Size(double.infinity, 48)),
-            child: const Text('Continue →'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ModeCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String description;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _ModeCard({
-    required this.icon,
-    required this.title,
-    required this.description,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: selected ? const Color(0xFF2D6A4F) : Colors.grey.shade300,
-            width: selected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          color: selected ? const Color(0xFFD1FAE5) : Colors.white,
-        ),
-        child: Row(
-          children: [
-            Icon(icon,
-                size: 32,
-                color: selected ? const Color(0xFF2D6A4F) : Colors.grey),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                  Text(description,
-                      style: const TextStyle(color: Colors.grey, fontSize: 13)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Step 3 — Financial totals form
+// Step 2 — Financial totals form
 // ---------------------------------------------------------------------------
 
 class _StepForm extends StatelessWidget {
