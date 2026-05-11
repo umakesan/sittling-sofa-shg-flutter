@@ -723,6 +723,19 @@ abstract class AppLocalizations {
   String get missingMonths;
   String get corpusGrowth;
   String get monthlyContributions;
+
+  String get thisMonthSavings;
+  String get sectionToday;
+  String get sectionRestOfMonth;
+  String get notYetCollected;
+  String get searchGroupsHint;
+  String get sortTooltip;
+  String get sortByDate;
+  String get sortByGroupName;
+  String get sortByVillage;
+  String get noGroupsFound;
+  String get stripOpening;
+  String get stripAfterSave;
 }
 
 class _AppLocalizationsDelegate

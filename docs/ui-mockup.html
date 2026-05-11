@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SHG Portal — Tablet UI Mockup v3</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --g900: #0D2E1D; --g800: #1A5C3A; --g700: #2D6A4F;
+    --g100: #DCF0E6; --g50: #F0FAF4;
+    --orange: #D4621A; --gold: #C8A000;
+    --surface: #F4F7F5; --card: #FFFFFF;
+    --border: #D0DDD5;
+    --tp: #0D1F17; --ts: #4D6B5A; --tt: #7A9488;
+    --synced: #166534; --syncedBg: #DCFCE7; --syncedBd: #BBF7D0;
+    --warn: #92400E; --warnBg: #FEFCE8; --warnBd: #FDE68A; --warnIcon: #D97706;
+    --pending: #C2410C; --pendingBg: #FFF3E8;
+    --todayBg: #FFF8EC; --todayBd: #FDE68A; --todayAccent: #C8A000;
+  }
+  body { background: #141428; font-family: 'Segoe UI', system-ui, sans-serif; padding: 48px 32px; }
+  h1 { color: #fff; font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+  .subtitle { color: #666; font-size: 14px; text-align: center; margin-bottom: 52px; }
+  .sec { text-align: center; margin: 52px 0 24px; color: #555; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+  .screen-wrap { display: flex; justify-content: center; margin-bottom: 48px; flex-direction: column; align-items: center; gap: 8px; }
+  .tablet { background: #2a2a3e; border-radius: 18px; padding: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
+  .screen { background: var(--surface); border-radius: 12px; overflow: hidden; width: 960px; }
+
+  /* ── Logo (orange-S fallback) ── */
+  .logo { background: var(--orange); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 10px rgba(212,98,26,0.4); }
+  .logo.sm { width: 36px; height: 36px; border-radius: 9px; font-size: 20px; font-weight: 900; font-style: italic; color: white; }
+  .logo.md { width: 48px; height: 48px; border-radius: 12px; font-size: 27px; font-weight: 900; font-style: italic; color: white; }
+  .logo.lg { width: 64px; height: 64px; border-radius: 16px; font-size: 36px; font-weight: 900; font-style: italic; color: white; }
+
+  /* ── Nav Rail ── */
+  .rail { width: 88px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 14px 0 12px; flex-shrink: 0; }
+  .rail-logo { margin-bottom: 16px; }
+  .nav-item { width: 66px; padding: 9px 6px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; margin-bottom: 2px; }
+  .nav-item.on { background: var(--g100); }
+  .nav-icon { font-size: 20px; }
+  .nav-lbl { font-size: 10px; font-weight: 600; color: var(--tt); }
+  .nav-item.on .nav-lbl { color: var(--g800); }
+  .rail-gap { flex: 1; }
+  .rail-foot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--tt); }
+
+  /* ── App Bar ── */
+  .appbar { background: var(--card); border-bottom: 1px solid var(--border); height: 54px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .appbar-title { font-size: 16px; font-weight: 700; color: var(--tp); }
+  .user-row { display: flex; align-items: center; gap: 9px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--g100); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--g800); }
+  .username { font-size: 13px; font-weight: 600; color: var(--ts); }
+
+  /* ── Layout ── */
+  .row-layout { display: flex; }
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .body-pad { padding: 18px 22px 80px; position: relative; } /* bottom pad for FAB */
+  .body-inner { max-width: 720px; }
+
+  /* ── Hero card ── */
+  .hero { background: linear-gradient(140deg, var(--g800) 0%, var(--g900) 100%); border-radius: 18px; padding: 22px 24px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:180px; height:180px; background:rgba(255,255,255,.05); border-radius:50%; }
+  .hero::after  { content:''; position:absolute; bottom:-30px; right:80px; width:110px; height:110px; background:rgba(255,255,255,.04); border-radius:50%; }
+  .hero-head { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .hero-org { color:rgba(255,255,255,.7); font-size:13px; font-weight:600; }
+  .hero-tag { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; margin-left:auto; }
+  .hero-lbl { color:rgba(255,255,255,.55); font-size:13px; margin-bottom:5px; }
+  .hero-amt { color:white; font-size:38px; font-weight:900; letter-spacing:-1px; margin-bottom:18px; }
+  .hero-row { display:flex; gap:0; }
+  .hero-stat { flex:1; padding-right:16px; }
+  .hero-stat + .hero-stat { padding-left:16px; padding-right:0; border-left:1px solid rgba(255,255,255,.12); }
+  .hero-stat-lbl { color:rgba(255,255,255,.45); font-size:11px; margin-bottom:3px; }
+  .hero-stat-val { color:rgba(255,255,255,.9); font-size:16px; font-weight:700; }
+
+  /* ── Search + Sort ── */
+  .search-sort { display:flex; gap:10px; margin-bottom:12px; align-items:center; }
+  .search-box { flex:1; display:flex; align-items:center; gap:9px; background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; }
+  .search-ico { font-size:15px; color:var(--tt); }
+  .search-ph { font-size:14px; color:var(--tt); }
+  .sort-btn { display:flex; align-items:center; gap:7px; background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; font-size:13px; font-weight:600; color:var(--ts); cursor:pointer; white-space:nowrap; flex-shrink:0; }
+  .sort-btn.active { border-color:var(--g800); color:var(--g800); background:var(--g100); }
+
+  /* ── Section dividers ── */
+  .list-section { display:flex; align-items:center; gap:10px; margin:16px 0 10px; }
+  .list-section-line { flex:1; height:1px; background:var(--border); }
+  .list-section-lbl { font-size:11px; font-weight:700; color:var(--tt); letter-spacing:0.6px; text-transform:uppercase; white-space:nowrap; }
+  .list-section-lbl.today { color:var(--todayAccent); }
+
+  /* ── Entry tile ── */
+  .tile { background:var(--card); border-radius:12px; border:1px solid var(--border); padding:13px 15px; margin-bottom:8px; display:flex; align-items:center; gap:13px; cursor:pointer; }
+  .tile.today-tile { background: var(--todayBg); border-color: var(--todayBd); }
+  .tile.warn-tile { border-left: 3px solid var(--warnIcon); }
+  .tile.not-yet { opacity: 0.7; }
+
+  /* Date badge */
+  .date-badge { border-radius:10px; padding:8px 10px; text-align:center; min-width:52px; flex-shrink:0; border:1px solid var(--g100); background:var(--g50); }
+  .date-badge .day { font-size:18px; font-weight:800; color:var(--g800); line-height:1; }
+  .date-badge .mon { font-size:10px; font-weight:700; color:var(--ts); text-transform:uppercase; margin-top:2px; }
+  .date-badge.today-badge { background:#FEF9C3; border-color:var(--todayBd); }
+  .date-badge.today-badge .day { color: var(--todayAccent); }
+
+  .tile-info { flex:1; }
+  .tile-name { font-size:15px; font-weight:700; color:var(--tp); margin-bottom:3px; }
+  .tile-sub { font-size:13px; color:var(--ts); }
+
+  .tile-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .tile-amt { font-size:15px; font-weight:700; color:var(--tp); }
+  .tile-notyet { font-size:13px; color:var(--tt); font-style:italic; }
+
+  /* Status dot */
+  .dot { width:8px; height:8px; border-radius:50%; }
+  .dot.ok { background:var(--synced); }
+  .dot.warn { background:var(--warnIcon); }
+  .dot.pend { background:var(--pending); }
+
+  /* Today indicator badge */
+  .today-now { background:var(--todayAccent); color:white; font-size:10px; font-weight:800; padding:2px 7px; border-radius:20px; letter-spacing:0.3px; }
+
+  /* ── FAB ── */
+  .fab-container { position:relative; height:0; }
+  .fab { position:absolute; right:22px; bottom:-76px; width:56px; height:56px; background:var(--g800); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:26px; color:white; box-shadow:0 6px 24px rgba(26,92,58,0.55); cursor:pointer; z-index:20; font-weight:300; }
+  .fab-label { position:absolute; right:86px; bottom:-64px; background:var(--g900); color:white; font-size:12px; font-weight:600; padding:6px 12px; border-radius:8px; white-space:nowrap; z-index:20; }
+  .fab-label::after { content:''; position:absolute; right:-6px; top:50%; transform:translateY(-50%); border:6px solid transparent; border-left-color:var(--g900); border-right:none; }
+
+  /* ── Dashboard stat cards ── */
+  .stat { border-radius:14px; border:1px solid var(--border); padding:16px 18px; margin-bottom:10px; display:flex; align-items:center; gap:14px; position:relative; overflow:hidden; }
+  .stat-accent { position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:14px 0 0 14px; }
+  .stat-ico { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .stat-txt { flex:1; }
+  .stat-lbl { font-size:13px; color:var(--ts); margin-bottom:3px; }
+  .stat-val { font-size:24px; font-weight:900; letter-spacing:-0.5px; }
+  .st-green { background:linear-gradient(to right,#f0faf4,white); }
+  .st-green .stat-accent { background:var(--g700); } .st-green .stat-ico { background:var(--g100); } .st-green .stat-val { color:var(--g800); }
+  .st-blue { background:linear-gradient(to right,#eff6ff,white); }
+  .st-blue .stat-accent { background:#1D4ED8; } .st-blue .stat-ico { background:#DBEAFE; } .st-blue .stat-val { color:#1D4ED8; }
+  .st-purple { background:linear-gradient(to right,#f5f3ff,white); }
+  .st-purple .stat-accent { background:#7C3AED; } .st-purple .stat-ico { background:#EDE9FE; } .st-purple .stat-val { color:#7C3AED; }
+  .st-amber { background:linear-gradient(to right,#fffbeb,white); }
+  .st-amber .stat-accent { background:#B45309; } .st-amber .stat-ico { background:#FEF3C7; } .st-amber .stat-val { color:#B45309; }
+  .st-teal { background:linear-gradient(to right,#f0fdfa,white); }
+  .st-teal .stat-accent { background:#0F766E; } .st-teal .stat-ico { background:#CCFBF1; } .st-teal .stat-val { color:#0F766E; }
+  .warn-box { background:var(--warnBg); border:1px solid var(--warnBd); border-radius:12px; padding:13px 16px; display:flex; align-items:center; gap:10px; }
+  .warn-box-txt { font-size:14px; color:var(--warn); font-weight:500; }
+
+  /* ── Login ── */
+  .login-layout { display:flex; height:580px; }
+  .login-brand { width:310px; background:linear-gradient(150deg,var(--g700) 0%,var(--g900) 100%); padding:40px 32px; display:flex; flex-direction:column; position:relative; overflow:hidden; flex-shrink:0; }
+  .login-brand::after { content:''; position:absolute; bottom:-50px; right:-50px; width:200px; height:200px; background:rgba(255,255,255,.04); border-radius:50%; }
+  .brand-tagline { color:white; font-size:28px; font-weight:800; line-height:1.3; flex:1; margin-top:32px; }
+  .brand-tagline em { color:var(--gold); font-style:normal; }
+  .brand-desc { color:rgba(255,255,255,.5); font-size:13px; line-height:1.65; margin:20px 0 28px; }
+  .brand-badge { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:10px 14px; color:rgba(255,255,255,.65); font-size:12px; display:flex; align-items:center; gap:8px; }
+  .dot-green { width:6px; height:6px; background:#4ade80; border-radius:50%; flex-shrink:0; }
+  .login-form-panel { flex:1; background:white; padding:52px 44px; display:flex; flex-direction:column; justify-content:center; }
+  .form-h2 { font-size:26px; font-weight:800; color:var(--tp); margin-bottom:5px; }
+  .form-sub { font-size:14px; color:var(--ts); margin-bottom:32px; }
+  .field-label { font-size:13px; font-weight:600; color:var(--ts); margin-bottom:6px; display:block; }
+  .field { display:flex; align-items:center; gap:10px; border:1.5px solid var(--border); border-radius:10px; padding:13px 14px; background:var(--surface); margin-bottom:14px; }
+  .field.focus { border-color:var(--g800); background:white; }
+  .btn { background:var(--g800); color:white; border:none; border-radius:12px; padding:16px; font-size:15px; font-weight:700; width:100%; margin-top:10px; }
+  .form-hint { font-size:12px; color:var(--tt); text-align:center; margin-top:18px; }
+
+  /* ── Ledger ── */
+  .ledger-hero { background:linear-gradient(140deg,var(--g800),var(--g900)); border-radius:16px; padding:20px 22px; margin-bottom:16px; color:white; }
+  .ledger-name { font-size:22px; font-weight:800; margin-bottom:3px; }
+  .ledger-village { font-size:14px; color:rgba(255,255,255,.6); margin-bottom:16px; }
+  .ledger-stats { display:flex; gap:10px; }
+  .ledger-stat { flex:1; background:rgba(255,255,255,.1); border-radius:10px; padding:12px; }
+  .ls-lbl { font-size:11px; color:rgba(255,255,255,.55); margin-bottom:3px; }
+  .ls-val { font-size:18px; font-weight:800; }
+  .ledger-row { background:var(--card); border-radius:12px; border:1px solid var(--border); padding:13px 16px; margin-bottom:8px; display:flex; align-items:center; gap:12px; }
+  .month-badge { background:var(--g100); color:var(--g800); border-radius:8px; padding:8px 10px; font-size:12px; font-weight:700; text-align:center; min-width:50px; flex-shrink:0; line-height:1.3; }
+  .month-yr { font-size:10px; color:var(--tt); font-weight:500; }
+  .lr-info { flex:1; }
+  .lr-amt { font-size:15px; font-weight:700; color:var(--tp); }
+  .lr-sub { font-size:12px; color:var(--tt); }
+  .pill { font-size:11px; font-weight:700; padding:4px 9px; border-radius:20px; }
+  .pill.ok { background:var(--syncedBg); color:var(--synced); }
+  .pill.warn { background:var(--warnBg); color:var(--warn); }
+</style>
+</head>
+<body>
+
+<h1>SHG Portal — Tablet UI Mockup v3</h1>
+<p class="subtitle">Today's meetings pinned first · All groups shown · FAB · Monthly hero · Search + sort</p>
+
+<!-- ═══ 01 LOGIN ═══════════════════════════════ -->
+<p class="sec">01 — Login Screen</p>
+<div class="screen-wrap"><div class="tablet"><div class="screen">
+  <div class="login-layout">
+    <div class="login-brand">
+      <div class="logo lg">S</div>
+      <div class="brand-tagline">Monthly<br>Savings<br><em>Bookkeeping</em><br>for SOFA</div>
+      <div class="brand-desc">Empowering Sittilingi valley's self-help groups with simple, offline-first record keeping.</div>
+      <div class="brand-badge"><div class="dot-green"></div>Sittilingi Organic Farmers Assn</div>
+    </div>
+    <div class="login-form-panel">
+      <div class="form-h2">Sign in</div>
+      <div class="form-sub">Enter your field worker credentials</div>
+      <label class="field-label">User ID</label>
+      <div class="field"><span style="font-size:16px;color:var(--tt)">👤</span><span style="font-size:14px;color:var(--tp)">field1</span></div>
+      <label class="field-label">Password</label>
+      <div class="field focus"><span style="font-size:16px;color:var(--tt)">🔒</span><span style="font-size:14px;color:var(--tt)">••••••••</span></div>
+      <button class="btn">Sign In</button>
+      <p class="form-hint">No account? Contact your SOFA admin</p>
+    </div>
+  </div>
+</div></div></div>
+
+<!-- ═══ 02 HOME ═══════════════════════════════ -->
+<p class="sec">02 — Home Screen · Today = 11 May 2025 · All groups shown</p>
+<div class="screen-wrap"><div class="tablet"><div class="screen">
+  <div class="row-layout">
+
+    <!-- Nav Rail -->
+    <div class="rail">
+      <div class="rail-logo"><div class="logo sm">S</div></div>
+      <div class="nav-item on"><span class="nav-icon">🏠</span><span class="nav-lbl">Home</span></div>
+      <div class="nav-item"><span class="nav-icon">📊</span><span class="nav-lbl">Dashboard</span></div>
+      <div class="nav-item"><span class="nav-icon">🏘️</span><span class="nav-lbl">Village</span></div>
+      <div class="nav-item"><span class="nav-icon">👥</span><span class="nav-lbl">Group</span></div>
+      <div class="rail-gap"></div>
+      <div class="rail-foot"><div class="icon-btn">🌐</div></div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main">
+      <div class="appbar">
+        <span class="appbar-title">Sittilingi SHG Portal</span>
+        <div class="user-row"><div class="avatar">F1</div><span class="username">field1</span></div>
+      </div>
+
+      <div class="body-pad">
+        <div class="body-inner">
+
+          <!-- Hero: monthly savings -->
+          <div class="hero">
+            <div class="hero-head">
+              <div class="logo sm">S</div>
+              <span class="hero-org">SOFA Sittilingi</span>
+              <span class="hero-tag">📅 May 2025</span>
+            </div>
+            <div class="hero-lbl">Savings Collected This Month</div>
+            <div class="hero-amt">₹ 38,400</div>
+            <div class="hero-row">
+              <div class="hero-stat">
+                <div class="hero-stat-lbl">Groups this month</div>
+                <div class="hero-stat-val">8 / 14 groups</div>
+              </div>
+              <div class="hero-stat">
+                <div class="hero-stat-lbl">Loans disbursed</div>
+                <div class="hero-stat-val">₹ 14,500</div>
+              </div>
+              <div class="hero-stat">
+                <div class="hero-stat-lbl">All-time savings</div>
+                <div class="hero-stat-val">₹ 12,45,300</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search + Sort -->
+          <div class="search-sort">
+            <div class="search-box">
+              <span class="search-ico">🔍</span>
+              <span class="search-ph">Search groups or villages…</span>
+            </div>
+            <div class="sort-btn active">↕ Sort: Date</div>
+          </div>
+
+          <!-- TODAY section -->
+          <div class="list-section">
+            <div class="list-section-line"></div>
+            <div class="list-section-lbl today">📅 TODAY · 11 MAY</div>
+            <div class="list-section-line"></div>
+          </div>
+
+          <!-- Today's groups — 2 groups meet on the 11th -->
+          <div class="tile today-tile">
+            <div class="date-badge today-badge">
+              <div class="day">11</div>
+              <div class="mon">May</div>
+            </div>
+            <div class="tile-info">
+              <div class="tile-name">Avalur Hills SHG <span class="today-now">TODAY</span></div>
+              <div class="tile-sub">📍 Avalur</div>
+            </div>
+            <div class="tile-right">
+              <div class="tile-notyet">Not yet collected</div>
+            </div>
+          </div>
+
+          <div class="tile today-tile">
+            <div class="date-badge today-badge">
+              <div class="day">11</div>
+              <div class="mon">May</div>
+            </div>
+            <div class="tile-info">
+              <div class="tile-name">Vaanavil SHG <span class="today-now">TODAY</span></div>
+              <div class="tile-sub">📍 Sittilingi</div>
+            </div>
+            <div class="tile-right">
+              <div class="tile-amt">₹ 3,200</div>
+              <div class="dot ok"></div>
+            </div>
+          </div>
+
+          <!-- REST OF MONTH -->
+          <div class="list-section" style="margin-top:8px">
+            <div class="list-section-line"></div>
+            <div class="list-section-lbl">REST OF MAY</div>
+            <div class="list-section-line"></div>
+          </div>
+
+          <div class="tile">
+            <div class="date-badge"><div class="day">15</div><div class="mon">May</div></div>
+            <div class="tile-info">
+              <div class="tile-name">Maraneri SHG</div>
+              <div class="tile-sub">📍 Sittilingi</div>
+            </div>
+            <div class="tile-right">
+              <div class="tile-amt">₹ 5,600</div>
+              <div class="dot ok"></div>
+            </div>
+          </div>
+
+          <div class="tile warn-tile">
+            <div class="date-badge"><div class="day">15</div><div class="mon">May</div></div>
+            <div class="tile-info">
+              <div class="tile-name">Palakaadu SHG</div>
+              <div class="tile-sub">📍 Kathripatti</div>
+            </div>
+            <div class="tile-right">
+              <div class="tile-amt">₹ 3,800</div>
+              <div class="dot warn"></div>
+            </div>
+          </div>
+
+          <div class="tile">
+            <div class="date-badge"><div class="day">18</div><div class="mon">May</div></div>
+            <div class="tile-info">
+              <div class="tile-name">Sundakaadu SHG</div>
+              <div class="tile-sub">📍 Sittilingi</div>
+            </div>
+            <div class="tile-right">
+              <div class="tile-notyet">Not yet collected</div>
+            </div>
+          </div>
+
+          <div class="tile">
+            <div class="date-badge"><div class="day">22</div><div class="mon">May</div></div>
+            <div class="tile-info">
+              <div class="tile-name">Kolli Hills SHG</div>
+              <div class="tile-sub">📍 Avalur</div>
+            </div>
+            <div class="tile-right">
+              <div class="tile-notyet">Not yet collected</div>
+            </div>
+          </div>
+
+          <div class="tile">
+            <div class="date-badge"><div class="day">25</div><div class="mon">May</div></div>
+            <div class="tile-info">
+              <div class="tile-name">Vellimalai SHG</div>
+              <div class="tile-sub">📍 Sittilingi</div>
+            </div>
+            <div class="tile-right">
+              <div class="tile-notyet">Not yet collected</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAB — sits at bottom-right of the screen, inside the tablet frame -->
+  <div style="display:flex;justify-content:flex-end;padding:0 28px 24px;margin-top:-64px;position:relative;z-index:10">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="background:var(--g900);color:white;font-size:12px;font-weight:600;padding:7px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2)">
+        New Monthly Entry
+        <span style="margin-left:4px;font-size:10px;opacity:0.6">◀</span>
+      </div>
+      <div style="width:56px;height:56px;background:var(--g800);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;color:white;box-shadow:0 6px 24px rgba(26,92,58,0.55);cursor:pointer;">＋</div>
+    </div>
+  </div>
+
+</div></div></div>
+
+<!-- ═══ 03 DASHBOARD ═══════════════════════════════ -->
+<p class="sec">03 — Dashboard Screen</p>
+<div class="screen-wrap"><div class="tablet"><div class="screen">
+  <div class="row-layout">
+    <div class="rail">
+      <div class="rail-logo"><div class="logo sm">S</div></div>
+      <div class="nav-item"><span class="nav-icon">🏠</span><span class="nav-lbl">Home</span></div>
+      <div class="nav-item on"><span class="nav-icon">📊</span><span class="nav-lbl">Dashboard</span></div>
+      <div class="nav-item"><span class="nav-icon">🏘️</span><span class="nav-lbl">Village</span></div>
+      <div class="nav-item"><span class="nav-icon">👥</span><span class="nav-lbl">Group</span></div>
+      <div class="rail-gap"></div>
+      <div class="rail-foot"><div class="icon-btn">🌐</div></div>
+    </div>
+    <div class="main">
+      <div class="appbar">
+        <span class="appbar-title">Dashboard</span>
+        <div class="user-row"><div class="avatar">F1</div><span class="username">field1</span></div>
+      </div>
+      <div class="body-pad" style="padding-bottom:24px">
+        <div class="body-inner">
+          <div style="font-size:22px;font-weight:800;color:var(--tp);margin-bottom:3px">Village-wide Totals</div>
+          <div style="font-size:13px;color:var(--ts);margin-bottom:18px">Based on 42 synced entries across all groups</div>
+          <div class="stat st-green"><div class="stat-accent"></div><div class="stat-ico">💰</div><div class="stat-txt"><div class="stat-lbl">Total Savings Collected</div><div class="stat-val">₹ 12,45,300</div></div></div>
+          <div class="stat st-blue"><div class="stat-accent"></div><div class="stat-ico">👥</div><div class="stat-txt"><div class="stat-lbl">Internal Loan Principal Disbursed</div><div class="stat-val">₹ 8,20,000</div></div></div>
+          <div class="stat st-purple"><div class="stat-accent"></div><div class="stat-ico">%</div><div class="stat-txt"><div class="stat-lbl">Internal Loan Interest Collected</div><div class="stat-val">₹ 1,05,400</div></div></div>
+          <div class="stat st-amber"><div class="stat-accent"></div><div class="stat-ico">↑</div><div class="stat-txt"><div class="stat-lbl">SOFA Loans Disbursed</div><div class="stat-val">₹ 3,40,000</div></div></div>
+          <div class="stat st-teal"><div class="stat-accent"></div><div class="stat-ico">↓</div><div class="stat-txt"><div class="stat-lbl">SOFA Loans Repaid</div><div class="stat-val">₹ 2,80,000</div></div></div>
+          <div class="warn-box"><span style="font-size:18px">⚠️</span><span class="warn-box-txt">4 entries have data warnings that need review</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div></div>
+
+<!-- ═══ 04 LEDGER ═══════════════════════════════ -->
+<p class="sec">04 — Ledger Screen (Group Detail)</p>
+<div class="screen-wrap"><div class="tablet"><div class="screen">
+  <div class="row-layout">
+    <div class="rail">
+      <div class="rail-logo"><div class="logo sm">S</div></div>
+      <div class="nav-item on"><span class="nav-icon">🏠</span><span class="nav-lbl">Home</span></div>
+      <div class="nav-item"><span class="nav-icon">📊</span><span class="nav-lbl">Dashboard</span></div>
+      <div class="nav-item"><span class="nav-icon">🏘️</span><span class="nav-lbl">Village</span></div>
+      <div class="nav-item"><span class="nav-icon">👥</span><span class="nav-lbl">Group</span></div>
+      <div class="rail-gap"></div>
+      <div class="rail-foot"><div class="icon-btn">🌐</div></div>
+    </div>
+    <div class="main">
+      <div class="appbar">
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:20px;color:var(--ts)">←</span>
+          <span class="appbar-title">Maraneri SHG — Ledger</span>
+        </div>
+      </div>
+      <div class="body-pad" style="padding-bottom:24px">
+        <div class="body-inner">
+          <div class="ledger-hero">
+            <div class="ledger-name">Maraneri SHG</div>
+            <div class="ledger-village">📍 Sittilingi Village · Meets on the 15th</div>
+            <div class="ledger-stats">
+              <div class="ledger-stat"><div class="ls-lbl">Total Savings</div><div class="ls-val">₹ 58,200</div></div>
+              <div class="ledger-stat"><div class="ls-lbl">Months Recorded</div><div class="ls-val">12</div></div>
+              <div class="ledger-stat"><div class="ls-lbl">Last Entry</div><div class="ls-val">May '25</div></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+            <div style="width:3px;height:15px;background:var(--g800);border-radius:2px"></div>
+            <span style="font-size:11px;font-weight:700;color:var(--ts);letter-spacing:.6px;text-transform:uppercase">Monthly History</span>
+          </div>
+          <div class="ledger-row">
+            <div class="month-badge">MAY<br><span class="month-yr">2025</span></div>
+            <div class="lr-info"><div class="lr-amt">₹ 5,600 savings · ₹ 2,000 loan</div><div class="lr-sub">Interest ₹ 200 · Synced</div></div>
+            <div class="pill ok">✓</div>
+          </div>
+          <div class="ledger-row">
+            <div class="month-badge">APR<br><span class="month-yr">2025</span></div>
+            <div class="lr-info"><div class="lr-amt">₹ 5,200 savings · ₹ 1,500 loan</div><div class="lr-sub">Interest ₹ 150 · Warning</div></div>
+            <div class="pill warn">⚠</div>
+          </div>
+          <div class="ledger-row">
+            <div class="month-badge">MAR<br><span class="month-yr">2025</span></div>
+            <div class="lr-info"><div class="lr-amt">₹ 4,900 savings · ₹ 0 loan</div><div class="lr-sub">Interest ₹ 100 · Synced</div></div>
+            <div class="pill ok">✓</div>
+          </div>
+          <div class="ledger-row">
+            <div class="month-badge">FEB<br><span class="month-yr">2025</span></div>
+            <div class="lr-info"><div class="lr-amt">₹ 5,100 savings · ₹ 3,000 loan</div><div class="lr-sub">Interest ₹ 300 · Synced</div></div>
+            <div class="pill ok">✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div></div>
+
+<p style="text-align:center;color:#444;font-size:12px;margin-top:40px;padding-bottom:40px">
+  SOFA Sittilingi SHG Portal · v3 · Green #1A5C3A · Orange #D4621A · Gold #C8A000
+</p>
+</body>
+</html>

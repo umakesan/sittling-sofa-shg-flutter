@@ -169,5 +169,18 @@
   "regularity": "Regularity",
   "missingMonths": "Missing months",
   "corpusGrowth": "Corpus Growth",
-  "monthlyContributions": "Monthly Contributions"
+  "monthlyContributions": "Monthly Contributions",
+
+  "thisMonthSavings": "இந்த மாத Savings",
+  "sectionToday": "இன்று",
+  "sectionRestOfMonth": "மாதத்தின் மீதி",
+  "notYetCollected": "இன்னும் collect ஆகவில்லை",
+  "searchGroupsHint": "குழுக்களை search செய்யவும்…",
+  "sortTooltip": "Sort",
+  "sortByDate": "கூட்ட தேதி",
+  "sortByGroupName": "குழு பெயர்",
+  "sortByVillage": "கிராமம்",
+  "noGroupsFound": "குழுக்கள் கிடைக்கவில்லை",
+  "stripOpening": "தொடக்கம்",
+  "stripAfterSave": "சேமிப்புக்கு பின்"
 }

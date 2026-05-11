@@ -27,3 +27,6 @@ frontend/.env.dev.json
 # Large binary docs
 docs/*.pdf
 docs/*.xlsx
+
+# Claude Code local settings (may contain tokens/local paths)
+.claude/settings.local.json

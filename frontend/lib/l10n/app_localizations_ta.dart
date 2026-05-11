@@ -384,6 +384,42 @@ class AppLocalizationsTa extends AppLocalizations {
   @override String get missingMonths => 'காணாத மாதங்கள்';
   @override String get corpusGrowth => 'நிதி வளர்ச்சி';
   @override String get monthlyContributions => 'மாதாந்திர பங்களிப்புகள்';
+
+  @override
+  String get thisMonthSavings => 'இந்த மாத சேமிப்பு';
+
+  @override
+  String get sectionToday => 'இன்று';
+
+  @override
+  String get sectionRestOfMonth => 'மாதத்தின் மீதி';
+
+  @override
+  String get notYetCollected => 'இன்னும் சேகரிக்கப்படவில்லை';
+
+  @override
+  String get searchGroupsHint => 'குழுக்களை தேடவும்…';
+
+  @override
+  String get sortTooltip => 'வரிசைப்படுத்து';
+
+  @override
+  String get sortByDate => 'கூட்ட தேதி';
+
+  @override
+  String get sortByGroupName => 'குழு பெயர்';
+
+  @override
+  String get sortByVillage => 'கிராமம்';
+
+  @override
+  String get noGroupsFound => 'குழுக்கள் கிடைக்கவில்லை';
+
+  @override
+  String get stripOpening => 'தொடக்கம்';
+
+  @override
+  String get stripAfterSave => 'சேமிப்புக்கு பின்';
 }
 
 /// The translations for Tamil, as used in India (`ta_IN`).
@@ -749,4 +785,40 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   @override String get missingMonths => 'Missing months';
   @override String get corpusGrowth => 'Corpus Growth';
   @override String get monthlyContributions => 'Monthly Contributions';
+
+  @override
+  String get thisMonthSavings => 'இந்த மாத Savings';
+
+  @override
+  String get sectionToday => 'இன்று';
+
+  @override
+  String get sectionRestOfMonth => 'மாதத்தின் மீதி';
+
+  @override
+  String get notYetCollected => 'இன்னும் collect ஆகவில்லை';
+
+  @override
+  String get searchGroupsHint => 'குழுக்களை search செய்யவும்…';
+
+  @override
+  String get sortTooltip => 'Sort';
+
+  @override
+  String get sortByDate => 'கூட்ட தேதி';
+
+  @override
+  String get sortByGroupName => 'குழு பெயர்';
+
+  @override
+  String get sortByVillage => 'கிராமம்';
+
+  @override
+  String get noGroupsFound => 'குழுக்கள் கிடைக்கவில்லை';
+
+  @override
+  String get stripOpening => 'தொடக்கம்';
+
+  @override
+  String get stripAfterSave => 'சேமிப்புக்கு பின்';
 }

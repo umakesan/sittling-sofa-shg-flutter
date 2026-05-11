@@ -4,6 +4,7 @@ class Group {
   final String villageName;
   final String code;
   final bool isActive;
+  final double openingBankBalance;
 
   const Group({
     required this.id,
@@ -11,6 +12,7 @@ class Group {
     required this.villageName,
     required this.code,
     required this.isActive,
+    this.openingBankBalance = 0,
   });
 
   factory Group.fromJson(Map<String, dynamic> json) => Group(
@@ -19,6 +21,8 @@ class Group {
         villageName: json['village_name'] as String,
         code: json['code'] as String,
         isActive: json['is_active'] as bool,
+        openingBankBalance:
+            (json['opening_bank_balance'] as num? ?? 0).toDouble(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -27,5 +31,6 @@ class Group {
         'village_name': villageName,
         'code': code,
         'is_active': isActive,
+        'opening_bank_balance': openingBankBalance,
       };
 }

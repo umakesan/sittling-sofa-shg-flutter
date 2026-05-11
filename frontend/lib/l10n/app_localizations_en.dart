@@ -432,4 +432,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override String get missingMonths => 'Missing months';
   @override String get corpusGrowth => 'Corpus Growth';
   @override String get monthlyContributions => 'Monthly Contributions';
+
+  @override
+  String get thisMonthSavings => 'This month\'s savings';
+
+  @override
+  String get sectionToday => 'TODAY';
+
+  @override
+  String get sectionRestOfMonth => 'REST OF MONTH';
+
+  @override
+  String get notYetCollected => 'Not yet collected';
+
+  @override
+  String get searchGroupsHint => 'Search groups…';
+
+  @override
+  String get sortTooltip => 'Sort';
+
+  @override
+  String get sortByDate => 'Meeting date';
+
+  @override
+  String get sortByGroupName => 'Group name';
+
+  @override
+  String get sortByVillage => 'Village';
+
+  @override
+  String get noGroupsFound => 'No groups found';
+
+  @override
+  String get stripOpening => 'Opening';
+
+  @override
+  String get stripAfterSave => 'After save';
 }

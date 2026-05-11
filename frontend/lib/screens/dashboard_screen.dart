@@ -395,31 +395,36 @@ class _StatsGrid extends StatelessWidget {
     final chips = [
       _StatChip(
         icon: Icons.savings_outlined,
-        color: AppColors.synced,
+        accentColor: const Color(0xFF166534),
+        tintColor: const Color(0xFFDCFCE7),
         label: l10n.savingsCorpus,
         value: summary.savings,
       ),
       _StatChip(
         icon: Icons.trending_up_rounded,
-        color: const Color(0xFF0369A1),
+        accentColor: const Color(0xFF0369A1),
+        tintColor: const Color(0xFFDBEAFE),
         label: l10n.interestEarned,
         value: summary.loanInterest,
       ),
       _StatChip(
         icon: Icons.people_outline,
-        color: AppColors.primary,
+        accentColor: const Color(0xFF1E40AF),
+        tintColor: const Color(0xFFDBEAFE),
         label: l10n.internalLoanPrincipal,
         value: summary.loanPrincipal,
       ),
       _StatChip(
         icon: Icons.arrow_upward_rounded,
-        color: AppColors.warningIcon,
+        accentColor: const Color(0xFFB45309),
+        tintColor: const Color(0xFFFEF3C7),
         label: l10n.sofaLoansDisbursed,
         value: summary.sofaDisbursed,
       ),
       _StatChip(
         icon: Icons.arrow_downward_rounded,
-        color: AppColors.synced,
+        accentColor: const Color(0xFF0F766E),
+        tintColor: const Color(0xFFCCFBF1),
         label: l10n.sofaLoansRepaid,
         value: summary.sofaRepaid,
       ),
@@ -448,51 +453,79 @@ class _StatsGrid extends StatelessWidget {
 
 class _StatChip extends StatelessWidget {
   final IconData icon;
-  final Color color;
+  final Color accentColor;
+  final Color tintColor;
   final String label;
   final double value;
 
   const _StatChip({
     required this.icon,
-    required this.color,
+    required this.accentColor,
+    required this.tintColor,
     required this.label,
     required this.value,
   });
 
   @override
   Widget build(BuildContext context) {
+    final formatted = _fmtFull(value);
     return Container(
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.surfaceCard,
+        gradient: LinearGradient(
+          colors: [tintColor, AppColors.surfaceCard],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
         borderRadius: BorderRadius.circular(12),
         border: Border(
-          left: BorderSide(color: color, width: 3),
-          top: const BorderSide(color: AppColors.border),
-          right: const BorderSide(color: AppColors.border),
-          bottom: const BorderSide(color: AppColors.border),
+          left: BorderSide(color: accentColor, width: 4),
+          top: BorderSide(color: accentColor.withOpacity(0.15), width: 1),
+          right: BorderSide(color: accentColor.withOpacity(0.15), width: 1),
+          bottom: BorderSide(color: accentColor.withOpacity(0.15), width: 1),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 14, color: color),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  label.toUpperCase(),
-                  style: AppTextStyles.sectionHeader,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: accentColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 22, color: accentColor),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(_fmtFull(value), style: AppTextStyles.amountSmall),
-        ],
+            ),
+            const SizedBox(width: 10),
+            Text(
+              formatted,
+              style: AppTextStyles.amount.copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: accentColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
