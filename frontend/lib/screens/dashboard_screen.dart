@@ -406,6 +406,7 @@ class _StatsGrid extends StatelessWidget {
         tintColor: const Color(0xFFDBEAFE),
         label: l10n.interestEarned,
         value: summary.loanInterest,
+        onTap: () => context.push('/reports/interest'),
       ),
       _StatChip(
         icon: Icons.people_outline,
@@ -457,6 +458,7 @@ class _StatChip extends StatelessWidget {
   final Color tintColor;
   final String label;
   final double value;
+  final VoidCallback? onTap;
 
   const _StatChip({
     required this.icon,
@@ -464,12 +466,13 @@ class _StatChip extends StatelessWidget {
     required this.tintColor,
     required this.label,
     required this.value,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final formatted = _fmtFull(value);
-    return Container(
+    final chip = Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -526,6 +529,16 @@ class _StatChip extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+    if (onTap == null) return chip;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: chip,
       ),
     );
   }

@@ -15,6 +15,7 @@ import 'screens/ledger_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/new_entry_screen.dart';
 import 'screens/reports/audit_log_screen.dart';
+import 'screens/reports/interest_report_screen.dart';
 import 'screens/reports/bank_flow_screen.dart';
 import 'screens/reports/group_health_screen.dart';
 import 'screens/reports/overdue_alerts_screen.dart';
@@ -100,6 +101,12 @@ final _routerProvider = Provider<GoRouter>((ref) {
               return GroupSavingsScreen(groupId: id);
             },
           ),
+          // Interest Earned detail
+          GoRoute(
+            path: '/reports/interest',
+            builder: (_, __) => const InterestReportScreen(),
+          ),
+
           // SOFA Loans (3-level)
           GoRoute(
             path: '/reports/sofa',
