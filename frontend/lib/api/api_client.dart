@@ -63,6 +63,32 @@ class ApiClient {
         .toList();
   }
 
+  Future<Group> createGroup({
+    required String name,
+    required String code,
+    required String villageName,
+  }) async {
+    final response = await _dio.post('/groups', data: {
+      'name': name,
+      'code': code,
+      'village_name': villageName,
+    });
+    return Group.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  // -- Villages --
+
+  Future<List<String>> fetchVillageNames() async {
+    final response = await _dio.get('/villages');
+    return (response.data as List)
+        .map((v) => (v as Map<String, dynamic>)['name'] as String)
+        .toList();
+  }
+
+  Future<void> createVillage(String name) async {
+    await _dio.post('/villages', data: {'name': name});
+  }
+
   // -- Month Entries --
 
   Future<Map<String, dynamic>> createEntry(Map<String, dynamic> payload) async {

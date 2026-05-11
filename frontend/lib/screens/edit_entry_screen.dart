@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shg_portal/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,8 @@ import 'package:intl/intl.dart';
 import '../models/month_entry.dart';
 import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 import '../widgets/warning_panel.dart';
 
 class EditEntryScreen extends ConsumerStatefulWidget {
@@ -58,25 +61,27 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
     super.dispose();
   }
 
-  String _fmt(double v) => v == 0 ? '' : v.toStringAsFixed(v.truncateToDouble() == v ? 0 : 2);
-  double _val(TextEditingController c) => double.tryParse(c.text.trim()) ?? 0;
+  String _fmt(double v) =>
+      v == 0 ? '' : v.toStringAsFixed(v.truncateToDouble() == v ? 0 : 2);
+  double _val(TextEditingController c) =>
+      double.tryParse(c.text.trim()) ?? 0;
 
-  List<String> get _warnings {
+  List<String> _getWarnings(AppLocalizations l10n) {
     final w = <String>[];
     final savings = _val(_savings);
     final interest = _val(_internalInterest);
     final toBank = _val(_toBank);
     final fromBank = _val(_fromBank);
     if (toBank > savings + interest + 1) {
-      w.add('To bank exceeds visible collections. Check the figures.');
+      w.add(l10n.warningToBankExceedsCollections);
     }
     if (fromBank > 0 && toBank == 0) {
-      w.add('Bank withdrawal present with no deposit this month.');
+      w.add(l10n.warningBankWithdrawalNoDeposit);
     }
     return w;
   }
 
-  Future<void> _save() async {
+  Future<void> _save(AppLocalizations l10n) async {
     setState(() { _saving = true; _saveError = null; });
     try {
       final updated = widget.entry.copyWith(
@@ -93,7 +98,7 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
       await ref.read(entriesProvider.notifier).updateEntry(updated);
       if (mounted) context.pop();
     } catch (e) {
-      setState(() { _saveError = 'Failed to save. Please try again.'; });
+      setState(() { _saveError = l10n.errorFailedToSave; });
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -101,103 +106,143 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final groupName = ref.watch(groupsProvider).maybeWhen(
-      data: (groups) =>
-          groups.where((g) => g.id == widget.entry.groupId).firstOrNull?.name,
-      orElse: () => null,
-    ) ?? 'Group ${widget.entry.groupId}';
+    final l10n = AppLocalizations.of(context);
 
-    final month = DateFormat('MMMM yyyy')
-        .format(DateTime.parse(widget.entry.entryMonth));
+    final groupName = ref.watch(groupsProvider).maybeWhen(
+          data: (groups) => groups
+              .where((g) => g.id == widget.entry.groupId)
+              .firstOrNull
+              ?.name,
+          orElse: () => null,
+        ) ??
+        '${l10n.groupLedger} ${widget.entry.groupId}';
+
+    final month =
+        DateFormat('MMMM yyyy').format(DateTime.parse(widget.entry.entryMonth));
+
+    final isTablet = MediaQuery.sizeOf(context).width >= 720;
+
+    final totalRow = ListenableBuilder(
+      listenable:
+          Listenable.merge([_savings, _internalPrincipal, _internalInterest]),
+      builder: (_, __) {
+        final total = (double.tryParse(_savings.text.trim()) ?? 0) +
+            (double.tryParse(_internalPrincipal.text.trim()) ?? 0) +
+            (double.tryParse(_internalInterest.text.trim()) ?? 0);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(l10n.totalAmount, style: AppTextStyles.title),
+              Text('₹ ${NumberFormat('#,##0').format(total)}',
+                  style: AppTextStyles.amount),
+            ],
+          ),
+        );
+      },
+    );
+
+    final warningPanel = ListenableBuilder(
+      listenable: Listenable.merge(
+          [_savings, _internalInterest, _toBank, _fromBank]),
+      builder: (ctx, __) =>
+          WarningPanel(warnings: _getWarnings(AppLocalizations.of(ctx))),
+    );
+
+    final leftFields = <Widget>[
+      _SectionHeader(l10n.savingsSection),
+      _MoneyField(label: l10n.savingsCollected, controller: _savings),
+      _MoneyField(label: l10n.intLoanPrincipal, controller: _internalPrincipal),
+      _MoneyField(label: l10n.overallInterest, controller: _internalInterest),
+      totalRow,
+      _SectionHeader(l10n.bankCashSection),
+      _MoneyField(label: l10n.toBank, controller: _toBank),
+      _MoneyField(label: l10n.fromBank, controller: _fromBank),
+    ];
+
+    final rightFields = <Widget>[
+      _SectionHeader(l10n.sofaLoanSection),
+      _MoneyField(label: l10n.loanDisbursed, controller: _sofaDisbursed),
+      _MoneyField(label: l10n.loanReturn, controller: _sofaRepayment),
+      _MoneyField(label: l10n.interest, controller: _sofaInterest),
+      const SizedBox(height: 6),
+      TextField(
+        controller: _notes,
+        decoration: InputDecoration(labelText: l10n.notesOptional),
+        maxLines: 2,
+      ),
+      const SizedBox(height: 16),
+      warningPanel,
+      if (_saveError != null)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Text(_saveError!,
+              style: AppTextStyles.body.copyWith(color: AppColors.error)),
+        ),
+      FilledButton(
+        onPressed: _saving ? null : () => _save(l10n),
+        style: FilledButton.styleFrom(
+            minimumSize: const Size(double.infinity, 56)),
+        child: Text(_saving ? l10n.saving : l10n.saveChanges),
+      ),
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2D6A4F),
-        foregroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(groupName, style: const TextStyle(fontSize: 16)),
-            Text(month, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+            Text(groupName, style: AppTextStyles.appBarTitle),
+            Text(month, style: AppTextStyles.appBarSubtitle),
           ],
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Edit monthly totals',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
-
-              const _SectionHeader('SAVINGS'),
-              _MoneyField(label: 'Savings Collected', controller: _savings),
-              _MoneyField(label: 'Int. Loan Principal', controller: _internalPrincipal),
-              _MoneyField(label: 'Overall Interest', controller: _internalInterest),
-              ListenableBuilder(
-                listenable: Listenable.merge([_savings, _internalPrincipal, _internalInterest]),
-                builder: (_, __) {
-                  final total = (double.tryParse(_savings.text.trim()) ?? 0) +
-                      (double.tryParse(_internalPrincipal.text.trim()) ?? 0) +
-                      (double.tryParse(_internalInterest.text.trim()) ?? 0);
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: isTablet
+            ? SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.editMonthlyTotals,
+                        style: AppTextStyles.headline),
+                    const SizedBox(height: 20),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Total Amount',
-                            style: TextStyle(fontWeight: FontWeight.w600)),
-                        Text('₹ ${NumberFormat('#,##0').format(total)}',
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: leftFields,
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: rightFields,
+                          ),
+                        ),
                       ],
                     ),
-                  );
-                },
-              ),
-
-              const _SectionHeader('BANK / CASH'),
-              _MoneyField(label: 'To Bank', controller: _toBank),
-              _MoneyField(label: 'From Bank', controller: _fromBank),
-              const SizedBox(height: 6),
-
-              const _SectionHeader('SOFA LOAN'),
-              _MoneyField(label: 'Loan Disbursed', controller: _sofaDisbursed),
-              _MoneyField(label: 'Loan Return', controller: _sofaRepayment),
-              _MoneyField(label: 'Interest', controller: _sofaInterest),
-              const SizedBox(height: 6),
-
-              TextField(
-                controller: _notes,
-                decoration: const InputDecoration(
-                  labelText: 'Notes (optional)',
-                  border: OutlineInputBorder(),
+                  ],
                 ),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 16),
-              ListenableBuilder(
-                listenable: Listenable.merge([
-                  _savings, _internalInterest, _toBank, _fromBank,
-                ]),
-                builder: (_, __) => WarningPanel(warnings: _warnings),
-              ),
-              if (_saveError != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(_saveError!, style: const TextStyle(color: Colors.red)),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.editMonthlyTotals,
+                        style: AppTextStyles.headline),
+                    const SizedBox(height: 20),
+                    ...leftFields,
+                    const SizedBox(height: 6),
+                    ...rightFields,
+                  ],
                 ),
-              FilledButton(
-                onPressed: _saving ? null : _save,
-                style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D6A4F),
-                    minimumSize: const Size(double.infinity, 48)),
-                child: Text(_saving ? 'Saving…' : 'Save changes'),
               ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -213,13 +258,8 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(top: 4, bottom: 12),
       child: Row(
         children: [
-          Text(title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  letterSpacing: 0.8,
-                  color: Colors.black54)),
-          const SizedBox(width: 8),
+          Text(title, style: AppTextStyles.sectionHeader),
+          const SizedBox(width: 10),
           const Expanded(child: Divider()),
         ],
       ),
@@ -242,7 +282,6 @@ class _MoneyField extends StatelessWidget {
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
           prefixText: '₹ ',
         ),
       ),

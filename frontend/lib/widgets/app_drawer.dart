@@ -1,12 +1,16 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:shg_portal/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../database/sync_service.dart';
 import '../providers/auth_provider.dart';
 import '../providers/entries_provider.dart';
+import '../providers/locale_provider.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 
 class AppDrawer extends ConsumerStatefulWidget {
   const AppDrawer({super.key});
@@ -19,33 +23,122 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
   bool _syncing = false;
   String? _syncMessage;
   bool _syncIsError = false;
+  late AppLocalizations _l10n;
 
   @override
   Widget build(BuildContext context) {
+    _l10n = AppLocalizations.of(context);
     final user = ref.watch(authProvider);
     final pendingCount = ref.watch(pendingCountProvider);
+    final currentLocale = ref.watch(localeProvider);
 
     return Drawer(
+      backgroundColor: AppColors.surfaceCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          UserAccountsDrawerHeader(
-            accountName: Text(
-              user?.name ?? '',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          // Header
+          Container(
+            color: AppColors.primary,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 20,
+              left: 20,
+              right: 20,
+              bottom: 20,
             ),
-            accountEmail: Text(
-              user?.role.replaceAll('_', ' ').toUpperCase() ?? '',
-              style: const TextStyle(fontSize: 12),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  backgroundColor: Colors.white24,
+                  radius: 26,
+                  child: Icon(Icons.person, size: 30, color: Colors.white),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user?.name ?? '',
+                        style: AppTextStyles.title
+                            .copyWith(color: AppColors.textOnDark),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        user?.role.replaceAll('_', ' ').toUpperCase() ?? '',
+                        style: AppTextStyles.label
+                            .copyWith(color: AppColors.textOnDarkMuted),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white12,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    'SOFA',
+                    style: AppTextStyles.badge.copyWith(
+                      color: Colors.white,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            currentAccountPicture: const CircleAvatar(
-              backgroundColor: Colors.white24,
-              child: Icon(Icons.person, size: 40, color: Colors.white),
-            ),
-            decoration: const BoxDecoration(color: Color(0xFF2D6A4F)),
           ),
 
-          // ── Sync (mobile only) ───────────────────────────────────────────
+          const SizedBox(height: 8),
+
+          // Language switcher
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(_l10n.language, style: AppTextStyles.sectionHeader),
+                const SizedBox(height: 8),
+                SegmentedButton<String>(
+                  segments: [
+                    ButtonSegment(
+                      value: 'en',
+                      label: Text(_l10n.langEnglish,
+                          style: AppTextStyles.label),
+                    ),
+                    ButtonSegment(
+                      value: 'ta',
+                      label: Text(_l10n.langTamil,
+                          style: AppTextStyles.label),
+                    ),
+                    ButtonSegment(
+                      value: 'ta_IN',
+                      label: Text(_l10n.langMixed,
+                          style: AppTextStyles.label),
+                    ),
+                  ],
+                  selected: {_localeKey(currentLocale)},
+                  onSelectionChanged: (Set<String> sel) {
+                    final locale = switch (sel.first) {
+                      'ta' => const Locale('ta'),
+                      'ta_IN' => const Locale('ta', 'IN'),
+                      _ => const Locale('en'),
+                    };
+                    ref.read(localeProvider.notifier).setLocale(locale);
+                  },
+                  style: ButtonStyle(
+                    textStyle: WidgetStatePropertyAll(AppTextStyles.label),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(),
+
+          // Sync (mobile only)
           if (!kIsWeb) ...[
             ListTile(
               leading: _syncing
@@ -57,12 +150,21 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                   : Badge(
                       isLabelVisible: pendingCount > 0,
                       label: Text('$pendingCount'),
-                      child: const Icon(Icons.sync),
+                      child: Icon(Icons.sync,
+                          color: pendingCount > 0
+                              ? AppColors.pending
+                              : AppColors.textSecondary),
                     ),
-              title: Text(_syncing ? 'Syncing…' : 'Sync data'),
-              subtitle: pendingCount > 0
-                  ? Text('$pendingCount entr${pendingCount == 1 ? 'y' : 'ies'} pending')
-                  : const Text('All entries up to date'),
+              title: Text(
+                _syncing ? _l10n.syncing : _l10n.syncData,
+                style: AppTextStyles.body,
+              ),
+              subtitle: Text(
+                pendingCount > 0
+                    ? _l10n.pendingCount(pendingCount)
+                    : _l10n.allEntriesUpToDate,
+                style: AppTextStyles.label,
+              ),
               enabled: !_syncing,
               onTap: _handleSync,
             ),
@@ -74,19 +176,15 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                     Icon(
                       _syncIsError ? Icons.warning_amber : Icons.check_circle,
                       size: 14,
-                      color: _syncIsError
-                          ? Colors.orange.shade700
-                          : Colors.green.shade700,
+                      color: _syncIsError ? AppColors.warning : AppColors.synced,
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         _syncMessage!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _syncIsError
-                              ? Colors.orange.shade700
-                              : Colors.green.shade700,
+                        style: AppTextStyles.label.copyWith(
+                          color:
+                              _syncIsError ? AppColors.warning : AppColors.synced,
                         ),
                       ),
                     ),
@@ -96,15 +194,43 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
             const Divider(),
           ],
 
+          // Admin section
+          if (user?.isAdmin == true) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: Text(_l10n.adminSection,
+                  style: AppTextStyles.sectionHeader),
+            ),
+            ListTile(
+              leading: const Icon(Icons.location_city_outlined,
+                  color: AppColors.textSecondary),
+              title: Text(_l10n.newVillage, style: AppTextStyles.body),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.push('/admin/create-village');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.group_add_outlined,
+                  color: AppColors.textSecondary),
+              title: Text(_l10n.newGroup, style: AppTextStyles.body),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.push('/admin/create-group');
+              },
+            ),
+            const Divider(),
+          ],
+
           const Spacer(),
 
-          // ── Logout ───────────────────────────────────────────────────────
-          const Divider(),
+          // Logout
           ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Logout', style: TextStyle(color: Colors.red)),
+            leading: const Icon(Icons.logout, color: AppColors.error),
+            title: Text(_l10n.logout,
+                style: AppTextStyles.body.copyWith(color: AppColors.error)),
             onTap: () async {
-              Navigator.of(context).pop(); // close drawer first
+              Navigator.of(context).pop();
               await ref.read(authProvider.notifier).logout();
               if (context.mounted) context.go('/login');
             },
@@ -115,14 +241,20 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
     );
   }
 
+  String _localeKey(Locale locale) {
+    if (locale.countryCode != null && locale.countryCode!.isNotEmpty) {
+      return '${locale.languageCode}_${locale.countryCode}';
+    }
+    return locale.languageCode;
+  }
+
   Future<void> _handleSync() async {
-    // Check connectivity before attempting sync
     final results = await Connectivity().checkConnectivity();
     final isOnline = results.any((r) => r != ConnectivityResult.none);
 
     if (!isOnline) {
       setState(() {
-        _syncMessage = 'No internet connection. Please connect and try again.';
+        _syncMessage = _l10n.syncNoInternet;
         _syncIsError = true;
       });
       return;
@@ -135,20 +267,21 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
 
     final report = await ref.read(entriesProvider.notifier).sync();
 
+    if (!mounted) return;
     setState(() {
       _syncing = false;
       switch (report.result) {
         case SyncResult.success:
-          _syncMessage = '${report.synced} entr${report.synced == 1 ? 'y' : 'ies'} uploaded successfully.';
+          _syncMessage = _l10n.syncSuccessCount(report.synced);
           _syncIsError = false;
         case SyncResult.noPending:
-          _syncMessage = 'Nothing to sync — all up to date.';
+          _syncMessage = _l10n.nothingToSync;
           _syncIsError = false;
         case SyncResult.partialFailure:
-          _syncMessage = '${report.failed} entr${report.failed == 1 ? 'y' : 'ies'} could not be uploaded.';
+          _syncMessage = _l10n.syncFailedCount(report.failed);
           _syncIsError = true;
         case SyncResult.noInternet:
-          _syncMessage = 'No internet connection. Please connect and try again.';
+          _syncMessage = _l10n.syncNoInternet;
           _syncIsError = true;
       }
     });

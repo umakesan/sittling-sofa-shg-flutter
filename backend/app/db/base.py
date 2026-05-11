@@ -4,6 +4,7 @@ from app.models.group import Group
 from app.models.month_entry import MonthEntry
 from app.models.month_entry_image import MonthEntryImage
 from app.models.user import User
+from app.models.village import Village
 
 __all__ = [
     "AuditLog",
@@ -12,4 +13,5 @@ __all__ = [
     "MonthEntry",
     "MonthEntryImage",
     "User",
+    "Village",
 ]

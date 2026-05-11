@@ -1,81 +1,166 @@
 import 'package:flutter/material.dart';
+import 'package:shg_portal/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../models/month_entry.dart';
 import '../providers/entries_provider.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
+import '../widgets/shimmer_loader.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final entriesAsync = ref.watch(entriesProvider);
+    final isTablet = MediaQuery.sizeOf(context).width >= 600;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
-        backgroundColor: const Color(0xFF2D6A4F),
-        foregroundColor: Colors.white,
-        leading: BackButton(onPressed: () => context.pop()),
+        title: Text(l10n.dashboard),
+        leading: context.canPop()
+            ? BackButton(onPressed: () => context.pop())
+            : null,
       ),
       body: entriesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: const [
+                ShimmerCard(height: 28, margin: EdgeInsets.only(bottom: 20)),
+                ShimmerCard(height: 56),
+                ShimmerCard(height: 56),
+                ShimmerCard(height: 56),
+                ShimmerCard(height: 56),
+                ShimmerCard(height: 56),
+              ],
+            ),
+          ),
+        ),
         error: (e, _) => Center(
-          child: Text('Error: $e', style: const TextStyle(color: Colors.red)),
+          child: Text('$e',
+              style: AppTextStyles.body.copyWith(color: AppColors.error)),
         ),
         data: (entries) {
           final summary = _summarise(entries);
+
+          final cards = [
+            _StatCard(
+              icon: Icons.savings_outlined,
+              iconColor: AppColors.synced,
+              label: l10n.totalSavingsCollected,
+              value: summary.totalSavingsCollected,
+            ),
+            _StatCard(
+              icon: Icons.people_outline,
+              iconColor: AppColors.primary,
+              label: l10n.internalLoanPrincipal,
+              value: summary.totalInternalLoanPrincipal,
+            ),
+            _StatCard(
+              icon: Icons.percent_rounded,
+              iconColor: AppColors.primaryLight,
+              label: l10n.internalLoanInterest,
+              value: summary.totalInternalLoanInterest,
+            ),
+            _StatCard(
+              icon: Icons.arrow_upward_rounded,
+              iconColor: AppColors.warning,
+              label: l10n.sofaLoansDisbursed,
+              value: summary.totalSofaDisbursed,
+            ),
+            _StatCard(
+              icon: Icons.arrow_downward_rounded,
+              iconColor: AppColors.synced,
+              label: l10n.sofaLoansRepaid,
+              value: summary.totalSofaRepaid,
+            ),
+          ];
+
           return Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 640),
               child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              const Text('Village-wide totals',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Text('Based on ${entries.length} entries stored on this device',
-                  style: const TextStyle(color: Colors.grey, fontSize: 13)),
-              const SizedBox(height: 20),
-              _StatCard(
-                  label: 'Total savings collected',
-                  value: summary.totalSavingsCollected),
-              _StatCard(
-                  label: 'Internal loan principal',
-                  value: summary.totalInternalLoanPrincipal),
-              _StatCard(
-                  label: 'Internal loan interest',
-                  value: summary.totalInternalLoanInterest),
-              _StatCard(
-                  label: 'SOFA loans disbursed',
-                  value: summary.totalSofaDisbursed),
-              _StatCard(
-                  label: 'SOFA loans repaid',
-                  value: summary.totalSofaRepaid),
-              if (summary.warningEntryCount > 0)
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF3CD),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFFFE082)),
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Text(l10n.villageWideTotals, style: AppTextStyles.headline),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.basedOnEntries(entries.length),
+                    style: AppTextStyles.label,
                   ),
-                  child: Text(
-                    '${summary.warningEntryCount} entries have warnings',
-                    style: const TextStyle(color: Color(0xFF92400E)),
-                  ),
-                ),
-            ],
+                  const SizedBox(height: 20),
+
+                  // 2-col grid on tablet, single col on mobile
+                  if (isTablet)
+                    ..._buildGrid(cards)
+                  else
+                    ...cards,
+
+                  if (summary.warningEntryCount > 0) ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.warningBg,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.warningBorder),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.warning_amber_rounded,
+                              color: AppColors.warningIcon, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.warningEntriesCount(
+                                  summary.warningEntryCount),
+                              style: AppTextStyles.body
+                                  .copyWith(color: AppColors.warning),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           );
         },
       ),
     );
+  }
+
+  List<Widget> _buildGrid(List<Widget> cards) {
+    final rows = <Widget>[];
+    for (int i = 0; i < cards.length; i += 2) {
+      rows.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: cards[i]),
+              const SizedBox(width: 10),
+              if (i + 1 < cards.length)
+                Expanded(child: cards[i + 1])
+              else
+                const Expanded(child: SizedBox()),
+            ],
+          ),
+        ),
+      );
+      rows.add(const SizedBox(height: 10));
+    }
+    return rows;
   }
 
   _DashboardSummary _summarise(List<MonthEntry> entries) {
@@ -119,10 +204,17 @@ class _DashboardSummary {
 }
 
 class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
   final String label;
   final double value;
 
-  const _StatCard({required this.label, required this.value});
+  const _StatCard({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -132,13 +224,32 @@ class _StatCard extends StatelessWidget {
       decimalDigits: 0,
     ).format(value);
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      child: ListTile(
-        title: Text(label, style: const TextStyle(fontSize: 14)),
-        trailing: Text(formatted,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 16)),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceCard,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 18, color: iconColor),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(label, style: AppTextStyles.body),
+          ),
+          const SizedBox(width: 12),
+          Text(formatted, style: AppTextStyles.amount),
+        ],
       ),
     );
   }

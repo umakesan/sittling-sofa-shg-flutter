@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shg_portal/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,8 @@ import 'package:intl/intl.dart';
 import '../models/month_entry.dart';
 import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 import '../widgets/warning_panel.dart';
 
 class NewEntryScreen extends ConsumerStatefulWidget {
@@ -18,11 +21,9 @@ class NewEntryScreen extends ConsumerStatefulWidget {
 class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   int _step = 1;
 
-  // Step 1
   int? _groupId;
   DateTime? _month;
 
-  // Step 2 — form fields
   final _savings = TextEditingController();
   final _internalPrincipal = TextEditingController();
   final _internalInterest = TextEditingController();
@@ -51,22 +52,22 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   double _val(TextEditingController c) =>
       double.tryParse(c.text.trim()) ?? 0;
 
-  List<String> get _warnings {
+  List<String> _getWarnings(AppLocalizations l10n) {
     final w = <String>[];
     final savings = _val(_savings);
     final interest = _val(_internalInterest);
     final toBank = _val(_toBank);
     final fromBank = _val(_fromBank);
     if (toBank > savings + interest + 1) {
-      w.add('To bank exceeds visible collections. Check the figures.');
+      w.add(l10n.warningToBankExceedsCollections);
     }
     if (fromBank > 0 && toBank == 0) {
-      w.add('Bank withdrawal present with no deposit this month.');
+      w.add(l10n.warningBankWithdrawalNoDeposit);
     }
     return w;
   }
 
-  Future<void> _save() async {
+  Future<void> _save(AppLocalizations l10n) async {
     setState(() { _saving = true; _saveError = null; });
     try {
       await ref.read(entriesProvider.notifier).createEntry(
@@ -85,7 +86,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
       );
       if (mounted) context.go('/');
     } catch (e) {
-      setState(() { _saveError = 'Failed to save. Please try again.'; });
+      setState(() { _saveError = l10n.errorFailedToSave; });
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -93,11 +94,11 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2D6A4F),
-        foregroundColor: Colors.white,
-        title: Text('New Entry — Step $_step of 2'),
+        title: Text(l10n.newEntryStepTitle(_step)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -132,10 +133,10 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
                   sofaRepayment: _sofaRepayment,
                   sofaInterest: _sofaInterest,
                   notes: _notes,
-                  warnings: _warnings,
+                  warnings: _getWarnings(l10n),
                   saving: _saving,
                   saveError: _saveError,
-                  onSave: _save,
+                  onSave: () => _save(l10n),
                 ),
             },
           ),
@@ -166,24 +167,24 @@ class _StepSelectGroup extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final groupsAsync = ref.watch(groupsProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 20, 16, 12),
-          child: Text('Select group and month',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+          child: Text(l10n.selectGroupAndMonth, style: AppTextStyles.headline),
         ),
         Expanded(
           child: groupsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => const Padding(
-              padding: EdgeInsets.all(16),
+            error: (_, __) => Padding(
+              padding: const EdgeInsets.all(16),
               child: Text(
-                'Could not load groups. Please check your connection and try again.',
-                style: TextStyle(color: Colors.red),
+                l10n.couldNotLoadGroups,
+                style: AppTextStyles.body.copyWith(color: AppColors.error),
               ),
             ),
             data: (groups) {
@@ -208,24 +209,21 @@ class _StepSelectGroup extends ConsumerWidget {
                     key: PageStorageKey(village),
                     initiallyExpanded: village == selectedVillage,
                     leading: const Icon(Icons.location_on_outlined,
-                        color: Color(0xFF2D6A4F)),
-                    title: Text(village,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                        color: AppColors.primary),
+                    title: Text(village, style: AppTextStyles.title),
                     trailing: Text('${villageGroups.length}',
-                        style: const TextStyle(color: Colors.grey)),
+                        style: AppTextStyles.label),
                     children: villageGroups.map<Widget>((g) {
                       final selected = g.id == selectedGroupId;
                       return ListTile(
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 24),
-                        title: Text(g.name),
+                        title: Text(g.name, style: AppTextStyles.body),
                         leading: Icon(
                           selected ? Icons.check_circle : Icons.circle_outlined,
-                          color: selected
-                              ? const Color(0xFF2D6A4F)
-                              : Colors.grey,
+                          color: selected ? AppColors.primary : AppColors.textTertiary,
                         ),
-                        tileColor: selected ? const Color(0xFFD1FAE5) : null,
+                        tileColor: selected ? AppColors.primaryContainer : null,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                         onTap: () => onGroupSelected(g.id),
@@ -245,7 +243,7 @@ class _StepSelectGroup extends ConsumerWidget {
               OutlinedButton.icon(
                 icon: const Icon(Icons.calendar_month),
                 label: Text(selectedMonth == null
-                    ? 'Select month'
+                    ? l10n.selectMonth
                     : DateFormat('MMMM yyyy').format(selectedMonth!)),
                 onPressed: () async {
                   final now = DateTime.now();
@@ -255,7 +253,7 @@ class _StepSelectGroup extends ConsumerWidget {
                     firstDate: DateTime(2020),
                     lastDate: now,
                     initialEntryMode: DatePickerEntryMode.calendarOnly,
-                    helpText: 'Select month',
+                    helpText: l10n.selectMonth,
                   );
                   if (picked != null) {
                     onMonthSelected(DateTime(picked.year, picked.month));
@@ -267,10 +265,7 @@ class _StepSelectGroup extends ConsumerWidget {
                 onPressed: selectedGroupId != null && selectedMonth != null
                     ? onContinue
                     : null,
-                style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D6A4F),
-                    minimumSize: const Size(double.infinity, 48)),
-                child: const Text('Continue →'),
+                child: Text(l10n.continueButton),
               ),
             ],
           ),
@@ -317,74 +312,108 @@ class _StepForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isTablet = MediaQuery.sizeOf(context).width >= 720;
+
+    final totalRow = ListenableBuilder(
+      listenable: Listenable.merge([savings, internalPrincipal, internalInterest]),
+      builder: (_, __) {
+        final total = (double.tryParse(savings.text.trim()) ?? 0) +
+            (double.tryParse(internalPrincipal.text.trim()) ?? 0) +
+            (double.tryParse(internalInterest.text.trim()) ?? 0);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(l10n.totalAmount, style: AppTextStyles.title),
+              Text('₹ ${NumberFormat('#,##0').format(total)}',
+                  style: AppTextStyles.amount),
+            ],
+          ),
+        );
+      },
+    );
+
+    final leftFields = <Widget>[
+      _SectionHeader(l10n.savingsSection),
+      _MoneyField(label: l10n.savingsCollected, controller: savings),
+      _MoneyField(label: l10n.intLoanPrincipal, controller: internalPrincipal),
+      _MoneyField(label: l10n.overallInterest, controller: internalInterest),
+      totalRow,
+      _SectionHeader(l10n.bankCashSection),
+      _MoneyField(label: l10n.toBank, controller: toBank),
+      _MoneyField(label: l10n.fromBank, controller: fromBank),
+    ];
+
+    final rightFields = <Widget>[
+      _SectionHeader(l10n.sofaLoanSection),
+      _MoneyField(label: l10n.loanDisbursed, controller: sofaDisbursed),
+      _MoneyField(label: l10n.loanReturn, controller: sofaRepayment),
+      _MoneyField(label: l10n.interest, controller: sofaInterest),
+      const SizedBox(height: 6),
+      TextField(
+        controller: notes,
+        decoration: InputDecoration(labelText: l10n.notesOptional),
+        maxLines: 2,
+      ),
+      const SizedBox(height: 16),
+      WarningPanel(warnings: warnings),
+      if (saveError != null)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Text(saveError!,
+              style: AppTextStyles.body.copyWith(color: AppColors.error)),
+        ),
+      FilledButton(
+        onPressed: saving ? null : onSave,
+        style: FilledButton.styleFrom(
+            minimumSize: const Size(double.infinity, 56)),
+        child: Text(saving ? l10n.saving : l10n.saveEntry),
+      ),
+    ];
+
+    if (isTablet) {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.reviewMonthlyTotals, style: AppTextStyles.headline),
+            const SizedBox(height: 20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: leftFields,
+                  ),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: rightFields,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Review monthly totals',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(l10n.reviewMonthlyTotals, style: AppTextStyles.headline),
           const SizedBox(height: 20),
-
-          const _SectionHeader('SAVINGS'),
-          _MoneyField(label: 'Savings Collected', controller: savings),
-          _MoneyField(label: 'Int. Loan Principal', controller: internalPrincipal),
-          _MoneyField(label: 'Overall Interest', controller: internalInterest),
-          ListenableBuilder(
-            listenable: Listenable.merge([savings, internalPrincipal, internalInterest]),
-            builder: (_, __) {
-              final total = (double.tryParse(savings.text.trim()) ?? 0) +
-                  (double.tryParse(internalPrincipal.text.trim()) ?? 0) +
-                  (double.tryParse(internalInterest.text.trim()) ?? 0);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Total Amount',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    Text('₹ ${NumberFormat('#,##0').format(total)}',
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              );
-            },
-          ),
-
-          const _SectionHeader('BANK / CASH'),
-          _MoneyField(label: 'To Bank', controller: toBank),
-          _MoneyField(label: 'From Bank', controller: fromBank),
+          ...leftFields,
           const SizedBox(height: 6),
-
-          const _SectionHeader('SOFA LOAN'),
-          _MoneyField(label: 'Loan Disbursed', controller: sofaDisbursed),
-          _MoneyField(label: 'Loan Return', controller: sofaRepayment),
-          _MoneyField(label: 'Interest', controller: sofaInterest),
-          const SizedBox(height: 6),
-
-          TextField(
-            controller: notes,
-            decoration: const InputDecoration(
-              labelText: 'Notes (optional)',
-              border: OutlineInputBorder(),
-            ),
-            maxLines: 2,
-          ),
-          const SizedBox(height: 16),
-          WarningPanel(warnings: warnings),
-          if (saveError != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(saveError!,
-                  style: const TextStyle(color: Colors.red)),
-            ),
-          FilledButton(
-            onPressed: saving ? null : onSave,
-            style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF2D6A4F),
-                minimumSize: const Size(double.infinity, 48)),
-            child: Text(saving ? 'Saving…' : 'Save entry →'),
-          ),
+          ...rightFields,
         ],
       ),
     );
@@ -401,13 +430,8 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(top: 4, bottom: 12),
       child: Row(
         children: [
-          Text(title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  letterSpacing: 0.8,
-                  color: Colors.black54)),
-          const SizedBox(width: 8),
+          Text(title, style: AppTextStyles.sectionHeader),
+          const SizedBox(width: 10),
           const Expanded(child: Divider()),
         ],
       ),
@@ -430,7 +454,6 @@ class _MoneyField extends StatelessWidget {
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
           prefixText: '₹ ',
         ),
       ),

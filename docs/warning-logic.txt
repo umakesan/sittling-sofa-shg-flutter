@@ -1,0 +1,54 @@
+Warning Logic — SHG Entry Validation
+=====================================
+
+The system checks two financial anomalies on every entry save/update.
+Warnings are advisory — the entry is still saved, just flagged with status
+SAVED_WITH_WARNINGS instead of SAVED.
+
+
+THE TWO CHECKS
+--------------
+
+1. Bank deposit exceeds visible collections
+   Condition: to_bank > savings_collected + internal_loan_interest_collected + 1
+   Meaning: More money went to the bank than what was collected in savings +
+   interest. The +1 is a rounding tolerance. If this fires, the deposit can't
+   be explained by recorded income.
+   Warning key: "bank_deposit_exceeds_visible_collections"
+
+2. Bank withdrawal without a deposit
+   Condition: from_bank > 0 AND to_bank == 0
+   Meaning: Money came out of the bank but nothing went in the same month.
+   Unusual but not impossible (e.g. emergency loan payout month).
+   Warning key: "bank_withdrawal_present_check_context"
+
+
+BACKEND-ONLY CHECK (not mirrored in frontend)
+---------------------------------------------
+
+3. Prefill mode without images
+   Condition: entry_mode == "prefill" AND source_count == 0
+   Meaning: Entry was set to prefill mode (AI-assisted) but no photos attached.
+   Warning key: "prefill_mode_without_images"
+   Note: Frontend skips this because image upload isn't built yet.
+
+
+WHERE THE CODE LIVES
+--------------------
+
+Backend:  backend/app/services/validation.py  — build_warning_flags()
+Frontend: frontend/lib/providers/entries_provider.dart — _buildWarnings()
+
+The logic is intentionally duplicated so that native (offline) users see
+warnings immediately at save time without waiting for a sync to the server.
+Both copies MUST be kept in sync when rules change.
+
+
+STATUS DERIVATION
+-----------------
+
+derive_status() in validation.py:
+  - warnings list is non-empty  ->  SAVED_WITH_WARNINGS
+  - warnings list is empty      ->  SAVED
+
+Warning keys are stored as a list on the entry record.

@@ -1,0 +1,141 @@
+{
+  "@@locale": "ta",
+
+  "appTitle": "SHG போர்டல்",
+  "appSubtitle": "சித்திலிங்கி · SOFA",
+
+  "signIn": "உள்நுழைக",
+  "userId": "பயனர் ID",
+  "password": "கடவுச்சொல்",
+  "signingIn": "உள்நுழைகிறது…",
+  "enterCredentials": "உங்கள் பயனர் ID மற்றும் கடவுச்சொல்லை உள்ளிடவும்.",
+  "somethingWentWrong": "ஏதோ தவறாகிவிட்டது. மீண்டும் முயற்சிக்கவும்.",
+  "contactAdmin": "அணுகல் தேவைப்பட்டால் உங்கள் நிர்வாகியை தொடர்பு கொள்ளவும்.",
+
+  "home": "முகப்பு",
+  "newEntry": "புதிய பதிவு",
+  "dashboard": "தரவகம்",
+  "dashboardTooltip": "தரவகம்",
+  "ledger": "கணக்கு ஏடு",
+  "syncData": "தரவை ஒத்திசை",
+  "logout": "வெளியேறு",
+  "language": "மொழி",
+
+  "statusPending": "நிலுவையில்",
+  "statusSynced": "ஒத்திசைக்கப்பட்டது",
+  "statusSaved": "சேமிக்கப்பட்டது",
+  "statusDraft": "வரைவு",
+  "statusSavedWithWarnings": "எச்சரிக்கைகளுடன் சேமிக்கப்பட்டது",
+
+  "pendingSyncCount": "நிலுவையில் உள்ளவை ({count})",
+  "@pendingSyncCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "recentEntries": "சமீபத்திய பதிவுகள்",
+  "noSyncedEntries": "இன்னும் ஒத்திசைக்கப்பட்ட பதிவுகள் இல்லை.",
+  "couldNotLoadEntries": "பதிவுகளை ஏற்ற முடியவில்லை.",
+
+  "offline": "இணைப்பு இல்லை",
+  "online": "இணைப்பு உள்ளது",
+  "allSynced": "அனைத்தும் ஒத்திசைக்கப்பட்டது",
+  "pendingCount": "{count} பதிவுகள் நிலுவையில்",
+  "@pendingCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "lastSynced": "{time} முன்பு ஒத்திசைக்கப்பட்டது",
+  "@lastSynced": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "newEntryStepTitle": "புதிய பதிவு — படி {step} இல் 2",
+  "@newEntryStepTitle": {
+    "placeholders": { "step": { "type": "int" } }
+  },
+  "selectGroupAndMonth": "குழு மற்றும் மாதத்தை தேர்ந்தெடுக்கவும்",
+  "selectMonth": "மாதத்தைத் தேர்ந்தெடுக்கவும்",
+  "couldNotLoadGroups": "குழுக்களை ஏற்ற முடியவில்லை. உங்கள் இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
+  "continueButton": "தொடர்க",
+  "reviewMonthlyTotals": "மாத மொத்தங்களை சரிபார்க்கவும்",
+  "editMonthlyTotals": "மாத மொத்தங்களை திருத்தவும்",
+
+  "savingsSection": "சேமிப்பு",
+  "bankCashSection": "வங்கி / பணம்",
+  "sofaLoanSection": "SOFA கடன்",
+
+  "savingsCollected": "சேகரிக்கப்பட்ட சேமிப்பு",
+  "intLoanPrincipal": "உள் கடன் அசல்",
+  "overallInterest": "மொத்த வட்டி",
+  "totalAmount": "மொத்த தொகை",
+  "toBank": "வங்கிக்கு",
+  "fromBank": "வங்கியிலிருந்து",
+  "loanDisbursed": "வழங்கிய கடன்",
+  "loanReturn": "கடன் திரும்ப",
+  "interest": "வட்டி",
+  "notesOptional": "குறிப்புகள் (விரும்பினால்)",
+
+  "save": "சேமி",
+  "saving": "சேமிக்கிறது…",
+  "saveChanges": "மாற்றங்களை சேமி",
+  "saveEntry": "பதிவை சேமி",
+  "cancel": "ரத்து செய்",
+  "back": "திரும்பு",
+
+  "groupLedger": "குழு கணக்கு ஏடு",
+  "month": "மாதம்",
+  "savings": "சேமிப்பு",
+  "intLoan": "உள் கடன்",
+  "sofaLoan": "SOFA கடன்",
+  "status": "நிலை",
+  "noGroupEntriesYet": "இந்த குழுவிற்கு இன்னும் பதிவுகள் இல்லை.",
+
+  "villageWideTotals": "கிராம மொத்த கணக்கு",
+  "basedOnEntries": "இந்த சாதனத்தில் {count} பதிவுகள் உள்ளன",
+  "@basedOnEntries": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "totalSavingsCollected": "மொத்த சேகரிக்கப்பட்ட சேமிப்பு",
+  "internalLoanPrincipal": "மொத்த உள் கடன் அசல்",
+  "internalLoanInterest": "மொத்த உள் கடன் வட்டி",
+  "sofaLoansDisbursed": "வழங்கிய SOFA கடன்கள்",
+  "sofaLoansRepaid": "திரும்பப்பெற்ற SOFA கடன்கள்",
+  "warningEntriesCount": "{count} பதிவுகளில் எச்சரிக்கைகள் உள்ளன",
+  "@warningEntriesCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "syncing": "ஒத்திசைக்கிறது…",
+  "allEntriesUpToDate": "அனைத்து பதிவுகளும் புதுப்பித்தலாகும்",
+  "adminSection": "நிர்வாகி",
+  "newVillage": "புதிய கிராமம்",
+  "newGroup": "புதிய குழு",
+  "syncNoInternet": "இணைய இணைப்பு இல்லை. இணைத்து மீண்டும் முயற்சிக்கவும்.",
+  "syncSuccessCount": "{count} பதிவுகள் வெற்றிகரமாக பதிவேற்றப்பட்டன.",
+  "@syncSuccessCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "syncFailedCount": "{count} பதிவுகளை பதிவேற்ற முடியவில்லை.",
+  "@syncFailedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "nothingToSync": "ஒத்திசைக்க எதுவும் இல்லை — அனைத்தும் புதுப்பித்தலாகும்.",
+  "syncUpToDate": "ஒத்திசைவு (புதுப்பித்தலாகும்)",
+  "syncPendingLabel": "ஒத்திசைவு ({count} நிலுவையில்)",
+  "@syncPendingLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "errorFailedToSave": "சேமிக்க தவறியது. மீண்டும் முயற்சிக்கவும்.",
+  "warningToBankExceedsCollections": "வங்கிக்கு செலுத்திய தொகை சேகரிப்பை மீறுகிறது. தொகைகளை சரிபார்க்கவும்.",
+  "warningBankWithdrawalNoDeposit": "இந்த மாதம் வைப்பு இல்லாமல் வங்கி திரும்பப்பெறுதல் உள்ளது.",
+  "warningsCount": "{count} எச்சரிக்கைகள்",
+  "@warningsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "langEnglish": "English",
+  "langTamil": "தமிழ்",
+  "langMixed": "த/En",
+
+  "metricTotal": "மொத்தம்",
+  "metricThisMonth": "இந்த மாதம்"
+}

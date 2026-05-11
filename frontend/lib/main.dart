@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shg_portal/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'providers/auth_provider.dart';
+import 'providers/locale_provider.dart';
+import 'screens/create_group_screen.dart';
+import 'screens/create_village_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/edit_entry_screen.dart';
 import 'screens/home_screen.dart';
@@ -10,14 +15,15 @@ import 'screens/ledger_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/new_entry_screen.dart';
 import 'models/month_entry.dart';
+import 'theme/app_theme.dart';
+import 'widgets/app_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Restore session from secure storage before the first frame renders,
-  // so the router redirect starts with the correct auth state.
   final container = ProviderContainer();
   await container.read(authProvider.notifier).tryRestoreSession();
+  await container.read(localeProvider.notifier).loadSaved();
 
   runApp(
     UncontrolledProviderScope(
@@ -28,7 +34,7 @@ void main() async {
 }
 
 // ---------------------------------------------------------------------------
-// Router — declared as a Provider so it is created once and can read Riverpod.
+// Router
 // ---------------------------------------------------------------------------
 
 final _routerProvider = Provider<GoRouter>((ref) {
@@ -48,9 +54,25 @@ final _routerProvider = Provider<GoRouter>((ref) {
         path: '/login',
         builder: (context, state) => const LoginScreen(),
       ),
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const HomeScreen(),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: '/dashboard',
+            builder: (context, state) => const DashboardScreen(),
+          ),
+          GoRoute(
+            path: '/ledger/:groupId',
+            builder: (context, state) {
+              final id = int.parse(state.pathParameters['groupId']!);
+              return LedgerScreen(groupId: id);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/entries/new',
@@ -64,15 +86,12 @@ final _routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/ledger/:groupId',
-        builder: (context, state) {
-          final id = int.parse(state.pathParameters['groupId']!);
-          return LedgerScreen(groupId: id);
-        },
+        path: '/admin/create-village',
+        builder: (context, state) => const CreateVillageScreen(),
       ),
       GoRoute(
-        path: '/dashboard',
-        builder: (context, state) => const DashboardScreen(),
+        path: '/admin/create-group',
+        builder: (context, state) => const CreateGroupScreen(),
       ),
     ],
   );
@@ -88,21 +107,20 @@ class ShgApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(_routerProvider);
+    final locale = ref.watch(localeProvider);
+
     return MaterialApp.router(
       title: 'SHG Portal',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2D6A4F),
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        fontFamily: 'Roboto',
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        ),
-      ),
+      theme: AppTheme.light,
+      locale: locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: appSupportedLocales,
       routerConfig: router,
     );
   }

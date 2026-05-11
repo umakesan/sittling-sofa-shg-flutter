@@ -1,0 +1,141 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "SHG Portal",
+  "appSubtitle": "Sittilingi · SOFA",
+
+  "signIn": "Sign in",
+  "userId": "User ID",
+  "password": "Password",
+  "signingIn": "Signing in…",
+  "enterCredentials": "Please enter your user ID and password.",
+  "somethingWentWrong": "Something went wrong. Please try again.",
+  "contactAdmin": "Contact your admin if you need access.",
+
+  "home": "Home",
+  "newEntry": "New Entry",
+  "dashboard": "Dashboard",
+  "dashboardTooltip": "Dashboard",
+  "ledger": "Ledger",
+  "syncData": "Sync data",
+  "logout": "Logout",
+  "language": "Language",
+
+  "statusPending": "Pending",
+  "statusSynced": "Synced",
+  "statusSaved": "Saved",
+  "statusDraft": "Draft",
+  "statusSavedWithWarnings": "Saved with warnings",
+
+  "pendingSyncCount": "Pending sync ({count})",
+  "@pendingSyncCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "recentEntries": "Recent entries",
+  "noSyncedEntries": "No synced entries yet.",
+  "couldNotLoadEntries": "Could not load entries.",
+
+  "offline": "Offline",
+  "online": "Online",
+  "allSynced": "All synced",
+  "pendingCount": "{count, plural, one{{count} entry pending} other{{count} entries pending}}",
+  "@pendingCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "lastSynced": "Last synced {time} ago",
+  "@lastSynced": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "newEntryStepTitle": "New Entry — Step {step} of 2",
+  "@newEntryStepTitle": {
+    "placeholders": { "step": { "type": "int" } }
+  },
+  "selectGroupAndMonth": "Select group and month",
+  "selectMonth": "Select month",
+  "couldNotLoadGroups": "Could not load groups. Please check your connection and try again.",
+  "continueButton": "Continue",
+  "reviewMonthlyTotals": "Review monthly totals",
+  "editMonthlyTotals": "Edit monthly totals",
+
+  "savingsSection": "SAVINGS",
+  "bankCashSection": "BANK / CASH",
+  "sofaLoanSection": "SOFA LOAN",
+
+  "savingsCollected": "Savings Collected",
+  "intLoanPrincipal": "Int. Loan Principal",
+  "overallInterest": "Overall Interest",
+  "totalAmount": "Total Amount",
+  "toBank": "To Bank",
+  "fromBank": "From Bank",
+  "loanDisbursed": "Loan Disbursed",
+  "loanReturn": "Loan Return",
+  "interest": "Interest",
+  "notesOptional": "Notes (optional)",
+
+  "save": "Save",
+  "saving": "Saving…",
+  "saveChanges": "Save changes",
+  "saveEntry": "Save entry",
+  "cancel": "Cancel",
+  "back": "Back",
+
+  "groupLedger": "Group Ledger",
+  "month": "Month",
+  "savings": "Savings",
+  "intLoan": "Int. Loan",
+  "sofaLoan": "SOFA Loan",
+  "status": "Status",
+  "noGroupEntriesYet": "No entries for this group yet.",
+
+  "villageWideTotals": "Village-wide totals",
+  "basedOnEntries": "{count, plural, one{Based on {count} entry stored on this device} other{Based on {count} entries stored on this device}}",
+  "@basedOnEntries": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "totalSavingsCollected": "Total savings collected",
+  "internalLoanPrincipal": "Internal loan principal",
+  "internalLoanInterest": "Internal loan interest",
+  "sofaLoansDisbursed": "SOFA loans disbursed",
+  "sofaLoansRepaid": "SOFA loans repaid",
+  "warningEntriesCount": "{count, plural, one{{count} entry has warnings} other{{count} entries have warnings}}",
+  "@warningEntriesCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "syncing": "Syncing…",
+  "allEntriesUpToDate": "All entries up to date",
+  "adminSection": "ADMIN",
+  "newVillage": "New village",
+  "newGroup": "New group",
+  "syncNoInternet": "No internet connection. Please connect and try again.",
+  "syncSuccessCount": "{count, plural, one{{count} entry uploaded successfully.} other{{count} entries uploaded successfully.}}",
+  "@syncSuccessCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "syncFailedCount": "{count, plural, one{{count} entry could not be uploaded.} other{{count} entries could not be uploaded.}}",
+  "@syncFailedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "nothingToSync": "Nothing to sync — all up to date.",
+  "syncUpToDate": "Sync (up to date)",
+  "syncPendingLabel": "Sync ({count} pending)",
+  "@syncPendingLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "errorFailedToSave": "Failed to save. Please try again.",
+  "warningToBankExceedsCollections": "To bank exceeds visible collections. Check the figures.",
+  "warningBankWithdrawalNoDeposit": "Bank withdrawal present with no deposit this month.",
+  "warningsCount": "{count, plural, one{{count} warning} other{{count} warnings}}",
+  "@warningsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "langEnglish": "English",
+  "langTamil": "தமிழ்",
+  "langMixed": "த/En",
+
+  "metricTotal": "Total",
+  "metricThisMonth": "This month"
+}
