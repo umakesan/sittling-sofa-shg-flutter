@@ -5,10 +5,8 @@ import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/month_entry.dart';
-import '../models/sofa_loan.dart';
 import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
-import '../providers/sofa_loans_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'entry_form_body.dart';

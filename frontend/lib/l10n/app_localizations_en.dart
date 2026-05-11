@@ -1,6 +1,8 @@
+// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
 
 /// The translations for English (`en`).
 class AppLocalizationsEn extends AppLocalizations {
@@ -123,7 +125,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectMonth => 'Select month';
 
   @override
-  String get couldNotLoadGroups => 'Could not load groups. Please check your connection and try again.';
+  String get couldNotLoadGroups =>
+      'Could not load groups. Please check your connection and try again.';
 
   @override
   String get continueButton => 'Continue';
@@ -268,7 +271,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newGroup => 'New group';
 
   @override
-  String get syncNoInternet => 'No internet connection. Please connect and try again.';
+  String get syncNoInternet =>
+      'No internet connection. Please connect and try again.';
 
   @override
   String syncSuccessCount(int count) {
@@ -307,10 +311,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorFailedToSave => 'Failed to save. Please try again.';
 
   @override
-  String get warningToBankExceedsCollections => 'To bank exceeds visible collections. Check the figures.';
+  String get warningToBankExceedsCollections =>
+      'To bank exceeds visible collections. Check the figures.';
 
   @override
-  String get warningBankWithdrawalNoDeposit => 'Bank withdrawal present with no deposit this month.';
+  String get warningBankWithdrawalNoDeposit =>
+      'Bank withdrawal present with no deposit this month.';
 
   @override
   String warningsCount(int count) {
@@ -600,14 +606,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get interestCollected => 'Interest Collected';
 
   @override
-  String get interestIncomeNote => 'Income to federation — does not reduce balance';
+  String get interestIncomeNote =>
+      'Income to federation — does not reduce balance';
 
   @override
   String get totalInterest => 'Total Interest';
 
   @override
-  String get warnBankNegative => 'Closing bank balance is negative — check deposits and withdrawals.';
+  String get warnBankNegative =>
+      'Closing bank balance is negative — check deposits and withdrawals.';
 
   @override
-  String get warnSofaNegative => 'SOFA balance is negative — repayment exceeds outstanding loan.';
+  String get warnSofaNegative =>
+      'SOFA balance is negative — repayment exceeds outstanding loan.';
 }

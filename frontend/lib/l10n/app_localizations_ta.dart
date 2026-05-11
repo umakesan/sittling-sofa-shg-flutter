@@ -1,6 +1,8 @@
+// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
 
 /// The translations for Tamil (`ta`).
 class AppLocalizationsTa extends AppLocalizations {
@@ -25,13 +27,16 @@ class AppLocalizationsTa extends AppLocalizations {
   String get signingIn => 'உள்நுழைகிறது…';
 
   @override
-  String get enterCredentials => 'உங்கள் பயனர் ID மற்றும் கடவுச்சொல்லை உள்ளிடவும்.';
+  String get enterCredentials =>
+      'உங்கள் பயனர் ID மற்றும் கடவுச்சொல்லை உள்ளிடவும்.';
 
   @override
-  String get somethingWentWrong => 'ஏதோ தவறாகிவிட்டது. மீண்டும் முயற்சிக்கவும்.';
+  String get somethingWentWrong =>
+      'ஏதோ தவறாகிவிட்டது. மீண்டும் முயற்சிக்கவும்.';
 
   @override
-  String get contactAdmin => 'அணுகல் தேவைப்பட்டால் உங்கள் நிர்வாகியை தொடர்பு கொள்ளவும்.';
+  String get contactAdmin =>
+      'அணுகல் தேவைப்பட்டால் உங்கள் நிர்வாகியை தொடர்பு கொள்ளவும்.';
 
   @override
   String get home => 'முகப்பு';
@@ -117,7 +122,8 @@ class AppLocalizationsTa extends AppLocalizations {
   String get selectMonth => 'மாதத்தைத் தேர்ந்தெடுக்கவும்';
 
   @override
-  String get couldNotLoadGroups => 'குழுக்களை ஏற்ற முடியவில்லை. உங்கள் இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
+  String get couldNotLoadGroups =>
+      'குழுக்களை ஏற்ற முடியவில்லை. உங்கள் இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String get continueButton => 'தொடர்க';
@@ -250,7 +256,8 @@ class AppLocalizationsTa extends AppLocalizations {
   String get newGroup => 'புதிய குழு';
 
   @override
-  String get syncNoInternet => 'இணைய இணைப்பு இல்லை. இணைத்து மீண்டும் முயற்சிக்கவும்.';
+  String get syncNoInternet =>
+      'இணைய இணைப்பு இல்லை. இணைத்து மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String syncSuccessCount(int count) {
@@ -263,7 +270,8 @@ class AppLocalizationsTa extends AppLocalizations {
   }
 
   @override
-  String get nothingToSync => 'ஒத்திசைக்க எதுவும் இல்லை — அனைத்தும் புதுப்பித்தலாகும்.';
+  String get nothingToSync =>
+      'ஒத்திசைக்க எதுவும் இல்லை — அனைத்தும் புதுப்பித்தலாகும்.';
 
   @override
   String get syncUpToDate => 'ஒத்திசைவு (புதுப்பித்தலாகும்)';
@@ -277,10 +285,12 @@ class AppLocalizationsTa extends AppLocalizations {
   String get errorFailedToSave => 'சேமிக்க தவறியது. மீண்டும் முயற்சிக்கவும்.';
 
   @override
-  String get warningToBankExceedsCollections => 'வங்கிக்கு செலுத்திய தொகை சேகரிப்பை மீறுகிறது. தொகைகளை சரிபார்க்கவும்.';
+  String get warningToBankExceedsCollections =>
+      'வங்கிக்கு செலுத்திய தொகை சேகரிப்பை மீறுகிறது. தொகைகளை சரிபார்க்கவும்.';
 
   @override
-  String get warningBankWithdrawalNoDeposit => 'இந்த மாதம் வைப்பு இல்லாமல் வங்கி திரும்பப்பெறுதல் உள்ளது.';
+  String get warningBankWithdrawalNoDeposit =>
+      'இந்த மாதம் வைப்பு இல்லாமல் வங்கி திரும்பப்பெறுதல் உள்ளது.';
 
   @override
   String warningsCount(int count) {
@@ -553,21 +563,24 @@ class AppLocalizationsTa extends AppLocalizations {
   String get interestCollected => 'வட்டி வசூல்';
 
   @override
-  String get interestIncomeNote => 'கூட்டமைப்பிற்கு வருமானம் — கடன் இருப்பை பாதிக்காது';
+  String get interestIncomeNote =>
+      'கூட்டமைப்பிற்கு வருமானம் — கடன் இருப்பை பாதிக்காது';
 
   @override
   String get totalInterest => 'மொத்த வட்டி';
 
   @override
-  String get warnBankNegative => 'வங்கி இருப்பு எதிர்மறையாக உள்ளது — வரவு மற்றும் செலவை சரிபார்க்கவும்.';
+  String get warnBankNegative =>
+      'வங்கி இருப்பு எதிர்மறையாக உள்ளது — வரவு மற்றும் செலவை சரிபார்க்கவும்.';
 
   @override
-  String get warnSofaNegative => 'SOFA கடன் இருப்பு எதிர்மறையாக உள்ளது — திரும்ப செலுத்தல் அதிகமாக உள்ளது.';
+  String get warnSofaNegative =>
+      'SOFA கடன் இருப்பு எதிர்மறையாக உள்ளது — திரும்ப செலுத்தல் அதிகமாக உள்ளது.';
 }
 
 /// The translations for Tamil, as used in India (`ta_IN`).
 class AppLocalizationsTaIn extends AppLocalizationsTa {
-  AppLocalizationsTaIn(): super('ta_IN');
+  AppLocalizationsTaIn() : super('ta_IN');
 
   @override
   String get appTitle => 'SHG Portal';
@@ -588,7 +601,8 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   String get signingIn => 'உள்நுழைகிறது…';
 
   @override
-  String get enterCredentials => 'உங்கள் User ID மற்றும் கடவுச்சொல்லை உள்ளிடவும்.';
+  String get enterCredentials =>
+      'உங்கள் User ID மற்றும் கடவுச்சொல்லை உள்ளிடவும்.';
 
   @override
   String get somethingWentWrong => 'ஏதோ தவறாகிவிட்டது. மீண்டும் try செய்யவும்.';
@@ -680,7 +694,8 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   String get selectMonth => 'மாதத்தைத் தேர்ந்தெடுக்கவும்';
 
   @override
-  String get couldNotLoadGroups => 'குழுக்களை load செய்ய முடியவில்லை. Connection சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
+  String get couldNotLoadGroups =>
+      'குழுக்களை load செய்ய முடியவில்லை. Connection சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String get continueButton => 'தொடர்க';
@@ -813,7 +828,8 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   String get newGroup => 'புதிய குழு';
 
   @override
-  String get syncNoInternet => 'Internet இணைப்பு இல்லை. Connect ஆகி மீண்டும் முயற்சிக்கவும்.';
+  String get syncNoInternet =>
+      'Internet இணைப்பு இல்லை. Connect ஆகி மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String syncSuccessCount(int count) {
@@ -826,7 +842,8 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   }
 
   @override
-  String get nothingToSync => 'Sync செய்ய எதுவும் இல்லை — அனைத்தும் up to date.';
+  String get nothingToSync =>
+      'Sync செய்ய எதுவும் இல்லை — அனைத்தும் up to date.';
 
   @override
   String get syncUpToDate => 'Sync (up to date)';
@@ -840,10 +857,12 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   String get errorFailedToSave => 'Save ஆகவில்லை. மீண்டும் try செய்யவும்.';
 
   @override
-  String get warningToBankExceedsCollections => 'வங்கிக்கு செலுத்திய தொகை சேகரிப்பை மீறுகிறது. தொகைகளை சரிபார்க்கவும்.';
+  String get warningToBankExceedsCollections =>
+      'வங்கிக்கு செலுத்திய தொகை சேகரிப்பை மீறுகிறது. தொகைகளை சரிபார்க்கவும்.';
 
   @override
-  String get warningBankWithdrawalNoDeposit => 'இந்த மாதம் deposit இல்லாமல் bank withdrawal உள்ளது.';
+  String get warningBankWithdrawalNoDeposit =>
+      'இந்த மாதம் deposit இல்லாமல் bank withdrawal உள்ளது.';
 
   @override
   String warningsCount(int count) {
@@ -1043,14 +1062,17 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
   String get interestCollected => 'வட்டி வசூல்';
 
   @override
-  String get interestIncomeNote => 'Federation-க்கு வருமானம் — கடன் இருப்பை பாதிக்காது';
+  String get interestIncomeNote =>
+      'Federation-க்கு வருமானம் — கடன் இருப்பை பாதிக்காது';
 
   @override
   String get totalInterest => 'Total Interest';
 
   @override
-  String get warnBankNegative => 'Bank balance negative — deposits மற்றும் withdrawals-ஐ சரிபார்க்கவும்.';
+  String get warnBankNegative =>
+      'Bank balance negative — deposits மற்றும் withdrawals-ஐ சரிபார்க்கவும்.';
 
   @override
-  String get warnSofaNegative => 'SOFA balance negative — repayment அதிகமாக உள்ளது.';
+  String get warnSofaNegative =>
+      'SOFA balance negative — repayment அதிகமாக உள்ளது.';
 }
