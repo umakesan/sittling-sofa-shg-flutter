@@ -311,6 +311,79 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get metricThisMonth => 'இந்த மாதம்';
+
+  @override
+  String get savingsOverview => 'சேமிப்பு கணக்கு';
+
+  @override
+  String get totalSavingsAsset => 'மொத்த சேமிப்பு சொத்து';
+
+  @override
+  String get savingsCorpus => 'சேமிப்பு நிதி';
+
+  @override
+  String get interestEarned => 'வட்டி வருமானம்';
+
+  @override
+  String villagesCount(int count) => '$count கிராமங்கள்';
+
+  @override
+  String groupsCount(int count) => '$count குழுக்கள்';
+
+  @override
+  String get monthlyLedger => 'மாதாந்திர கணக்கு';
+
+  @override
+  String get noEntriesYet => 'இன்னும் பதிவுகள் இல்லை.';
+
+  @override
+  String lastEntryMonth(String month) => 'கடைசி: $month';
+
+  @override
+  String get sortBy => 'வரிசையிடு';
+
+  @override
+  String get sortHighestFirst => 'அதிக முதல்';
+
+  @override
+  String get sortByName => 'பெயர் வரிசை';
+
+  @override
+  String get cumulative => 'ஒட்டுமொத்தம்';
+
+  @override
+  String get reportsSection => 'அறிக்கைகள்';
+
+  @override
+  String get internalLoansReport => 'உள் கடன்கள்';
+
+  @override
+  String get bankTransactionsReport => 'வங்கி பரிவர்த்தனைகள்';
+
+  @override
+  String get groupActivityReport => 'குழு செயல்பாடு';
+
+  @override
+  String get comingSoon => 'விரைவில் வரும்';
+
+  @override String get sofaLoansReport => 'SOFA கடன்கள்';
+  @override String get bankFlowReport => 'வங்கி பாய்வு';
+  @override String get villageCompareReport => 'கிராம ஒப்பீடு';
+  @override String get overdueAlertsReport => 'தாமதமான எச்சரிக்கைகள்';
+  @override String get trendsReport => 'போக்குகள்';
+  @override String get groupHealthReport => 'குழு ஆரோக்கியம்';
+  @override String get recoveryRateReport => 'மீட்பு விகிதம்';
+  @override String get auditLogReport => 'தணிக்கை பதிவு';
+  @override String get outstanding => 'நிலுவை';
+  @override String get recoveryRate => 'மீட்பு %';
+  @override String get netFlow => 'நிகர பாய்வு';
+  @override String get deposited => 'வைப்பு';
+  @override String get withdrawn => 'எடுப்பு';
+  @override String get noAlerts => 'அனைத்து குழுக்களும் சரியாக உள்ளன';
+  @override String get regularity => 'ஒழுங்குமுறை';
+  @override String get missingMonths => 'காணாத மாதங்கள்';
+  @override String get corpusGrowth => 'நிதி வளர்ச்சி';
+  @override String get monthlyContributions => 'மாதாந்திர பங்களிப்புகள்';
 }
 
 /// The translations for Tamil, as used in India (`ta_IN`).
@@ -618,4 +691,62 @@ class AppLocalizationsTaIn extends AppLocalizationsTa {
 
   @override
   String get metricThisMonth => 'This month';
+
+  @override
+  String get savingsOverview => 'Savings Overview';
+
+  @override
+  String get totalSavingsAsset => 'Total Savings Asset';
+
+  @override
+  String get savingsCorpus => 'Savings Corpus';
+
+  @override
+  String get interestEarned => 'Interest வருமானம்';
+
+  @override
+  String get monthlyLedger => 'Monthly கணக்கு';
+
+  @override
+  String get noEntriesYet => 'இன்னும் entries இல்லை.';
+
+  @override
+  String get sortBy => 'Sort';
+
+  @override
+  String get cumulative => 'Cumulative';
+
+  @override
+  String get reportsSection => 'Reports';
+
+  @override
+  String get internalLoansReport => 'Internal Loans';
+
+  @override
+  String get bankTransactionsReport => 'Bank Transactions';
+
+  @override
+  String get groupActivityReport => 'Group Activity';
+
+  @override
+  String get comingSoon => 'Coming soon';
+
+  @override String get sofaLoansReport => 'SOFA Loans';
+  @override String get bankFlowReport => 'Bank Flow';
+  @override String get villageCompareReport => 'Village Compare';
+  @override String get overdueAlertsReport => 'Overdue Alerts';
+  @override String get trendsReport => 'Trends';
+  @override String get groupHealthReport => 'Group Health';
+  @override String get recoveryRateReport => 'Recovery Rate';
+  @override String get auditLogReport => 'Audit Log';
+  @override String get outstanding => 'Outstanding';
+  @override String get recoveryRate => 'Recovery %';
+  @override String get netFlow => 'Net Flow';
+  @override String get deposited => 'Deposited';
+  @override String get withdrawn => 'Withdrawn';
+  @override String get noAlerts => 'All groups are up to date';
+  @override String get regularity => 'Regularity';
+  @override String get missingMonths => 'Missing months';
+  @override String get corpusGrowth => 'Corpus Growth';
+  @override String get monthlyContributions => 'Monthly Contributions';
 }

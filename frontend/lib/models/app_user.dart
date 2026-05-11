@@ -12,6 +12,8 @@ class AppUser {
   });
 
   bool get isAdmin => role == 'admin';
+  bool get isManagement => role == 'management';
+  bool get isFieldWorker => role == 'field_worker' || role == 'field';
 
   factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
         userId: json['user_id'] as String,

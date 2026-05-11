@@ -650,6 +650,79 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This month'**
   String get metricThisMonth;
+
+  /// In en: **'Savings Overview'**
+  String get savingsOverview;
+
+  /// In en: **'Total Savings Asset'**
+  String get totalSavingsAsset;
+
+  /// In en: **'Savings Corpus'**
+  String get savingsCorpus;
+
+  /// In en: **'Interest Earned'**
+  String get interestEarned;
+
+  /// In en: **'{count, plural, one{{count} village} other{{count} villages}}'**
+  String villagesCount(int count);
+
+  /// In en: **'{count, plural, one{{count} group} other{{count} groups}}'**
+  String groupsCount(int count);
+
+  /// In en: **'Monthly Ledger'**
+  String get monthlyLedger;
+
+  /// In en: **'No entries recorded yet.'**
+  String get noEntriesYet;
+
+  /// In en: **'Last: {month}'**
+  String lastEntryMonth(String month);
+
+  /// In en: **'Sort by'**
+  String get sortBy;
+
+  /// In en: **'Highest first'**
+  String get sortHighestFirst;
+
+  /// In en: **'By name'**
+  String get sortByName;
+
+  /// In en: **'Cumulative'**
+  String get cumulative;
+
+  /// In en: **'Reports'**
+  String get reportsSection;
+
+  /// In en: **'Internal Loans'**
+  String get internalLoansReport;
+
+  /// In en: **'Bank Transactions'**
+  String get bankTransactionsReport;
+
+  /// In en: **'Group Activity'**
+  String get groupActivityReport;
+
+  /// In en: **'Coming soon'**
+  String get comingSoon;
+
+  String get sofaLoansReport;
+  String get bankFlowReport;
+  String get villageCompareReport;
+  String get overdueAlertsReport;
+  String get trendsReport;
+  String get groupHealthReport;
+  String get recoveryRateReport;
+  String get auditLogReport;
+  String get outstanding;
+  String get recoveryRate;
+  String get netFlow;
+  String get deposited;
+  String get withdrawn;
+  String get noAlerts;
+  String get regularity;
+  String get missingMonths;
+  String get corpusGrowth;
+  String get monthlyContributions;
 }
 
 class _AppLocalizationsDelegate

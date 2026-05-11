@@ -343,4 +343,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get metricThisMonth => 'This month';
+
+  @override
+  String get savingsOverview => 'Savings Overview';
+
+  @override
+  String get totalSavingsAsset => 'Total Savings Asset';
+
+  @override
+  String get savingsCorpus => 'Savings Corpus';
+
+  @override
+  String get interestEarned => 'Interest Earned';
+
+  @override
+  String villagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count villages',
+      one: '$count village',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String groupsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count groups',
+      one: '$count group',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get monthlyLedger => 'Monthly Ledger';
+
+  @override
+  String get noEntriesYet => 'No entries recorded yet.';
+
+  @override
+  String lastEntryMonth(String month) => 'Last: $month';
+
+  @override
+  String get sortBy => 'Sort by';
+
+  @override
+  String get sortHighestFirst => 'Highest first';
+
+  @override
+  String get sortByName => 'By name';
+
+  @override
+  String get cumulative => 'Cumulative';
+
+  @override
+  String get reportsSection => 'Reports';
+
+  @override
+  String get internalLoansReport => 'Internal Loans';
+
+  @override
+  String get bankTransactionsReport => 'Bank Transactions';
+
+  @override
+  String get groupActivityReport => 'Group Activity';
+
+  @override
+  String get comingSoon => 'Coming soon';
+
+  @override String get sofaLoansReport => 'SOFA Loans';
+  @override String get bankFlowReport => 'Bank Flow';
+  @override String get villageCompareReport => 'Village Compare';
+  @override String get overdueAlertsReport => 'Overdue Alerts';
+  @override String get trendsReport => 'Trends';
+  @override String get groupHealthReport => 'Group Health';
+  @override String get recoveryRateReport => 'Recovery Rate';
+  @override String get auditLogReport => 'Audit Log';
+  @override String get outstanding => 'Outstanding';
+  @override String get recoveryRate => 'Recovery %';
+  @override String get netFlow => 'Net Flow';
+  @override String get deposited => 'Deposited';
+  @override String get withdrawn => 'Withdrawn';
+  @override String get noAlerts => 'All groups are up to date';
+  @override String get regularity => 'Regularity';
+  @override String get missingMonths => 'Missing months';
+  @override String get corpusGrowth => 'Corpus Growth';
+  @override String get monthlyContributions => 'Monthly Contributions';
 }

@@ -137,5 +137,51 @@
   "langMixed": "த/En",
 
   "metricTotal": "மொத்தம்",
-  "metricThisMonth": "இந்த மாதம்"
+  "metricThisMonth": "இந்த மாதம்",
+
+  "savingsOverview": "சேமிப்பு கணக்கு",
+  "totalSavingsAsset": "மொத்த சேமிப்பு சொத்து",
+  "savingsCorpus": "சேமிப்பு நிதி",
+  "interestEarned": "வட்டி வருமானம்",
+  "villagesCount": "{count} கிராமங்கள்",
+  "@villagesCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "groupsCount": "{count} குழுக்கள்",
+  "@groupsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "monthlyLedger": "மாதாந்திர கணக்கு",
+  "noEntriesYet": "இன்னும் பதிவுகள் இல்லை.",
+  "lastEntryMonth": "கடைசி: {month}",
+  "@lastEntryMonth": {
+    "placeholders": { "month": { "type": "String" } }
+  },
+  "sortBy": "வரிசையிடு",
+  "sortHighestFirst": "அதிக முதல்",
+  "sortByName": "பெயர் வரிசை",
+  "cumulative": "ஒட்டுமொத்தம்",
+  "reportsSection": "அறிக்கைகள்",
+  "internalLoansReport": "உள் கடன்கள்",
+  "bankTransactionsReport": "வங்கி பரிவர்த்தனைகள்",
+  "groupActivityReport": "குழு செயல்பாடு",
+  "comingSoon": "விரைவில் வரும்",
+  "sofaLoansReport": "SOFA கடன்கள்",
+  "bankFlowReport": "வங்கி பாய்வு",
+  "villageCompareReport": "கிராம ஒப்பீடு",
+  "overdueAlertsReport": "தாமதமான எச்சரிக்கைகள்",
+  "trendsReport": "போக்குகள்",
+  "groupHealthReport": "குழு ஆரோக்கியம்",
+  "recoveryRateReport": "மீட்பு விகிதம்",
+  "auditLogReport": "தணிக்கை பதிவு",
+  "outstanding": "நிலுவை",
+  "recoveryRate": "மீட்பு %",
+  "netFlow": "நிகர பாய்வு",
+  "deposited": "வைப்பு",
+  "withdrawn": "எடுப்பு",
+  "noAlerts": "அனைத்து குழுக்களும் சரியாக உள்ளன",
+  "regularity": "ஒழுங்குமுறை",
+  "missingMonths": "காணாத மாதங்கள்",
+  "corpusGrowth": "நிதி வளர்ச்சி",
+  "monthlyContributions": "மாதாந்திர பங்களிப்புகள்"
 }

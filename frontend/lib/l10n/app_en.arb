@@ -137,5 +137,51 @@
   "langMixed": "த/En",
 
   "metricTotal": "Total",
-  "metricThisMonth": "This month"
+  "metricThisMonth": "This month",
+
+  "savingsOverview": "Savings Overview",
+  "totalSavingsAsset": "Total Savings Asset",
+  "savingsCorpus": "Savings Corpus",
+  "interestEarned": "Interest Earned",
+  "villagesCount": "{count, plural, one{{count} village} other{{count} villages}}",
+  "@villagesCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "groupsCount": "{count, plural, one{{count} group} other{{count} groups}}",
+  "@groupsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "monthlyLedger": "Monthly Ledger",
+  "noEntriesYet": "No entries recorded yet.",
+  "lastEntryMonth": "Last: {month}",
+  "@lastEntryMonth": {
+    "placeholders": { "month": { "type": "String" } }
+  },
+  "sortBy": "Sort by",
+  "sortHighestFirst": "Highest first",
+  "sortByName": "By name",
+  "cumulative": "Cumulative",
+  "reportsSection": "Reports",
+  "internalLoansReport": "Internal Loans",
+  "bankTransactionsReport": "Bank Transactions",
+  "groupActivityReport": "Group Activity",
+  "comingSoon": "Coming soon",
+  "sofaLoansReport": "SOFA Loans",
+  "bankFlowReport": "Bank Flow",
+  "villageCompareReport": "Village Compare",
+  "overdueAlertsReport": "Overdue Alerts",
+  "trendsReport": "Trends",
+  "groupHealthReport": "Group Health",
+  "recoveryRateReport": "Recovery Rate",
+  "auditLogReport": "Audit Log",
+  "outstanding": "Outstanding",
+  "recoveryRate": "Recovery %",
+  "netFlow": "Net Flow",
+  "deposited": "Deposited",
+  "withdrawn": "Withdrawn",
+  "noAlerts": "All groups are up to date",
+  "regularity": "Regularity",
+  "missingMonths": "Missing months",
+  "corpusGrowth": "Corpus Growth",
+  "monthlyContributions": "Monthly Contributions"
 }
