@@ -187,10 +187,12 @@ class _StepSelectGroup extends ConsumerWidget {
         Expanded(
           child: groupsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text('Could not load groups: $e',
-                  style: const TextStyle(color: Colors.red)),
+            error: (_, __) => const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Could not load groups. Please check your connection and try again.',
+                style: TextStyle(color: Colors.red),
+              ),
             ),
             data: (groups) => ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),

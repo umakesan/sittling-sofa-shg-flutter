@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crypto/crypto.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../api/api_client.dart';
@@ -91,9 +92,29 @@ class AuthService {
       return result.user;
     } on AuthException {
       rethrow;
-    } catch (e) {
-      throw AuthException('Login failed: ${e.toString()}');
+    } on DioException catch (e) {
+      throw AuthException(_friendlyDioError(e));
+    } catch (_) {
+      throw const AuthException('Something went wrong. Please try again.');
     }
+  }
+
+  String _friendlyDioError(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return 'Cannot reach the server. Check your internet connection.';
+      case DioExceptionType.connectionError:
+        return 'Cannot connect to the server. Check your internet connection.';
+      default:
+        break;
+    }
+    final status = e.response?.statusCode;
+    if (status == 401) return 'Invalid user ID or password.';
+    if (status == 403) return 'Access denied. Contact your admin.';
+    if (status != null && status >= 500) return 'Server error. Please try again later.';
+    return 'Connection error. Please check your internet and try again.';
   }
 
   Future<AppUser> _loginOffline(String userId, String password) async {
