@@ -137,5 +137,19 @@
   "langMixed": "த/En",
 
   "metricTotal": "மொத்தம்",
-  "metricThisMonth": "இந்த மாதம்"
+  "metricThisMonth": "இந்த மாதம்",
+
+  "thisMonthSavings": "இந்த மாத சேமிப்பு",
+  "sectionToday": "இன்று",
+  "sectionRestOfMonth": "மாதத்தின் மீதி",
+  "notYetCollected": "இன்னும் சேகரிக்கப்படவில்லை",
+  "searchGroupsHint": "குழுக்களை தேடவும்…",
+  "sortTooltip": "வரிசைப்படுத்து",
+  "sortByDate": "கூட்ட தேதி",
+  "sortByGroupName": "குழு பெயர்",
+  "sortByVillage": "கிராமம்",
+  "noGroupsFound": "குழுக்கள் கிடைக்கவில்லை",
+
+  "stripOpening": "தொடக்கம்",
+  "stripAfterSave": "சேமிப்புக்கு பின்"
 }

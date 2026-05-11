@@ -99,6 +99,20 @@ def parse_sheet(ws, village_name: str) -> list[dict]:
         savings_row    = rows[g + 4]  if g + 4  < len(rows) else []
         int_prin_row   = rows[g + 5]  if g + 5  < len(rows) else []
         int_int_row    = rows[g + 6]  if g + 6  < len(rows) else []
+        # Opening bank balance: find the row labelled "Opening Balance" within the bank
+        # section (offsets +8 to +12) and take the first numeric value in that row.
+        # The value column varies by group, so we search by label rather than fixed index.
+        opening_balance = 0.0
+        for _off in range(g + 8, min(g + 13, len(rows))):
+            _row = rows[_off]
+            label = next((c for c in _row[:3] if isinstance(c, str)), "")
+            if "opening balance" in label.lower():
+                for _col in range(2, len(_row)):
+                    _v = _row[_col]
+                    if isinstance(_v, (int, float)) and _v != 0:
+                        opening_balance = float(_v)
+                        break
+                break
         to_bank_row    = rows[g + 10] if g + 10 < len(rows) else []
         from_bank_row  = rows[g + 11] if g + 11 < len(rows) else []
         sofa1_dis_row  = rows[g + 14] if g + 14 < len(rows) else []
@@ -138,6 +152,7 @@ def parse_sheet(ws, village_name: str) -> list[dict]:
                 "group_name": group_name,
                 "village_name": village_name,
                 "entry_month": meeting_date,
+                "opening_balance": opening_balance,
                 "savings": savings,
                 "int_principal": int_principal,
                 "int_interest": int_interest,
@@ -174,6 +189,13 @@ def run():
 
     with Session(engine) as session:
         # --- groups ---
+        # Take opening_balance from the first record seen for each group
+        group_opening: dict[tuple[str, str], float] = {}
+        for r in all_records:
+            key = (r["group_name"], r["village_name"])
+            if key not in group_opening:
+                group_opening[key] = r["opening_balance"]
+
         group_keys = {(r["group_name"], r["village_name"]) for r in all_records}
         group_id: dict[tuple[str, str], int] = {}
         for group_name, vill_name in sorted(group_keys):
@@ -182,18 +204,27 @@ def run():
             result = session.execute(
                 text("""
                     INSERT INTO groups
-                        (name, village_name, code, register_template, is_active, created_at, updated_at)
+                        (name, village_name, code, register_template, is_active,
+                         opening_bank_balance, created_at, updated_at)
                     VALUES
-                        (:name, :village_name, :code, 'default_v1', true, NOW(), NOW())
-                    ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name
+                        (:name, :village_name, :code, 'default_v1', true,
+                         :opening_balance, NOW(), NOW())
+                    ON CONFLICT (code) DO UPDATE SET
+                        name = EXCLUDED.name,
+                        opening_bank_balance = EXCLUDED.opening_bank_balance
                     RETURNING id
                 """),
-                {"name": group_name, "village_name": vill_name, "code": code},
+                {
+                    "name": group_name,
+                    "village_name": vill_name,
+                    "code": code,
+                    "opening_balance": group_opening[(group_name, vill_name)],
+                },
             )
             group_id[(group_name, vill_name)] = result.scalar_one()
         print(f"Inserted {len(group_id)} groups")
 
-        # --- month_entries ---
+        # --- month_entries + sofa_loan_entries ---
         entry_count = 0
         for r in all_records:
             gid = group_id[(r["group_name"], r["village_name"])]
@@ -206,7 +237,7 @@ def run():
                         sofa_loan_disbursed, sofa_loan_repayment, sofa_loan_interest_collected,
                         warning_flags, source_count, created_at, updated_at
                     ) VALUES (
-                        :group_id, :entry_month, 'MANUAL', 'SYNCED',
+                        :group_id, :entry_month, 'manual', 'synced',
                         :savings, :int_principal, :int_interest, :to_bank, :from_bank,
                         :sofa_dis, :sofa_ret, :sofa_int,
                         '[]', 0, NOW(), NOW()
@@ -236,7 +267,39 @@ def run():
                     "sofa_int": r["sofa1_int"] + r["sofa2_int"],
                 },
             )
+            entry_id = result.scalar_one()
             entry_count += 1
+
+            # Populate per-slot breakdown in sofa_loan_entries
+            for slot, (dis, ret, intr) in enumerate(
+                [
+                    (r["sofa1_dis"], r["sofa1_ret"], r["sofa1_int"]),
+                    (r["sofa2_dis"], r["sofa2_ret"], r["sofa2_int"]),
+                ],
+                start=1,
+            ):
+                if dis or ret or intr:
+                    session.execute(
+                        text("""
+                            INSERT INTO sofa_loan_entries
+                                (month_entry_id, loan_slot, disbursed, repayment,
+                                 interest_collected, created_at, updated_at)
+                            VALUES
+                                (:entry_id, :slot, :disbursed, :repayment, :interest, NOW(), NOW())
+                            ON CONFLICT (month_entry_id, loan_slot) DO UPDATE SET
+                                disbursed          = EXCLUDED.disbursed,
+                                repayment          = EXCLUDED.repayment,
+                                interest_collected = EXCLUDED.interest_collected,
+                                updated_at         = NOW()
+                        """),
+                        {
+                            "entry_id": entry_id,
+                            "slot": slot,
+                            "disbursed": dis,
+                            "repayment": ret,
+                            "interest": intr,
+                        },
+                    )
 
         session.commit()
 

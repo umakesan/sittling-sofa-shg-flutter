@@ -11,6 +11,8 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/warning_panel.dart';
 
+final _numFmt = NumberFormat('#,##0');
+
 class EditEntryScreen extends ConsumerStatefulWidget {
   final MonthEntry entry;
 
@@ -108,14 +110,27 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    final groupName = ref.watch(groupsProvider).maybeWhen(
-          data: (groups) => groups
-              .where((g) => g.id == widget.entry.groupId)
-              .firstOrNull
-              ?.name,
-          orElse: () => null,
-        ) ??
-        '${l10n.groupLedger} ${widget.entry.groupId}';
+    final groupsState = ref.watch(groupsProvider);
+    final group = groupsState.maybeWhen(
+      data: (gs) => gs.where((g) => g.id == widget.entry.groupId).firstOrNull,
+      orElse: () => null,
+    );
+    final groupName = group?.name ?? '${l10n.groupLedger} ${widget.entry.groupId}';
+
+    final allEntries = ref.watch(entriesProvider).maybeWhen(
+      data: (list) => list,
+      orElse: () => <MonthEntry>[],
+    );
+    final prior = allEntries.where((e) =>
+        e.groupId == widget.entry.groupId &&
+        e.entryMonth.compareTo(widget.entry.entryMonth) < 0).toList();
+
+    final openingSavings   = prior.fold(0.0, (s, e) => s + e.savingsCollected);
+    final openingPrincipal = prior.fold(0.0, (s, e) => s + e.internalLoanPrincipalDisbursed);
+    final openingInterest  = prior.fold(0.0, (s, e) => s + e.internalLoanInterestCollected);
+    final openingBank = (group?.openingBankBalance ?? 0) +
+        prior.fold(0.0, (s, e) => s + e.toBank - e.fromBank);
+    final openingSofa = prior.fold(0.0, (s, e) => s + e.sofaLoanDisbursed - e.sofaLoanRepayment);
 
     final month =
         DateFormat('MMMM yyyy').format(DateTime.parse(widget.entry.entryMonth));
@@ -153,12 +168,40 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
     final leftFields = <Widget>[
       _SectionHeader(l10n.savingsSection),
       _MoneyField(label: l10n.savingsCollected, controller: _savings),
+      _BalanceStrip(
+        opening: openingSavings,
+        listenable: _savings,
+        getDelta: () => _val(_savings),
+        openingLabel: l10n.stripOpening,
+        afterSaveLabel: l10n.stripAfterSave,
+      ),
       _MoneyField(label: l10n.intLoanPrincipal, controller: _internalPrincipal),
+      _BalanceStrip(
+        opening: openingPrincipal,
+        listenable: _internalPrincipal,
+        getDelta: () => _val(_internalPrincipal),
+        openingLabel: l10n.stripOpening,
+        afterSaveLabel: l10n.stripAfterSave,
+      ),
       _MoneyField(label: l10n.overallInterest, controller: _internalInterest),
+      _BalanceStrip(
+        opening: openingInterest,
+        listenable: _internalInterest,
+        getDelta: () => _val(_internalInterest),
+        openingLabel: l10n.stripOpening,
+        afterSaveLabel: l10n.stripAfterSave,
+      ),
       totalRow,
       _SectionHeader(l10n.bankCashSection),
       _MoneyField(label: l10n.toBank, controller: _toBank),
       _MoneyField(label: l10n.fromBank, controller: _fromBank),
+      _BalanceStrip(
+        opening: openingBank,
+        listenable: Listenable.merge([_toBank, _fromBank]),
+        getDelta: () => _val(_toBank) - _val(_fromBank),
+        openingLabel: l10n.stripOpening,
+        afterSaveLabel: l10n.stripAfterSave,
+      ),
     ];
 
     final rightFields = <Widget>[
@@ -166,6 +209,13 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
       _MoneyField(label: l10n.loanDisbursed, controller: _sofaDisbursed),
       _MoneyField(label: l10n.loanReturn, controller: _sofaRepayment),
       _MoneyField(label: l10n.interest, controller: _sofaInterest),
+      _BalanceStrip(
+        opening: openingSofa,
+        listenable: Listenable.merge([_sofaDisbursed, _sofaRepayment]),
+        getDelta: () => _val(_sofaDisbursed) - _val(_sofaRepayment),
+        openingLabel: l10n.stripOpening,
+        afterSaveLabel: l10n.stripAfterSave,
+      ),
       const SizedBox(height: 6),
       TextField(
         controller: _notes,
@@ -276,7 +326,7 @@ class _MoneyField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: 6),
       child: TextField(
         controller: controller,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -284,6 +334,64 @@ class _MoneyField extends StatelessWidget {
           labelText: label,
           prefixText: '₹ ',
         ),
+      ),
+    );
+  }
+}
+
+class _BalanceStrip extends StatelessWidget {
+  final double opening;
+  final Listenable listenable;
+  final double Function() getDelta;
+  final String openingLabel;
+  final String afterSaveLabel;
+
+  const _BalanceStrip({
+    required this.opening,
+    required this.listenable,
+    required this.getDelta,
+    required this.openingLabel,
+    required this.afterSaveLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: ListenableBuilder(
+        listenable: listenable,
+        builder: (_, __) {
+          final current = opening + getDelta();
+          final labelStyle = AppTextStyles.label;
+          final valueStyle = AppTextStyles.label.copyWith(
+            fontFeatures: [const FontFeature.tabularFigures()],
+          );
+          final currentStyle = valueStyle.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w600,
+          );
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Text(openingLabel, style: labelStyle),
+                const SizedBox(width: 6),
+                Text('₹ ${_numFmt.format(opening)}', style: valueStyle),
+                const Spacer(),
+                const Icon(Icons.arrow_forward_rounded,
+                    size: 13, color: AppColors.textTertiary),
+                const Spacer(),
+                Text('₹ ${_numFmt.format(current)}', style: currentStyle),
+                const SizedBox(width: 6),
+                Text(afterSaveLabel, style: labelStyle),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

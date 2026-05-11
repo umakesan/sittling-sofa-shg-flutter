@@ -137,5 +137,19 @@
   "langMixed": "த/En",
 
   "metricTotal": "Total",
-  "metricThisMonth": "This month"
+  "metricThisMonth": "This month",
+
+  "thisMonthSavings": "This month's savings",
+  "sectionToday": "TODAY",
+  "sectionRestOfMonth": "REST OF MONTH",
+  "notYetCollected": "Not yet collected",
+  "searchGroupsHint": "Search groups…",
+  "sortTooltip": "Sort",
+  "sortByDate": "Meeting date",
+  "sortByGroupName": "Group name",
+  "sortByVillage": "Village",
+  "noGroupsFound": "No groups found",
+
+  "stripOpening": "Opening",
+  "stripAfterSave": "After save"
 }

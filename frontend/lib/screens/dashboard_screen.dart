@@ -54,31 +54,36 @@ class DashboardScreen extends ConsumerWidget {
           final cards = [
             _StatCard(
               icon: Icons.savings_outlined,
-              iconColor: AppColors.synced,
+              accentColor: const Color(0xFF166534),
+              tintColor: const Color(0xFFDCFCE7),
               label: l10n.totalSavingsCollected,
               value: summary.totalSavingsCollected,
             ),
             _StatCard(
               icon: Icons.people_outline,
-              iconColor: AppColors.primary,
+              accentColor: const Color(0xFF1E40AF),
+              tintColor: const Color(0xFFDBEAFE),
               label: l10n.internalLoanPrincipal,
               value: summary.totalInternalLoanPrincipal,
             ),
             _StatCard(
               icon: Icons.percent_rounded,
-              iconColor: AppColors.primaryLight,
+              accentColor: const Color(0xFF6D28D9),
+              tintColor: const Color(0xFFEDE9FE),
               label: l10n.internalLoanInterest,
               value: summary.totalInternalLoanInterest,
             ),
             _StatCard(
               icon: Icons.arrow_upward_rounded,
-              iconColor: AppColors.warning,
+              accentColor: const Color(0xFFB45309),
+              tintColor: const Color(0xFFFEF3C7),
               label: l10n.sofaLoansDisbursed,
               value: summary.totalSofaDisbursed,
             ),
             _StatCard(
               icon: Icons.arrow_downward_rounded,
-              iconColor: AppColors.synced,
+              accentColor: const Color(0xFF0F766E),
+              tintColor: const Color(0xFFCCFBF1),
               label: l10n.sofaLoansRepaid,
               value: summary.totalSofaRepaid,
             ),
@@ -205,13 +210,15 @@ class _DashboardSummary {
 
 class _StatCard extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
+  final Color accentColor;
+  final Color tintColor;
   final String label;
   final double value;
 
   const _StatCard({
     required this.icon,
-    required this.iconColor,
+    required this.accentColor,
+    required this.tintColor,
     required this.label,
     required this.value,
   });
@@ -226,30 +233,61 @@ class _StatCard extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceCard,
+        gradient: LinearGradient(
+          colors: [tintColor, AppColors.surfaceCard],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 18, color: iconColor),
+        border: Border(
+          left: BorderSide(color: accentColor, width: 4),
+          top: BorderSide(color: accentColor.withValues(alpha: 0.15), width: 1),
+          right: BorderSide(color: accentColor.withValues(alpha: 0.15), width: 1),
+          bottom: BorderSide(color: accentColor.withValues(alpha: 0.15), width: 1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(label, style: AppTextStyles.body),
-          ),
-          const SizedBox(width: 12),
-          Text(formatted, style: AppTextStyles.amount),
         ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 22, color: accentColor),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              formatted,
+              style: AppTextStyles.amount.copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: accentColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

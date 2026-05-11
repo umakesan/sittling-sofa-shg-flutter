@@ -650,6 +650,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This month'**
   String get metricThisMonth;
+
+  /// No description provided for @thisMonthSavings.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s savings'**
+  String get thisMonthSavings;
+
+  /// No description provided for @sectionToday.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY'**
+  String get sectionToday;
+
+  /// No description provided for @sectionRestOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'REST OF MONTH'**
+  String get sectionRestOfMonth;
+
+  /// No description provided for @notYetCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet collected'**
+  String get notYetCollected;
+
+  /// No description provided for @searchGroupsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search groups…'**
+  String get searchGroupsHint;
+
+  /// No description provided for @sortTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get sortTooltip;
+
+  /// No description provided for @sortByDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting date'**
+  String get sortByDate;
+
+  /// No description provided for @sortByGroupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
+  String get sortByGroupName;
+
+  /// No description provided for @sortByVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Village'**
+  String get sortByVillage;
+
+  /// No description provided for @noGroupsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups found'**
+  String get noGroupsFound;
+
+  /// No description provided for @stripOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening'**
+  String get stripOpening;
+
+  /// No description provided for @stripAfterSave.
+  ///
+  /// In en, this message translates to:
+  /// **'After save'**
+  String get stripAfterSave;
 }
 
 class _AppLocalizationsDelegate

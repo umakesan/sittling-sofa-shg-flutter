@@ -7,6 +7,7 @@ import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import '../widgets/sofa_logo.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -78,44 +79,59 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(40),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          color: Colors.white12,
-                          borderRadius: BorderRadius.circular(18),
+                      const Spacer(),
+                      const SofaLogo(size: 72),
+                      const SizedBox(height: 32),
+                      RichText(
+                        text: TextSpan(
+                          style: AppTextStyles.displayLarge.copyWith(
+                            color: Colors.white,
+                            height: 1.2,
+                            fontSize: 30,
+                          ),
+                          children: const [
+                            TextSpan(text: 'Monthly\nSavings\n'),
+                            TextSpan(
+                              text: 'Bookkeeping',
+                              style: TextStyle(color: Color(0xFFC8A000)),
+                            ),
+                            TextSpan(text: '\nfor SOFA'),
+                          ],
                         ),
-                        child: const Icon(
-                          Icons.account_balance_wallet_outlined,
-                          size: 40,
-                          color: Colors.white,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Track monthly savings and loans\nfor every SHG group in the field.',
+                        style: AppTextStyles.body.copyWith(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          fontSize: 14,
+                          height: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 28),
-                      Text(
-                        l10n.appTitle,
-                        style: AppTextStyles.displayLarge
-                            .copyWith(color: Colors.white),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.appSubtitle,
-                        style: AppTextStyles.body
-                            .copyWith(color: AppColors.textOnDarkMuted),
-                      ),
-                      const SizedBox(height: 40),
-                      Container(
-                        height: 1,
-                        color: Colors.white12,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        l10n.contactAdmin,
-                        style: AppTextStyles.label
-                            .copyWith(color: AppColors.textOnDarkMuted),
+                      const Spacer(),
+                      Container(height: 1, color: Colors.white12),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF4ADE80),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Sittilingi Organic Farmers Assn',
+                            style: AppTextStyles.label.copyWith(
+                              color: Colors.white.withValues(alpha: 0.65),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -172,8 +188,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.account_balance_wallet,
-                    size: 72, color: Colors.white),
+                const SofaLogo(size: 72),
                 const SizedBox(height: 16),
                 Text(
                   l10n.appTitle,
