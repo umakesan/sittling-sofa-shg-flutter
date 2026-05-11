@@ -35,7 +35,6 @@ class _Summary {
   final double loanInterest;
   final double sofaDisbursed;
   final double sofaRepaid;
-  final int warnings;
 
   double get totalAsset => savings + loanInterest;
 
@@ -45,20 +44,17 @@ class _Summary {
     required this.loanInterest,
     required this.sofaDisbursed,
     required this.sofaRepaid,
-    required this.warnings,
   });
 }
 
 _Summary _summarise(List<MonthEntry> entries) {
   double savings = 0, principal = 0, interest = 0, sofa = 0, sofaRepaid = 0;
-  int warnings = 0;
   for (final e in entries) {
     savings += e.savingsCollected;
     principal += e.internalLoanPrincipalDisbursed;
     interest += e.internalLoanInterestCollected;
     sofa += e.sofaLoanDisbursed;
     sofaRepaid += e.sofaLoanRepayment;
-    if (e.warningFlags.isNotEmpty) warnings++;
   }
   return _Summary(
     savings: savings,
@@ -66,7 +62,6 @@ _Summary _summarise(List<MonthEntry> entries) {
     loanInterest: interest,
     sofaDisbursed: sofa,
     sofaRepaid: sofaRepaid,
-    warnings: warnings,
   );
 }
 
@@ -209,13 +204,7 @@ class DashboardScreen extends ConsumerWidget {
                   _HeroBanner(summary: s, entryCount: entries.length),
                   const SizedBox(height: 12),
 
-                  // ── 2. Warnings ──────────────────────────────────────────
-                  if (s.warnings > 0) ...[
-                    _WarningBanner(count: s.warnings),
-                    const SizedBox(height: 12),
-                  ],
-
-                  // ── 3. Stats grid ────────────────────────────────────────
+                  // ── 2. Stats grid ────────────────────────────────────────
                   Text(l10n.villageWideTotals,
                       style: AppTextStyles.sectionHeader),
                   const SizedBox(height: 8),
@@ -341,40 +330,6 @@ class _InfoPill extends StatelessWidget {
             value,
             style: AppTextStyles.label.copyWith(
                 color: AppColors.textOnDark, fontWeight: FontWeight.w700),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Warning banner ───────────────────────────────────────────────────────────
-
-class _WarningBanner extends StatelessWidget {
-  final int count;
-
-  const _WarningBanner({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.warningBg,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.warningBorder),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.warning_amber_rounded,
-              color: AppColors.warningIcon, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              l10n.warningEntriesCount(count),
-              style: AppTextStyles.body.copyWith(color: AppColors.warning),
-            ),
           ),
         ],
       ),
