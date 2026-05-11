@@ -193,7 +193,10 @@ adb install -r build/app/outputs/flutter-apk/app-release.apk
 ```bash
 docker compose up -d db        # PostgreSQL on localhost:55432
 docker compose down            # stop and remove containers (data volume persists)
+docker compose down -v         # full wipe including data volume (use /reimport-data skill after)
 ```
+
+Use the `/reimport-data` Claude Code skill (`.claude/commands/reimport-data.md`) to fully wipe and rebuild the local DB — runs migrations, seed, and Excel import in one step.
 
 ### Backend
 ```bash
@@ -264,7 +267,9 @@ Use `context.push()` for stack navigation (back button), `context.go()` only for
 
 **API client:** `api/api_client.dart` uses Dio + `flutter_secure_storage` for JWT. Base URL set via `String.fromEnvironment('API_URL')` — never hardcoded. Methods: `login`, `fetchGroups`, `createGroup`, `fetchVillageNames`, `createVillage`, `createEntry`, `updateEntry`, `fetchEntries`, `fetchDashboard`.
 
-**Theme:** `theme/app_theme.dart` — Material 3, Noto Sans (Google Fonts), 56px minimum button height for field-worker use. Color palette in `theme/app_colors.dart` (forest green primary, high-contrast status colors). Do not hardcode colors — always reference `AppColors` constants.
+**Group Dart model** (`models/group.dart`): includes `villageName` (String) and `openingBankBalance` (double). `createGroup` sends `village_name` as a plain string — no village ID.
+
+**Theme:** `theme/app_theme.dart` — Material 3, Noto Sans (Google Fonts), 56px minimum button height for field-worker use. Color palette in `theme/app_colors.dart` (forest green primary, high-contrast status colors). Typography in `theme/app_text_styles.dart` (`AppTextStyles` class — fixed `height: 1.55` on all styles to prevent Tamil script clipping). Do not hardcode colors or text styles — always reference `AppColors` and `AppTextStyles` constants.
 
 **Localization:** Full i18n in `lib/l10n/`. Supported locales: English (`en`), Tamil (`ta`), Tamil+English mixed (`ta_IN`). Source of truth: `lib/l10n/app_en.arb`. After editing `.arb` files run `flutter gen-l10n`. All UI strings must use `AppLocalizations.of(context)!.keyName` — no hardcoded English strings in widgets.
 
@@ -276,9 +281,11 @@ Use `context.push()` for stack navigation (back button), `context.go()` only for
 - `services/validation.py` — `build_warning_flags(entry)` + `derive_status()` called on every create/update.
 - `core/config.py` — Pydantic-settings; reads `.env`. Key: `DATABASE_URL`, `CORS_ORIGINS`.
 - The `month_entries` table has a unique constraint on `(group_id, entry_month)`.
-- The `groups` table now has a `village_id` FK to the `villages` table (`villages` table exists; earlier migration note about removal is obsolete).
-- Enum values in the DB are uppercase: `MANUAL`, `PREFILL`, `DRAFT`, `SAVED`, `SAVED_WITH_WARNINGS`, `SYNCED`.
-- **Villages endpoint** (`/api/v1/villages`): `GET` returns list ordered by name; `POST` creates a new village (admin only, 409 if name already exists).
+- The `groups` table stores `village_name` as a plain `VARCHAR(120)` column (denormalized). Migration `b2c3d4e5f6a7` replaced the old `village_id` FK and dropped the `villages` table.
+- `groups` also has `opening_bank_balance NUMERIC(12,2)` (added in migration `c3d4e5f6a7b8`).
+- `month_entries` has three SOFA-specific columns added in migration `d4e5f6a7b8c9`: `sofa_loan_disbursed`, `sofa_loan_repayment`, `sofa_loan_interest_collected` (all `NUMERIC(12,2)`, default 0).
+- Enum values in the DB are **lowercase**: `manual`, `prefill`, `draft`, `saved`, `saved_with_warnings`, `synced`. SQLAlchemy models use `values_callable=lambda x: [e.value for e in x]` to store the `.value` string, not the enum name.
+- **Villages endpoint** (`/api/v1/villages`): `GET` returns list ordered by name; `POST` creates a new village (admin only, 409 if name already exists). Note: the `villages` table was dropped by migration `b2c3d4e5f6a7`; this endpoint still references the `Village` model and needs to be updated to derive distinct village names from the `groups` table.
 
 **Tests** use SQLite in-memory (no Postgres needed). `conftest.py` seeds two Groups and a User, overrides `db_session`, and suppresses startup events.
 
@@ -404,7 +411,7 @@ Warnings are non-blocking — entry is saved with status `SAVED_WITH_WARNINGS`. 
 | `StatusPill` | `widgets/status_pill.dart` | Colored status badge per entry |
 | `ShimmerCard` | `widgets/shimmer_loader.dart` | Loading placeholder cards |
 | `AppDrawer` | `widgets/app_drawer.dart` | Mobile nav: sync, language, admin, logout |
-| `SofaLogo` | `widgets/sofa_logo.dart` | SOFA brand logo widget |
+| `SofaLogo` | `widgets/sofa_logo.dart` | SOFA brand mark (orange rounded square with italic "S") |
 
 ### Reports system
 
