@@ -121,7 +121,7 @@ class _LedgerHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fmt = NumberFormat.currency(locale: 'en_IN', symbol: 'â‚¹', decimalDigits: 0);
+    final fmt = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
     final day = group != null ? _extractDay(group!.name) : null;
     final lastMonthText = lastEntry != null
         ? DateFormat('MMM yyyy').format(DateTime.parse(lastEntry!.entryMonth))
@@ -389,17 +389,17 @@ class _LedgerRow extends StatelessWidget {
                   children: [
                     _AmountRow(
                       label: l10n.savings,
-                      value: 'â‚¹${fmt.format(entry.savingsCollected)}',
+                      value: '₹${fmt.format(entry.savingsCollected)}',
                     ),
                     const SizedBox(height: 3),
                     _AmountRow(
                       label: l10n.intLoan,
-                      value: 'â‚¹${fmt.format(entry.internalLoanPrincipalDisbursed)}',
+                      value: '₹${fmt.format(entry.internalLoanPrincipalDisbursed)}',
                     ),
                     const SizedBox(height: 3),
                     _AmountRow(
                       label: l10n.sofaLoan,
-                      value: 'â‚¹${fmt.format(entry.sofaLoanDisbursed)}',
+                      value: '₹${fmt.format(entry.sofaLoanDisbursed)}',
                     ),
                   ],
                 ),

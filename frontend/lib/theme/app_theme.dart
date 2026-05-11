@@ -27,7 +27,8 @@ abstract final class AppTheme {
         onErrorContainer: AppColors.error,
         surface: AppColors.surfaceCard,
         onSurface: AppColors.textPrimary,
-        surfaceContainerHighest: AppColors.surface,
+        background: AppColors.surface,
+        onBackground: AppColors.textPrimary,
         onSurfaceVariant: AppColors.textSecondary,
         outline: AppColors.border,
         outlineVariant: AppColors.divider,
@@ -53,7 +54,7 @@ abstract final class AppTheme {
         ),
       ),
 
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: AppColors.surfaceCard,
         elevation: 0,
         shape: RoundedRectangleBorder(

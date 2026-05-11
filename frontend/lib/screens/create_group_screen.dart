@@ -118,7 +118,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                             style: TextStyle(color: Colors.orange),
                           )
                         : DropdownButtonFormField<String>(
-                            initialValue: _selectedVillage,
+                            value: _selectedVillage,
                             decoration: const InputDecoration(
                               labelText: 'Village',
                               border: OutlineInputBorder(),

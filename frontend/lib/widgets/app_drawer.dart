@@ -129,7 +129,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                     ref.read(localeProvider.notifier).setLocale(locale);
                   },
                   style: ButtonStyle(
-                    textStyle: WidgetStatePropertyAll(AppTextStyles.label),
+                    textStyle: MaterialStateProperty.all(AppTextStyles.label),
                   ),
                 ),
               ],

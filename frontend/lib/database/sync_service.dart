@@ -38,9 +38,16 @@ class SyncService {
 
     for (final entry in pending) {
       try {
-        final responseData = await _api.createEntry(entry.toApiPayload());
-        final serverId = responseData['id'] as int;
-        await _db.markEntrySynced(entry.localId, serverId);
+        if (entry.serverId != null) {
+          // Entry was already on the server and was edited locally — patch it.
+          await _api.updateEntry(entry.serverId!, entry.toApiPayload());
+          await _db.markEntrySynced(entry.localId, entry.serverId!);
+        } else {
+          // Brand-new entry that has never been uploaded — create it.
+          final responseData = await _api.createEntry(entry.toApiPayload());
+          final serverId = responseData['id'] as int;
+          await _db.markEntrySynced(entry.localId, serverId);
+        }
         synced++;
       } catch (e) {
         failed++;

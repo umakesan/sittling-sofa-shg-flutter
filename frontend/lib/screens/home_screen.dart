@@ -447,7 +447,7 @@ class _HeroCard extends StatelessWidget {
 
   String _fmt(double v) => NumberFormat.currency(
         locale: 'en_IN',
-        symbol: 'â‚¹',
+        symbol: '₹',
         decimalDigits: 0,
       ).format(v);
 
@@ -768,7 +768,7 @@ class _GroupTile extends StatelessWidget {
 
     final String? savingsText = hasEntry
         ? NumberFormat.currency(
-                locale: 'en_IN', symbol: 'â‚¹', decimalDigits: 0)
+                locale: 'en_IN', symbol: '₹', decimalDigits: 0)
             .format(entry!.savingsCollected)
         : null;
 

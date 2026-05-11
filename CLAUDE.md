@@ -246,7 +246,7 @@ Key identifiers:
 - `localeProvider` — `StateNotifier<Locale>`; persisted in `flutter_secure_storage`
 
 **Navigation:** `go_router` in `main.dart`. Routes:
-- `/login` → Login screen
+- `/login` → LoginScreen
 - `/` → HomeScreen (wrapped in `AppShell` on tablet ≥600px)
 - `/dashboard` → DashboardScreen
 - `/entries/new` → NewEntryScreen
@@ -254,6 +254,7 @@ Key identifiers:
 - `/ledger/:groupId` → LedgerScreen
 - `/admin/create-village` → CreateVillageScreen (admin only)
 - `/admin/create-group` → CreateGroupScreen (admin only)
+- Report routes (all inside the ShellRoute — see Navigation table below)
 
 Use `context.push()` for stack navigation (back button), `context.go()` only for full replacements (login → home).
 
@@ -318,12 +319,27 @@ systemctl restart shg-api
 |-------|--------|-------|
 | `/login` | LoginScreen | Redirected to if no JWT |
 | `/` | HomeScreen | Wrapped in AppShell on tablet |
-| `/dashboard` | DashboardScreen | Village-wide totals |
+| `/dashboard` | DashboardScreen | Village-wide totals + reports grid |
 | `/ledger/:groupId` | LedgerScreen | Entry history for one group |
 | `/entries/new` | NewEntryScreen | Two-step form |
 | `/entries/edit` | EditEntryScreen | Entry passed as route extra |
 | `/admin/create-village` | CreateVillageScreen | Admin only |
 | `/admin/create-group` | CreateGroupScreen | Admin only |
+| `/reports/sofa` | SofaLoansScreen | Federation SOFA loan summary |
+| `/reports/sofa/village/:name` | VillageSofaScreen | Per-village SOFA breakdown |
+| `/reports/sofa/group/:id` | GroupSofaScreen | Per-group SOFA ledger |
+| `/reports/bank` | BankFlowScreen | Federation bank flow summary |
+| `/reports/bank/village/:name` | VillageBankScreen | Per-village bank breakdown |
+| `/reports/bank/group/:id` | GroupBankScreen | Per-group bank ledger (cumulative balance) |
+| `/reports/compare` | VillageCompareScreen | Side-by-side village totals table |
+| `/reports/overdue` | OverdueAlertsScreen | Groups with overdue/warning entries |
+| `/reports/trends` | TrendsScreen | Federation monthly trends table |
+| `/reports/health` | GroupHealthScreen | Regularity scores by village |
+| `/reports/health/village/:name` | VillageHealthScreen | Per-village group regularity |
+| `/reports/recovery` | RecoveryRateScreen | SOFA recovery % by village |
+| `/reports/recovery/village/:name` | VillageRecoveryScreen | Per-village recovery breakdown |
+| `/reports/audit` | AuditLogScreen | Admin only — entry audit log |
+| `/reports/audit/village/:name` | VillageAuditScreen | Admin only — per-village audit |
 
 - Use `context.push(route)` when you need a back-button stack.
 - Use `context.go(route)` only for full-stack replacements (login → home, logout → login).
@@ -388,6 +404,33 @@ Warnings are non-blocking — entry is saved with status `SAVED_WITH_WARNINGS`. 
 | `StatusPill` | `widgets/status_pill.dart` | Colored status badge per entry |
 | `ShimmerCard` | `widgets/shimmer_loader.dart` | Loading placeholder cards |
 | `AppDrawer` | `widgets/app_drawer.dart` | Mobile nav: sync, language, admin, logout |
+| `SofaLogo` | `widgets/sofa_logo.dart` | SOFA brand logo widget |
+
+### Reports system
+
+All 9 report screens live in `frontend/lib/screens/reports/`. Data is computed in `frontend/lib/providers/reports_provider.dart` using Riverpod `Provider.family` over the existing `groupsProvider` + `entriesProvider`.
+
+**Role-based visibility** (enforced in `DashboardScreen._buildReports`):
+
+| Report | Route | Field Officer | Management | Admin |
+|--------|-------|:---:|:---:|:---:|
+| Internal Loans | (savings_overview) | ✓ | ✓ | ✓ |
+| Bank Transactions | (savings_overview) | ✓ | ✓ | ✓ |
+| Group Activity | (savings_overview) | ✓ | ✓ | ✓ |
+| SOFA Loans | `/reports/sofa` | ✓ | ✓ | ✓ |
+| Village Compare | `/reports/compare` | ✓ | ✓ | ✓ |
+| Overdue Alerts | `/reports/overdue` | ✓ | ✓ | ✓ |
+| Bank Flow | `/reports/bank` | — | ✓ | ✓ |
+| Trends | `/reports/trends` | — | ✓ | ✓ |
+| Group Health | `/reports/health` | — | ✓ | ✓ |
+| Recovery Rate | `/reports/recovery` | — | ✓ | ✓ |
+| Audit Log | `/reports/audit` | — | — | ✓ |
+
+Role check: `ref.watch(authProvider)` returns `AppUser?` directly (NOT `.user`) — it's a `StateNotifierProvider<AuthNotifier, AppUser?>`.
+
+**`reports_provider.dart` patterns:**
+- Uses `_combine()` helper to merge `groupsProvider` + `entriesProvider` into a single `AsyncValue`
+- String min/max uses `.reduce((a, b) => a.compareTo(b) < 0 ? a : b)` — NOT `dart:math` `min`/`max` (those only work on `num`)
 
 ### Android build toolchain
 
@@ -410,9 +453,15 @@ The app declares `<supports-screens>` for all screen sizes and uses `Constrained
 - **Negative values in historical entries**: The Excel import (`import_savings.py`) contains months with negative `savings_collected` / `internal_loan_interest_collected` (ledger correction rows). The Pydantic **response** schema (`MonthEntryRead`) allows these; only the **input** schemas (`MonthEntryCreate`, `MonthEntryUpdate`) enforce `ge=0`.
 - **CORS**: The dev server `.env` explicitly lists `http://localhost:4200` and `http://localhost:4201` in `CORS_ORIGINS`. `backend/app/main.py` also has `allow_origin_regex=r"http://localhost:\d+"` as a blanket fallback for any localhost port.
 
+### Flutter compatibility gotchas
+
+- **`Color.withValues()` requires Flutter ≥ 3.27** — this project's SDK constraint is `>=3.3.0`. Always use `Color.withOpacity(double)` instead. If you see `withValues(alpha: x)` in code from a newer contributor/branch, replace it.
+- **₹ symbol encoding** — the Rupee symbol (U+20B9, UTF-8: `E2 82 B9`) must be written as the literal `₹` character in source files saved as UTF-8. If a file is edited on a Windows-1252 system, the symbol corrupts to `â‚¹` (three characters). Fix with PowerShell: `[System.IO.File]::ReadAllText` + `.Replace([char]0x00E2+[char]0x201A+[char]0x00B9, [char]0x20B9)` + `WriteAllText` with UTF-8 encoding.
+
 ### What's not built yet
 
 - AI image extraction (models defined, no service or upload endpoint)
 - Month-on-month jump validation
-- Role-based access enforcement beyond the `role` field in JWT
+- Role-based access enforcement beyond the `role` field in JWT (dashboard tiles are filtered client-side; routes are not server-protected)
 - Prefill warning (check #3 — `prefill_mode_without_images`) exists in backend only; frontend has no image upload yet
+- Reports 1–3 (Internal Loans, Bank Transactions, Group Activity) show "coming soon" — tiles exist but routes return null
