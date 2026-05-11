@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shg_portal/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/month_entry.dart';
 import '../models/sofa_loan.dart';
 import '../providers/entries_provider.dart';
@@ -11,6 +11,7 @@ import '../providers/groups_provider.dart';
 import '../providers/sofa_loans_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'entry_form_body.dart';
 
 class NewEntryScreen extends ConsumerStatefulWidget {
   const NewEntryScreen({super.key});
@@ -25,15 +26,15 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   int? _groupId;
   DateTime? _month;
 
-  final _savings = TextEditingController();
+  final _savings           = TextEditingController();
   final _internalPrincipal = TextEditingController();
-  final _internalInterest = TextEditingController();
-  final _toBank = TextEditingController();
-  final _fromBank = TextEditingController();
-  final _sofaDisbursed = TextEditingController();
-  final _sofaRepayment = TextEditingController();
-  final _sofaInterest = TextEditingController();
-  final _notes = TextEditingController();
+  final _internalInterest  = TextEditingController();
+  final _toBank            = TextEditingController();
+  final _fromBank          = TextEditingController();
+  final _sofaDisbursed     = TextEditingController();
+  final _sofaRepayment     = TextEditingController();
+  final _sofaInterest      = TextEditingController();
+  final _notes             = TextEditingController();
 
   bool _saving = false;
   String? _saveError;
@@ -42,36 +43,35 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   void dispose() {
     for (final c in [
       _savings, _internalPrincipal, _internalInterest,
-      _toBank, _fromBank, _sofaDisbursed, _sofaRepayment,
-      _sofaInterest, _notes,
-    ]) {
-      c.dispose();
-    }
+      _toBank, _fromBank, _sofaDisbursed, _sofaRepayment, _sofaInterest, _notes,
+    ]) { c.dispose(); }
     super.dispose();
   }
 
-  double _val(TextEditingController c) =>
-      double.tryParse(c.text.trim()) ?? 0;
+  double _val(TextEditingController c) {
+    final raw = c.text.replaceAll(RegExp(r'[₹,\s]'), '');
+    return double.tryParse(raw) ?? 0;
+  }
 
   Future<void> _save(AppLocalizations l10n) async {
     setState(() { _saving = true; _saveError = null; });
     try {
       await ref.read(entriesProvider.notifier).createEntry(
-        groupId: _groupId!,
-        entryMonth: DateFormat('yyyy-MM-01').format(_month!),
-        entryMode: EntryMode.manual,
-        savingsCollected: _val(_savings),
+        groupId:                       _groupId!,
+        entryMonth:                    DateFormat('yyyy-MM-01').format(_month!),
+        entryMode:                     EntryMode.manual,
+        savingsCollected:              _val(_savings),
         internalLoanPrincipalDisbursed: _val(_internalPrincipal),
-        internalLoanInterestCollected: _val(_internalInterest),
-        toBank: _val(_toBank),
-        fromBank: _val(_fromBank),
-        sofaLoanDisbursed: _val(_sofaDisbursed),
-        sofaLoanRepayment: _val(_sofaRepayment),
-        sofaLoanInterestCollected: _val(_sofaInterest),
+        internalLoanInterestCollected:  _val(_internalInterest),
+        toBank:                        _val(_toBank),
+        fromBank:                      _val(_fromBank),
+        sofaLoanDisbursed:             _val(_sofaDisbursed),
+        sofaLoanRepayment:             _val(_sofaRepayment),
+        sofaLoanInterestCollected:     _val(_sofaInterest),
         notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
       );
       if (mounted) context.go('/');
-    } catch (e) {
+    } catch (_) {
       setState(() { _saveError = l10n.errorFailedToSave; });
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -81,6 +81,39 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+
+    // Compute prior values when group + month are both selected
+    final groupsAsync = ref.watch(groupsProvider);
+    final group = (_groupId == null)
+        ? null
+        : groupsAsync.maybeWhen(
+            data: (gs) => gs.where((g) => g.id == _groupId).firstOrNull,
+            orElse: () => null,
+          );
+
+    final allEntries = ref.watch(entriesProvider).maybeWhen(
+      data: (list) => list,
+      orElse: () => <MonthEntry>[],
+    );
+    final entryMonthStr = _month == null
+        ? null
+        : DateFormat('yyyy-MM-01').format(_month!);
+    final prior = (_groupId == null || entryMonthStr == null)
+        ? <MonthEntry>[]
+        : allEntries
+            .where((e) =>
+                e.groupId == _groupId &&
+                e.entryMonth.compareTo(entryMonthStr) < 0)
+            .toList();
+
+    final priorSavings   = prior.fold(0.0, (s, e) => s + e.savingsCollected);
+    final priorPrincipal = prior.fold(0.0, (s, e) => s + e.internalLoanPrincipalDisbursed);
+    final priorInterest  = prior.fold(0.0, (s, e) => s + e.internalLoanInterestCollected);
+    final priorToBank    = prior.fold(0.0, (s, e) => s + e.toBank);
+    final priorFromBank  = prior.fold(0.0, (s, e) => s + e.fromBank);
+    final priorSofaDis   = prior.fold(0.0, (s, e) => s + e.sofaLoanDisbursed);
+    final priorSofaRep   = prior.fold(0.0, (s, e) => s + e.sofaLoanRepayment);
+    final priorSofaInt   = prior.fold(0.0, (s, e) => s + e.sofaLoanInterestCollected);
 
     return Scaffold(
       appBar: AppBar(
@@ -109,20 +142,29 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
                   onMonthSelected: (m) => setState(() => _month = m),
                   onContinue: () => setState(() => _step = 2),
                 ),
-              _ => _StepForm(
-                  groupId: _groupId,
-                  savings: _savings,
+              _ => EntryFormBody(
+                  savings:           _savings,
                   internalPrincipal: _internalPrincipal,
-                  internalInterest: _internalInterest,
-                  toBank: _toBank,
-                  fromBank: _fromBank,
-                  sofaDisbursed: _sofaDisbursed,
-                  sofaRepayment: _sofaRepayment,
-                  sofaInterest: _sofaInterest,
-                  notes: _notes,
-                  saving: _saving,
+                  internalInterest:  _internalInterest,
+                  toBank:            _toBank,
+                  fromBank:          _fromBank,
+                  sofaDisbursed:     _sofaDisbursed,
+                  sofaRepayment:     _sofaRepayment,
+                  sofaInterest:      _sofaInterest,
+                  notes:             _notes,
+                  priorSavings:    priorSavings,
+                  priorPrincipal:  priorPrincipal,
+                  priorInterest:   priorInterest,
+                  openingBankBalance: group?.openingBankBalance ?? 0,
+                  priorToBank:     priorToBank,
+                  priorFromBank:   priorFromBank,
+                  priorSofaDisbursed: priorSofaDis,
+                  priorSofaRepayment: priorSofaRep,
+                  priorSofaInterest:  priorSofaInt,
+                  saving:    _saving,
                   saveError: _saveError,
-                  onSave: () => _save(l10n),
+                  saveLabel: l10n.saveEntry,
+                  onSave:    () => _save(l10n),
                 ),
             },
           ),
@@ -133,7 +175,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
 }
 
 // ---------------------------------------------------------------------------
-// Step 1 — Select group and month
+// Step 1 — Select group and month (unchanged)
 // ---------------------------------------------------------------------------
 
 class _StepSelectGroup extends ConsumerWidget {
@@ -197,8 +239,8 @@ class _StepSelectGroup extends ConsumerWidget {
                     leading: const Icon(Icons.location_on_outlined,
                         color: AppColors.primary),
                     title: Text(village, style: AppTextStyles.title),
-                    trailing: Text('${villageGroups.length}',
-                        style: AppTextStyles.label),
+                    trailing:
+                        Text('${villageGroups.length}', style: AppTextStyles.label),
                     children: villageGroups.map<Widget>((g) {
                       final selected = g.id == selectedGroupId;
                       return ListTile(
@@ -206,10 +248,15 @@ class _StepSelectGroup extends ConsumerWidget {
                             const EdgeInsets.symmetric(horizontal: 24),
                         title: Text(g.name, style: AppTextStyles.body),
                         leading: Icon(
-                          selected ? Icons.check_circle : Icons.circle_outlined,
-                          color: selected ? AppColors.primary : AppColors.textTertiary,
+                          selected
+                              ? Icons.check_circle
+                              : Icons.circle_outlined,
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.textTertiary,
                         ),
-                        tileColor: selected ? AppColors.primaryContainer : null,
+                        tileColor:
+                            selected ? AppColors.primaryContainer : null,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                         onTap: () => onGroupSelected(g.id),
@@ -257,279 +304,6 @@ class _StepSelectGroup extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Step 2 — Financial totals form
-// ---------------------------------------------------------------------------
-
-class _StepForm extends ConsumerWidget {
-  final int? groupId;
-  final TextEditingController savings;
-  final TextEditingController internalPrincipal;
-  final TextEditingController internalInterest;
-  final TextEditingController toBank;
-  final TextEditingController fromBank;
-  final TextEditingController sofaDisbursed;
-  final TextEditingController sofaRepayment;
-  final TextEditingController sofaInterest;
-  final TextEditingController notes;
-  final bool saving;
-  final String? saveError;
-  final VoidCallback onSave;
-
-  const _StepForm({
-    required this.groupId,
-    required this.savings,
-    required this.internalPrincipal,
-    required this.internalInterest,
-    required this.toBank,
-    required this.fromBank,
-    required this.sofaDisbursed,
-    required this.sofaRepayment,
-    required this.sofaInterest,
-    required this.notes,
-    required this.saving,
-    required this.saveError,
-    required this.onSave,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final isTablet = MediaQuery.sizeOf(context).width >= 720;
-
-    final activeLoan = groupId != null
-        ? ref.watch(activeSofaLoanProvider(groupId!))
-        : null;
-
-    final totalRow = ListenableBuilder(
-      listenable: Listenable.merge([savings, internalPrincipal, internalInterest]),
-      builder: (_, __) {
-        final total = (double.tryParse(savings.text.trim()) ?? 0) +
-            (double.tryParse(internalPrincipal.text.trim()) ?? 0) +
-            (double.tryParse(internalInterest.text.trim()) ?? 0);
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(l10n.totalAmount, style: AppTextStyles.title),
-              Text('₹ ${NumberFormat('#,##0').format(total)}',
-                  style: AppTextStyles.amount),
-            ],
-          ),
-        );
-      },
-    );
-
-    final leftFields = <Widget>[
-      _SectionHeader(l10n.savingsSection),
-      _MoneyField(label: l10n.savingsCollected, controller: savings),
-      _MoneyField(label: l10n.intLoanPrincipal, controller: internalPrincipal),
-      _MoneyField(label: l10n.overallInterest, controller: internalInterest),
-      totalRow,
-      _SectionHeader(l10n.bankCashSection),
-      _MoneyField(label: l10n.toBank, controller: toBank),
-      _MoneyField(label: l10n.fromBank, controller: fromBank),
-    ];
-
-    final rightFields = <Widget>[
-      _SectionHeader(l10n.sofaLoanSection),
-      _SofaLoanBanner(activeLoan: activeLoan, groupId: groupId),
-      _MoneyField(label: l10n.loanDisbursed, controller: sofaDisbursed,
-          enabled: activeLoan != null),
-      _MoneyField(label: l10n.loanReturn, controller: sofaRepayment,
-          enabled: activeLoan != null),
-      _MoneyField(label: l10n.interest, controller: sofaInterest,
-          enabled: activeLoan != null),
-      const SizedBox(height: 6),
-      TextField(
-        controller: notes,
-        decoration: InputDecoration(labelText: l10n.notesOptional),
-        maxLines: 2,
-      ),
-      const SizedBox(height: 16),
-      if (saveError != null)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Text(saveError!,
-              style: AppTextStyles.body.copyWith(color: AppColors.error)),
-        ),
-      FilledButton(
-        onPressed: saving ? null : onSave,
-        style: FilledButton.styleFrom(
-            minimumSize: const Size(double.infinity, 56)),
-        child: Text(saving ? l10n.saving : l10n.saveEntry),
-      ),
-    ];
-
-    if (isTablet) {
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.reviewMonthlyTotals, style: AppTextStyles.headline),
-            const SizedBox(height: 20),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: leftFields,
-                  ),
-                ),
-                const SizedBox(width: 24),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: rightFields,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(l10n.reviewMonthlyTotals, style: AppTextStyles.headline),
-          const SizedBox(height: 20),
-          ...leftFields,
-          const SizedBox(height: 6),
-          ...rightFields,
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader(this.title);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 4, bottom: 12),
-      child: Row(
-        children: [
-          Text(title, style: AppTextStyles.sectionHeader),
-          const SizedBox(width: 10),
-          const Expanded(child: Divider()),
-        ],
-      ),
-    );
-  }
-}
-
-class _MoneyField extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-  final bool enabled;
-
-  const _MoneyField({
-    required this.label,
-    required this.controller,
-    this.enabled = true,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: label,
-          prefixText: '₹ ',
-        ),
-      ),
-    );
-  }
-}
-
-class _SofaLoanBanner extends StatelessWidget {
-  final SofaLoan? activeLoan;
-  final int? groupId;
-
-  const _SofaLoanBanner({this.activeLoan, this.groupId});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    if (activeLoan != null) {
-      final outstanding = activeLoan!.outstanding;
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.primaryContainer,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.verified_outlined, size: 16, color: AppColors.primary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  l10n.sofaActiveLoanChip(
-                    outstanding > 0
-                        ? NumberFormat('#,##0').format(outstanding)
-                        : '0',
-                  ),
-                  style: AppTextStyles.label.copyWith(color: AppColors.primary),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.info_outline, size: 16, color: AppColors.textTertiary),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                l10n.sofaNoActiveLoanHint,
-                style: AppTextStyles.label.copyWith(color: AppColors.textTertiary),
-              ),
-            ),
-            if (groupId != null)
-              TextButton(
-                style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                onPressed: () => context.push('/groups/$groupId/sofa'),
-                child: Text(l10n.sofaNewLoan,
-                    style: AppTextStyles.label.copyWith(color: AppColors.primary)),
-              ),
-          ],
-        ),
-      ),
     );
   }
 }

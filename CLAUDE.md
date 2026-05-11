@@ -267,7 +267,7 @@ Use `context.push()` for stack navigation (back button), `context.go()` only for
 
 **API client:** `api/api_client.dart` uses Dio + `flutter_secure_storage` for JWT. Base URL set via `String.fromEnvironment('API_URL')` — never hardcoded. Methods: `login`, `fetchGroups`, `createGroup`, `fetchVillageNames`, `createVillage`, `createEntry`, `updateEntry`, `fetchEntries`, `fetchDashboard`.
 
-**Group Dart model** (`models/group.dart`): includes `villageName` (String) and `openingBankBalance` (double). `createGroup` sends `village_name` as a plain string — no village ID.
+**Group Dart model** (`models/group.dart`): includes `villageName` (String), `villageId` (int?), `openingBankBalance` (double), and `meetingDay` (String?). `createGroup` sends `village_name` as a plain string; the backend resolves it to a `village_id` FK via the villages table.
 
 **Theme:** `theme/app_theme.dart` — Material 3, Noto Sans (Google Fonts), 56px minimum button height for field-worker use. Color palette in `theme/app_colors.dart` (forest green primary, high-contrast status colors). Typography in `theme/app_text_styles.dart` (`AppTextStyles` class — fixed `height: 1.55` on all styles to prevent Tamil script clipping). Do not hardcode colors or text styles — always reference `AppColors` and `AppTextStyles` constants.
 
@@ -281,11 +281,11 @@ Use `context.push()` for stack navigation (back button), `context.go()` only for
 - `services/validation.py` — `build_warning_flags(entry)` + `derive_status()` called on every create/update.
 - `core/config.py` — Pydantic-settings; reads `.env`. Key: `DATABASE_URL`, `CORS_ORIGINS`.
 - The `month_entries` table has a unique constraint on `(group_id, entry_month)`.
-- The `groups` table stores `village_name` as a plain `VARCHAR(120)` column (denormalized). Migration `b2c3d4e5f6a7` replaced the old `village_id` FK and dropped the `villages` table.
-- `groups` also has `opening_bank_balance NUMERIC(12,2)` (added in migration `c3d4e5f6a7b8`).
+- The `groups` table uses a `village_id` FK to the `villages` table (migration `e5f6a7b8c9d0` re-created `villages`, backfilled from `village_name`, wired up the FK, and dropped `village_name`). Groups also have `opening_bank_balance NUMERIC(12,2)` (migration `c3d4e5f6a7b8`) and `meeting_day VARCHAR(10)` nullable (migration `e5f6a7b8c9d0`).
 - `month_entries` has three SOFA-specific columns added in migration `d4e5f6a7b8c9`: `sofa_loan_disbursed`, `sofa_loan_repayment`, `sofa_loan_interest_collected` (all `NUMERIC(12,2)`, default 0).
 - Enum values in the DB are **lowercase**: `manual`, `prefill`, `draft`, `saved`, `saved_with_warnings`, `synced`. SQLAlchemy models use `values_callable=lambda x: [e.value for e in x]` to store the `.value` string, not the enum name.
-- **Villages endpoint** (`/api/v1/villages`): `GET` returns list ordered by name; `POST` creates a new village (admin only, 409 if name already exists). Note: the `villages` table was dropped by migration `b2c3d4e5f6a7`; this endpoint still references the `Village` model and needs to be updated to derive distinct village names from the `groups` table.
+- **Villages endpoint** (`/api/v1/villages`): `GET` returns list ordered by name; `POST` creates a new village (admin only, 409 if name already exists). The `villages` table exists; `createGroup` on the backend accepts `village_name` as a string, looks it up in `villages`, and stores the FK — returns 422 if the village doesn't exist yet.
+- **`seed.py`** creates villages before groups (upserts by name, then resolves `village_id`). **`scripts/import_savings.py`** does the same — upserts all village names first, then inserts groups with `village_id`.
 
 **Tests** use SQLite in-memory (no Postgres needed). `conftest.py` seeds two Groups and a User, overrides `db_session`, and suppresses startup events.
 
@@ -361,9 +361,9 @@ A `ConsumerStatefulWidget` Drawer attached to `HomeScreen` on mobile. On tablet 
 | User header (name + role) | ✓ | ✓ |
 | **Language switcher** (En / Ta / Mixed) | ✓ | ✓ |
 | **Sync data** | hidden | shown with pending-count Badge |
-| **Admin: Create Village** | admin only | admin only |
-| **Admin: Create Group** | admin only | admin only |
 | **Logout** | ✓ | ✓ |
+
+> Admin items (Create Village, Create Group) are intentionally hidden from the drawer for all roles. Admin operations are done directly via the backend or seed scripts.
 
 **Sync flow (native only):**
 1. Reads `isOnlineProvider` before attempting.
@@ -375,7 +375,9 @@ A `ConsumerStatefulWidget` Drawer attached to `HomeScreen` on mobile. On tablet 
 
 ### AppShell (`frontend/lib/widgets/app_shell.dart`)
 
-Wraps home and dashboard on tablet (viewport ≥ 600px). Renders a `NavigationRail` on the left with Home and Dashboard destinations, plus a language popup menu at the bottom. On mobile this widget is unused — drawer handles navigation instead.
+Wraps home and dashboard on tablet (viewport ≥ 600px). Renders a `NavigationRail` on the left with **Home** and **Dashboard** destinations only, plus a language popup menu at the bottom. On mobile this widget is unused — drawer handles navigation instead.
+
+> Admin nav items (Create Village, Create Group) are intentionally removed from the rail for all roles.
 
 ### Platform data flow summary
 
@@ -390,6 +392,8 @@ Wraps home and dashboard on tablet (viewport ≥ 600px). Renders a `NavigationRa
 
 Auto-sync on launch: `AuthService.restoreSession()` fires `_initialSync()` in the background (non-blocking). Fetches fresh groups and entries from server, upserts into local Drift DB. UI loads from local DB instantly.
 
+**Groups sync:** `upsertGroups()` in `local_db.dart` does a **delete-then-insert** inside a transaction — it wipes all local groups before inserting the server response. This ensures stale groups (from old seeds or wiped server data) never linger in the local DB.
+
 ### Warning logic
 
 Three checks run on every entry (see `docs/warning-logic.txt` for full spec):
@@ -400,18 +404,26 @@ Three checks run on every entry (see `docs/warning-logic.txt` for full spec):
 | 2 | `from_bank > 0` AND `to_bank == 0` | `bank_withdrawal_present_check_context` |
 | 3 | `entry_mode == "prefill"` AND `source_count == 0` | `prefill_mode_without_images` (backend only) |
 
-Warnings are non-blocking — entry is saved with status `SAVED_WITH_WARNINGS`. Checks 1 & 2 are implemented identically in both frontend (`entries_provider.dart`) and backend (`services/validation.py`). They must stay in sync.
+Warnings are non-blocking — entry is saved with status `SAVED_WITH_WARNINGS`. Checks 1 & 2 run on the backend (`services/validation.py`). **Frontend does not display warning icons or banners** — the warning icon was removed from the ledger list and the warning banner was removed from the entry form. The `warningFlags` field is still stored locally and synced, but not shown to users.
 
 ### Key widgets
 
 | Widget | File | Purpose |
 |--------|------|---------|
-| `AppShell` | `widgets/app_shell.dart` | NavigationRail for tablet (≥600px) |
+| `AppShell` | `widgets/app_shell.dart` | NavigationRail for tablet (≥600px) — Home + Dashboard only |
 | `ConnectivityBar` | `widgets/connectivity_bar.dart` | Offline/pending-sync indicator (native only) |
 | `StatusPill` | `widgets/status_pill.dart` | Colored status badge per entry |
 | `ShimmerCard` | `widgets/shimmer_loader.dart` | Loading placeholder cards |
-| `AppDrawer` | `widgets/app_drawer.dart` | Mobile nav: sync, language, admin, logout |
+| `AppDrawer` | `widgets/app_drawer.dart` | Mobile nav: sync, language, logout |
 | `SofaLogo` | `widgets/sofa_logo.dart` | SOFA brand mark (orange rounded square with italic "S") |
+| `EntryFormBody` | `screens/entry_form_body.dart` | Shared entry form used by NewEntryScreen and EditEntryScreen — ledger-style layout with prior-month running totals, Indian currency formatting (₹ 9,88,290), and save button |
+
+### Dashboard (`frontend/lib/screens/dashboard_screen.dart`)
+
+The dashboard has three sections:
+1. **Hero banner** — total savings asset (corpus + interest), entry count, savings corpus pill, interest earned pill.
+2. **Stats grid** — 5 stat chips (Savings Corpus, Interest Earned, Internal Loan Principal, SOFA Disbursed, SOFA Repaid). Single-column on mobile (< 600px), two-column on tablet. Interest Earned chip is tappable → `/reports/interest`.
+3. **Reports grid** — 9 report tiles (see table below), role-filtered. Two-column on mobile, three-column on tablet.
 
 ### Reports system
 
@@ -421,15 +433,13 @@ All 9 report screens live in `frontend/lib/screens/reports/`. Data is computed i
 
 | Report | Route | Field Officer | Management | Admin |
 |--------|-------|:---:|:---:|:---:|
-| Internal Loans | (savings_overview) | ✓ | ✓ | ✓ |
-| Bank Transactions | (savings_overview) | ✓ | ✓ | ✓ |
-| Group Activity | (savings_overview) | ✓ | ✓ | ✓ |
+| Savings Overview | `/reports/savings` | ✓ | ✓ | ✓ |
 | SOFA Loans | `/reports/sofa` | ✓ | ✓ | ✓ |
-| Village Compare | `/reports/compare` | ✓ | ✓ | ✓ |
+| Bank Flow | `/reports/bank` | ✓ | ✓ | ✓ |
+| Village Compare | `/reports/compare` | — | ✓ | ✓ |
 | Overdue Alerts | `/reports/overdue` | ✓ | ✓ | ✓ |
-| Bank Flow | `/reports/bank` | — | ✓ | ✓ |
 | Trends | `/reports/trends` | — | ✓ | ✓ |
-| Group Health | `/reports/health` | — | ✓ | ✓ |
+| Group Health | `/reports/health` | ✓ | ✓ | ✓ |
 | Recovery Rate | `/reports/recovery` | — | ✓ | ✓ |
 | Audit Log | `/reports/audit` | — | — | ✓ |
 
@@ -471,4 +481,3 @@ The app declares `<supports-screens>` for all screen sizes and uses `Constrained
 - Month-on-month jump validation
 - Role-based access enforcement beyond the `role` field in JWT (dashboard tiles are filtered client-side; routes are not server-protected)
 - Prefill warning (check #3 — `prefill_mode_without_images`) exists in backend only; frontend has no image upload yet
-- Reports 1–3 (Internal Loans, Bank Transactions, Group Activity) show "coming soon" — tiles exist but routes return null

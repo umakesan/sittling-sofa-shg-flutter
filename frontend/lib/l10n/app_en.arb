@@ -216,5 +216,25 @@
   "sofaActiveLoanChip": "Active loan — ₹{outstanding} outstanding",
   "@sofaActiveLoanChip": {
     "placeholders": { "outstanding": { "type": "String" } }
-  }
+  },
+  "ledgerColOpening": "Opening",
+  "ledgerColThisMonth": "This Month",
+  "ledgerColClosing": "Closing",
+  "collectionThisMonth": "Collection this month",
+  "openingBalanceInitial": "Opening Balance",
+  "initialTag": "(initial)",
+  "priorMonths": "Prior months",
+  "totalToBank": "Total To Bank",
+  "totalFromBank": "Total From Bank",
+  "closingBalance": "Closing Balance",
+  "sofaDisbursedSection": "SOFA Disbursed",
+  "loanRepaidSection": "Loan Repaid",
+  "totalDisbursed": "Total Disbursed",
+  "totalRepaid": "Total Repaid",
+  "loanBalance": "Loan Balance",
+  "interestCollected": "Interest Collected",
+  "interestIncomeNote": "Income to federation — does not reduce balance",
+  "totalInterest": "Total Interest",
+  "warnBankNegative": "Closing bank balance is negative — check deposits and withdrawals.",
+  "warnSofaNegative": "SOFA balance is negative — repayment exceeds outstanding loan."
 }

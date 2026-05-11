@@ -8,8 +8,6 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_en.dart';
 import 'app_localizations_ta.dart';
 
-// ignore_for_file: type=lint
-
 /// Callers can lookup localized strings with an instance of AppLocalizations
 /// returned by `AppLocalizations.of(context)`.
 ///
@@ -62,8 +60,7 @@ import 'app_localizations_ta.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +68,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,8 +80,7 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -1034,10 +1029,129 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Active loan — ₹{outstanding} outstanding'**
   String sofaActiveLoanChip(String outstanding);
+
+  /// No description provided for @ledgerColOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening'**
+  String get ledgerColOpening;
+
+  /// No description provided for @ledgerColThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get ledgerColThisMonth;
+
+  /// No description provided for @ledgerColClosing.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing'**
+  String get ledgerColClosing;
+
+  /// No description provided for @collectionThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection this month'**
+  String get collectionThisMonth;
+
+  /// No description provided for @openingBalanceInitial.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Balance'**
+  String get openingBalanceInitial;
+
+  /// No description provided for @initialTag.
+  ///
+  /// In en, this message translates to:
+  /// **'(initial)'**
+  String get initialTag;
+
+  /// No description provided for @priorMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Prior months'**
+  String get priorMonths;
+
+  /// No description provided for @totalToBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Total To Bank'**
+  String get totalToBank;
+
+  /// No description provided for @totalFromBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Total From Bank'**
+  String get totalFromBank;
+
+  /// No description provided for @closingBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing Balance'**
+  String get closingBalance;
+
+  /// No description provided for @sofaDisbursedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'SOFA Disbursed'**
+  String get sofaDisbursedSection;
+
+  /// No description provided for @loanRepaidSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan Repaid'**
+  String get loanRepaidSection;
+
+  /// No description provided for @totalDisbursed.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Disbursed'**
+  String get totalDisbursed;
+
+  /// No description provided for @totalRepaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Repaid'**
+  String get totalRepaid;
+
+  /// No description provided for @loanBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan Balance'**
+  String get loanBalance;
+
+  /// No description provided for @interestCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest Collected'**
+  String get interestCollected;
+
+  /// No description provided for @interestIncomeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Income to federation — does not reduce balance'**
+  String get interestIncomeNote;
+
+  /// No description provided for @totalInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Interest'**
+  String get totalInterest;
+
+  /// No description provided for @warnBankNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing bank balance is negative — check deposits and withdrawals.'**
+  String get warnBankNegative;
+
+  /// No description provided for @warnSofaNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'SOFA balance is negative — repayment exceeds outstanding loan.'**
+  String get warnSofaNegative;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1046,37 +1160,34 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'ta'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'ta'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
   // Lookup logic when language+country codes are specified.
   switch (locale.languageCode) {
-    case 'ta':
-      {
-        switch (locale.countryCode) {
-          case 'IN':
-            return AppLocalizationsTaIn();
-        }
-        break;
-      }
+    case 'ta': {
+  switch (locale.countryCode) {
+    case 'IN': return AppLocalizationsTaIn();
+   }
+  break;
+   }
   }
 
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'ta':
-      return AppLocalizationsTa();
+    case 'en': return AppLocalizationsEn();
+    case 'ta': return AppLocalizationsTa();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
 }

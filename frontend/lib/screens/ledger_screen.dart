@@ -425,8 +425,8 @@ class _LedgerRow extends StatelessWidget {
     final monthLabel = DateFormat('MMM').format(date).toUpperCase();
     final yearLabel = DateFormat('yyyy').format(date);
     final fmt = NumberFormat('#,##0', 'en_IN');
-    const Color badgeBg = AppColors.primaryContainer;
-    const Color badgeText = AppColors.primary;
+    const Color badgeBg = AppColors.syncedBg;
+    const Color badgeText = AppColors.synced;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -466,7 +466,7 @@ class _LedgerRow extends StatelessWidget {
                     Text(
                       monthLabel,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: badgeText,
@@ -511,6 +511,7 @@ class _LedgerRow extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(width: 12),
             ],
           ),
         ),

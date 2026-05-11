@@ -226,6 +226,23 @@ def run():
             if key not in group_opening:
                 group_opening[key] = r["opening_balance"]
 
+        # --- villages (upsert, then build name→id map) ---
+        village_names = {r["village_name"] for r in all_records}
+        for vname in sorted(village_names):
+            session.execute(
+                text("""
+                    INSERT INTO villages (name, created_at, updated_at)
+                    VALUES (:name, NOW(), NOW())
+                    ON CONFLICT (name) DO NOTHING
+                """),
+                {"name": vname},
+            )
+        session.flush()
+        village_id_map: dict[str, int] = {
+            row.name: row.id
+            for row in session.execute(text("SELECT id, name FROM villages"))
+        }
+
         group_keys = {(r["group_name"], r["village_name"]) for r in all_records}
         group_id: dict[tuple[str, str], int] = {}
         for group_name, vill_name in sorted(group_keys):
@@ -247,7 +264,7 @@ def run():
                 """),
                 {
                     "name": group_name,
-                    "village_id": village_id[vill_name],
+                    "village_id": village_id_map[vill_name],
                     "code": code,
                     "opening_balance": group_opening[(group_name, vill_name)],
                 },

@@ -117,19 +117,22 @@ class LocalDb extends _$LocalDb {
   // -- Groups --
 
   Future<void> upsertGroups(List<Group> groups) async {
-    await batch((b) {
-      b.insertAllOnConflictUpdate(
-        groupsTable,
-        groups.map(
-          (g) => GroupsTableCompanion.insert(
-            id: Value(g.id),
-            name: g.name,
-            villageName: g.villageName,
-            code: g.code,
-            isActive: Value(g.isActive),
+    await transaction(() async {
+      await delete(groupsTable).go();
+      await batch((b) {
+        b.insertAll(
+          groupsTable,
+          groups.map(
+            (g) => GroupsTableCompanion.insert(
+              id: Value(g.id),
+              name: g.name,
+              villageName: g.villageName,
+              code: g.code,
+              isActive: Value(g.isActive),
+            ),
           ),
-        ),
-      );
+        );
+      });
     });
   }
 

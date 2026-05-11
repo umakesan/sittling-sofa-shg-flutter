@@ -182,5 +182,26 @@
   "sortByVillage": "கிராமம்",
   "noGroupsFound": "குழுக்கள் கிடைக்கவில்லை",
   "stripOpening": "தொடக்கம்",
-  "stripAfterSave": "சேமிப்புக்கு பின்"
+  "stripAfterSave": "சேமிப்புக்கு பின்",
+
+  "ledgerColOpening": "Opening",
+  "ledgerColThisMonth": "This Month",
+  "ledgerColClosing": "Closing",
+  "collectionThisMonth": "இந்த மாத Collection",
+  "openingBalanceInitial": "Opening Balance",
+  "initialTag": "(initial)",
+  "priorMonths": "முந்தைய மாதங்கள்",
+  "totalToBank": "Total To Bank",
+  "totalFromBank": "Total From Bank",
+  "closingBalance": "Closing Balance",
+  "sofaDisbursedSection": "SOFA Disbursed",
+  "loanRepaidSection": "Loan Repaid",
+  "totalDisbursed": "Total Disbursed",
+  "totalRepaid": "Total Repaid",
+  "loanBalance": "Loan Balance",
+  "interestCollected": "வட்டி வசூல்",
+  "interestIncomeNote": "Federation-க்கு வருமானம் — கடன் இருப்பை பாதிக்காது",
+  "totalInterest": "Total Interest",
+  "warnBankNegative": "Bank balance negative — deposits மற்றும் withdrawals-ஐ சரிபார்க்கவும்.",
+  "warnSofaNegative": "SOFA balance negative — repayment அதிகமாக உள்ளது."
 }
