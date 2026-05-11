@@ -16,6 +16,7 @@ class MonthEntry {
   final double sofaLoanDisbursed;
   final double sofaLoanRepayment;
   final double sofaLoanInterestCollected;
+  final int? sofaLoanEntryId; // server-assigned after sync
   final String? notes;
   final List<String> warningFlags;
   final SyncStatus syncStatus;
@@ -36,6 +37,7 @@ class MonthEntry {
     this.sofaLoanDisbursed = 0,
     this.sofaLoanRepayment = 0,
     this.sofaLoanInterestCollected = 0,
+    this.sofaLoanEntryId,
     this.notes,
     this.warningFlags = const [],
     this.syncStatus = SyncStatus.pendingSync,
@@ -58,9 +60,10 @@ class MonthEntry {
           (json['internal_loan_interest_collected'] as num).toDouble(),
       toBank: (json['to_bank'] as num).toDouble(),
       fromBank: (json['from_bank'] as num).toDouble(),
-      sofaLoanDisbursed: (json['sofa_loan_disbursed'] as num).toDouble(),
-      sofaLoanRepayment: (json['sofa_loan_repayment'] as num).toDouble(),
-      sofaLoanInterestCollected: (json['sofa_loan_interest_collected'] as num).toDouble(),
+      sofaLoanDisbursed: (json['sofa_disbursed'] as num? ?? 0).toDouble(),
+      sofaLoanRepayment: (json['sofa_repayment'] as num? ?? 0).toDouble(),
+      sofaLoanInterestCollected: (json['sofa_interest'] as num? ?? 0).toDouble(),
+      sofaLoanEntryId: json['sofa_loan_entry_id'] as int?,
       notes: json['notes'] as String?,
       warningFlags: List<String>.from((json['warning_flags'] as List?) ?? []),
       syncStatus: SyncStatus.synced,
@@ -79,9 +82,9 @@ class MonthEntry {
         'internal_loan_interest_collected': internalLoanInterestCollected,
         'to_bank': toBank,
         'from_bank': fromBank,
-        'sofa_loan_disbursed': sofaLoanDisbursed,
-        'sofa_loan_repayment': sofaLoanRepayment,
-        'sofa_loan_interest_collected': sofaLoanInterestCollected,
+        'sofa_disbursed': sofaLoanDisbursed,
+        'sofa_repayment': sofaLoanRepayment,
+        'sofa_interest': sofaLoanInterestCollected,
         if (notes != null) 'notes': notes,
       };
 
@@ -98,6 +101,7 @@ class MonthEntry {
     double? sofaLoanDisbursed,
     double? sofaLoanRepayment,
     double? sofaLoanInterestCollected,
+    int? sofaLoanEntryId,
     String? notes,
   }) =>
       MonthEntry(
@@ -117,6 +121,7 @@ class MonthEntry {
         sofaLoanRepayment: sofaLoanRepayment ?? this.sofaLoanRepayment,
         sofaLoanInterestCollected:
             sofaLoanInterestCollected ?? this.sofaLoanInterestCollected,
+        sofaLoanEntryId: sofaLoanEntryId ?? this.sofaLoanEntryId,
         notes: notes ?? this.notes,
         warningFlags: warningFlags ?? this.warningFlags,
         syncStatus: syncStatus ?? this.syncStatus,

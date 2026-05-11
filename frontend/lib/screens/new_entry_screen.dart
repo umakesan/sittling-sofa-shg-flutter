@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../models/month_entry.dart';
+import '../models/sofa_loan.dart';
 import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
+import '../providers/sofa_loans_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -108,6 +110,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
                   onContinue: () => setState(() => _step = 2),
                 ),
               _ => _StepForm(
+                  groupId: _groupId,
                   savings: _savings,
                   internalPrincipal: _internalPrincipal,
                   internalInterest: _internalInterest,
@@ -262,7 +265,8 @@ class _StepSelectGroup extends ConsumerWidget {
 // Step 2 — Financial totals form
 // ---------------------------------------------------------------------------
 
-class _StepForm extends StatelessWidget {
+class _StepForm extends ConsumerWidget {
+  final int? groupId;
   final TextEditingController savings;
   final TextEditingController internalPrincipal;
   final TextEditingController internalInterest;
@@ -277,6 +281,7 @@ class _StepForm extends StatelessWidget {
   final VoidCallback onSave;
 
   const _StepForm({
+    required this.groupId,
     required this.savings,
     required this.internalPrincipal,
     required this.internalInterest,
@@ -292,9 +297,13 @@ class _StepForm extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final isTablet = MediaQuery.sizeOf(context).width >= 720;
+
+    final activeLoan = groupId != null
+        ? ref.watch(activeSofaLoanProvider(groupId!))
+        : null;
 
     final totalRow = ListenableBuilder(
       listenable: Listenable.merge([savings, internalPrincipal, internalInterest]),
@@ -329,9 +338,13 @@ class _StepForm extends StatelessWidget {
 
     final rightFields = <Widget>[
       _SectionHeader(l10n.sofaLoanSection),
-      _MoneyField(label: l10n.loanDisbursed, controller: sofaDisbursed),
-      _MoneyField(label: l10n.loanReturn, controller: sofaRepayment),
-      _MoneyField(label: l10n.interest, controller: sofaInterest),
+      _SofaLoanBanner(activeLoan: activeLoan, groupId: groupId),
+      _MoneyField(label: l10n.loanDisbursed, controller: sofaDisbursed,
+          enabled: activeLoan != null),
+      _MoneyField(label: l10n.loanReturn, controller: sofaRepayment,
+          enabled: activeLoan != null),
+      _MoneyField(label: l10n.interest, controller: sofaInterest,
+          enabled: activeLoan != null),
       const SizedBox(height: 6),
       TextField(
         controller: notes,
@@ -422,8 +435,13 @@ class _SectionHeader extends StatelessWidget {
 class _MoneyField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
+  final bool enabled;
 
-  const _MoneyField({required this.label, required this.controller});
+  const _MoneyField({
+    required this.label,
+    required this.controller,
+    this.enabled = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -431,10 +449,85 @@ class _MoneyField extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 14),
       child: TextField(
         controller: controller,
+        enabled: enabled,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: label,
           prefixText: '₹ ',
+        ),
+      ),
+    );
+  }
+}
+
+class _SofaLoanBanner extends StatelessWidget {
+  final SofaLoan? activeLoan;
+  final int? groupId;
+
+  const _SofaLoanBanner({this.activeLoan, this.groupId});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (activeLoan != null) {
+      final outstanding = activeLoan!.outstanding;
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.primaryContainer,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.verified_outlined, size: 16, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.sofaActiveLoanChip(
+                    outstanding > 0
+                        ? NumberFormat('#,##0').format(outstanding)
+                        : '0',
+                  ),
+                  style: AppTextStyles.label.copyWith(color: AppColors.primary),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceVariant,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline, size: 16, color: AppColors.textTertiary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                l10n.sofaNoActiveLoanHint,
+                style: AppTextStyles.label.copyWith(color: AppColors.textTertiary),
+              ),
+            ),
+            if (groupId != null)
+              TextButton(
+                style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                onPressed: () => context.push('/groups/$groupId/sofa'),
+                child: Text(l10n.sofaNewLoan,
+                    style: AppTextStyles.label.copyWith(color: AppColors.primary)),
+              ),
+          ],
         ),
       ),
     );

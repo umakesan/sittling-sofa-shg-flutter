@@ -651,91 +651,389 @@ abstract class AppLocalizations {
   /// **'This month'**
   String get metricThisMonth;
 
-  /// In en: **'Savings Overview'**
+  /// No description provided for @savingsOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings Overview'**
   String get savingsOverview;
 
-  /// In en: **'Total Savings Asset'**
+  /// No description provided for @totalSavingsAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Savings Asset'**
   String get totalSavingsAsset;
 
-  /// In en: **'Savings Corpus'**
+  /// No description provided for @savingsCorpus.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings Corpus'**
   String get savingsCorpus;
 
-  /// In en: **'Interest Earned'**
+  /// No description provided for @interestEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest Earned'**
   String get interestEarned;
 
-  /// In en: **'{count, plural, one{{count} village} other{{count} villages}}'**
+  /// No description provided for @villagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} village} other{{count} villages}}'**
   String villagesCount(int count);
 
-  /// In en: **'{count, plural, one{{count} group} other{{count} groups}}'**
+  /// No description provided for @groupsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} group} other{{count} groups}}'**
   String groupsCount(int count);
 
-  /// In en: **'Monthly Ledger'**
+  /// No description provided for @monthlyLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Ledger'**
   String get monthlyLedger;
 
-  /// In en: **'No entries recorded yet.'**
+  /// No description provided for @noEntriesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries recorded yet.'**
   String get noEntriesYet;
 
-  /// In en: **'Last: {month}'**
+  /// No description provided for @lastEntryMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last: {month}'**
   String lastEntryMonth(String month);
 
-  /// In en: **'Sort by'**
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
   String get sortBy;
 
-  /// In en: **'Highest first'**
+  /// No description provided for @sortHighestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest first'**
   String get sortHighestFirst;
 
-  /// In en: **'By name'**
+  /// No description provided for @sortByName.
+  ///
+  /// In en, this message translates to:
+  /// **'By name'**
   String get sortByName;
 
-  /// In en: **'Cumulative'**
+  /// No description provided for @cumulative.
+  ///
+  /// In en, this message translates to:
+  /// **'Cumulative'**
   String get cumulative;
 
-  /// In en: **'Reports'**
+  /// No description provided for @reportsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
   String get reportsSection;
 
-  /// In en: **'Internal Loans'**
+  /// No description provided for @internalLoansReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal Loans'**
   String get internalLoansReport;
 
-  /// In en: **'Bank Transactions'**
+  /// No description provided for @bankTransactionsReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Transactions'**
   String get bankTransactionsReport;
 
-  /// In en: **'Group Activity'**
+  /// No description provided for @groupActivityReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Activity'**
   String get groupActivityReport;
 
-  /// In en: **'Coming soon'**
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
   String get comingSoon;
 
+  /// No description provided for @sofaLoansReport.
+  ///
+  /// In en, this message translates to:
+  /// **'SOFA Loans'**
   String get sofaLoansReport;
+
+  /// No description provided for @bankFlowReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Flow'**
   String get bankFlowReport;
+
+  /// No description provided for @villageCompareReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Village Compare'**
   String get villageCompareReport;
+
+  /// No description provided for @overdueAlertsReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue Alerts'**
   String get overdueAlertsReport;
+
+  /// No description provided for @trendsReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Trends'**
   String get trendsReport;
+
+  /// No description provided for @groupHealthReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Health'**
   String get groupHealthReport;
+
+  /// No description provided for @recoveryRateReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery Rate'**
   String get recoveryRateReport;
+
+  /// No description provided for @auditLogReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit Log'**
   String get auditLogReport;
+
+  /// No description provided for @outstanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding'**
   String get outstanding;
+
+  /// No description provided for @recoveryRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery %'**
   String get recoveryRate;
+
+  /// No description provided for @netFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Flow'**
   String get netFlow;
+
+  /// No description provided for @deposited.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposited'**
   String get deposited;
+
+  /// No description provided for @withdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawn'**
   String get withdrawn;
+
+  /// No description provided for @noAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups are up to date'**
   String get noAlerts;
+
+  /// No description provided for @regularity.
+  ///
+  /// In en, this message translates to:
+  /// **'Regularity'**
   String get regularity;
+
+  /// No description provided for @missingMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing months'**
   String get missingMonths;
+
+  /// No description provided for @corpusGrowth.
+  ///
+  /// In en, this message translates to:
+  /// **'Corpus Growth'**
   String get corpusGrowth;
+
+  /// No description provided for @monthlyContributions.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Contributions'**
   String get monthlyContributions;
 
+  /// No description provided for @thisMonthSavings.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s savings'**
   String get thisMonthSavings;
+
+  /// No description provided for @sectionToday.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY'**
   String get sectionToday;
+
+  /// No description provided for @sectionRestOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'REST OF MONTH'**
   String get sectionRestOfMonth;
+
+  /// No description provided for @notYetCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet collected'**
   String get notYetCollected;
+
+  /// No description provided for @searchGroupsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search groups…'**
   String get searchGroupsHint;
+
+  /// No description provided for @sortTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
   String get sortTooltip;
+
+  /// No description provided for @sortByDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting date'**
   String get sortByDate;
+
+  /// No description provided for @sortByGroupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
   String get sortByGroupName;
+
+  /// No description provided for @sortByVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Village'**
   String get sortByVillage;
+
+  /// No description provided for @noGroupsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups found'**
   String get noGroupsFound;
+
+  /// No description provided for @stripOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening'**
   String get stripOpening;
+
+  /// No description provided for @stripAfterSave.
+  ///
+  /// In en, this message translates to:
+  /// **'After save'**
   String get stripAfterSave;
+
+  /// No description provided for @sofaLoansScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SOFA Loans'**
+  String get sofaLoansScreenTitle;
+
+  /// No description provided for @sofaActiveLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Loan'**
+  String get sofaActiveLoan;
+
+  /// No description provided for @sofaNewLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'New Loan'**
+  String get sofaNewLoan;
+
+  /// No description provided for @sofaPastLoans.
+  ///
+  /// In en, this message translates to:
+  /// **'Past Loans'**
+  String get sofaPastLoans;
+
+  /// No description provided for @sofaPrincipal.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal'**
+  String get sofaPrincipal;
+
+  /// No description provided for @sofaDisbursedDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Disbursed Date'**
+  String get sofaDisbursedDate;
+
+  /// No description provided for @sofaTotalRepaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Repaid'**
+  String get sofaTotalRepaid;
+
+  /// No description provided for @sofaOutstanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding'**
+  String get sofaOutstanding;
+
+  /// No description provided for @sofaCloseLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Loan'**
+  String get sofaCloseLoan;
+
+  /// No description provided for @sofaCloseConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close this loan?'**
+  String get sofaCloseConfirmTitle;
+
+  /// No description provided for @sofaCloseConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark the loan as fully repaid and close it. This cannot be undone.'**
+  String get sofaCloseConfirmBody;
+
+  /// No description provided for @sofaCreateLoanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Loan'**
+  String get sofaCreateLoanTitle;
+
+  /// No description provided for @sofaPrincipalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal amount (₹)'**
+  String get sofaPrincipalHint;
+
+  /// No description provided for @sofaCreateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Loan'**
+  String get sofaCreateButton;
+
+  /// No description provided for @sofaNoActiveLoanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No active SOFA loan for this group.'**
+  String get sofaNoActiveLoanHint;
+
+  /// No description provided for @sofaActiveLoanChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Active loan — ₹{outstanding} outstanding'**
+  String sofaActiveLoanChip(String outstanding);
 }
 
 class _AppLocalizationsDelegate

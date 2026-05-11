@@ -4,6 +4,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/app_user.dart';
 import '../models/group.dart';
 import '../models/month_entry.dart';
+import '../models/sofa_loan.dart';
+import '../models/sofa_loan_entry.dart';
+import '../models/village_option.dart';
 
 class ApiClient {
   final Dio _dio;
@@ -80,15 +83,19 @@ class ApiClient {
 
   // -- Villages --
 
-  Future<List<String>> fetchVillageNames() async {
+  Future<List<VillageOption>> fetchVillages() async {
     final response = await _dio.get('/villages');
     return (response.data as List)
-        .map((v) => (v as Map<String, dynamic>)['name'] as String)
+        .map((v) => VillageOption.fromJson(v as Map<String, dynamic>))
         .toList();
   }
 
-  Future<void> createVillage(String name) async {
-    await _dio.post('/villages', data: {'name': name});
+  Future<void> createVillage(String name, {String? abbreviation}) async {
+    await _dio.post('/villages', data: {
+      'name': name,
+      if (abbreviation != null && abbreviation.isNotEmpty)
+        'abbreviation': abbreviation,
+    });
   }
 
   // -- Month Entries --
@@ -108,6 +115,36 @@ class ApiClient {
   Future<List<Map<String, dynamic>>> fetchEntries() async {
     final response = await _dio.get('/month-entries');
     return (response.data as List).cast<Map<String, dynamic>>();
+  }
+
+  // -- SOFA Loans --
+
+  Future<List<SofaLoan>> fetchSofaLoans(int groupId) async {
+    final response = await _dio.get('/groups/$groupId/sofa-loans');
+    return (response.data as List)
+        .map((json) => SofaLoan.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<SofaLoan> createSofaLoan(
+      int groupId, double principalAmount, String disbursedDate) async {
+    final response = await _dio.post('/groups/$groupId/sofa-loans', data: {
+      'principal_amount': principalAmount,
+      'disbursed_date': disbursedDate,
+    });
+    return SofaLoan.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<SofaLoan> closeSofaLoan(int loanId) async {
+    final response = await _dio.post('/sofa-loans/$loanId/close');
+    return SofaLoan.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<List<SofaLoanEntry>> fetchSofaLoanEntries(int loanId) async {
+    final response = await _dio.get('/sofa-loans/$loanId/entries');
+    return (response.data as List)
+        .map((json) => SofaLoanEntry.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   // -- Reports --

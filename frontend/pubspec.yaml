@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.0
 
   # Local database — SQLite on Android/iOS, IndexedDB on web, same query code
   drift: 2.19.0
@@ -36,7 +36,7 @@ dependencies:
   # Utilities
   cupertino_icons: ^1.0.8
   uuid: ^4.4.0
-  intl: ^0.18.1
+  intl: ^0.20.2
   crypto: ^3.0.3
 
 dev_dependencies:

@@ -49,18 +49,6 @@ class AppShell extends ConsumerWidget {
                 selectedIcon: const Icon(Icons.bar_chart_rounded),
                 label: Text(l10n.dashboard),
               ),
-              if (isAdmin) ...[
-                NavigationRailDestination(
-                  icon: const Icon(Icons.location_city_outlined),
-                  selectedIcon: const Icon(Icons.location_city_rounded),
-                  label: Text(l10n.newVillage),
-                ),
-                NavigationRailDestination(
-                  icon: const Icon(Icons.group_add_outlined),
-                  selectedIcon: const Icon(Icons.group_add_rounded),
-                  label: Text(l10n.newGroup),
-                ),
-              ],
             ],
             trailing: Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -114,10 +102,6 @@ class AppShell extends ConsumerWidget {
         context.go('/');
       case 1:
         context.go('/dashboard');
-      case 2:
-        if (isAdmin) context.push('/admin/create-village');
-      case 3:
-        if (isAdmin) context.push('/admin/create-group');
     }
   }
 

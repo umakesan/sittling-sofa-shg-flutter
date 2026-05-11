@@ -115,12 +115,24 @@ def parse_sheet(ws, village_name: str) -> list[dict]:
                 break
         to_bank_row    = rows[g + 10] if g + 10 < len(rows) else []
         from_bank_row  = rows[g + 11] if g + 11 < len(rows) else []
+        # SOFA principal is on the same row as the monthly loan disbursal values.
+        sofa1_principal_row = rows[g + 14] if g + 14 < len(rows) else []
         sofa1_dis_row  = rows[g + 14] if g + 14 < len(rows) else []
         sofa1_ret_row  = rows[g + 15] if g + 15 < len(rows) else []
         sofa1_int_row  = rows[g + 16] if g + 16 < len(rows) else []
+        sofa2_principal_row = rows[g + 19] if g + 19 < len(rows) else []
         sofa2_dis_row  = rows[g + 19] if g + 19 < len(rows) else []
         sofa2_ret_row  = rows[g + 20] if g + 20 < len(rows) else []
         sofa2_int_row  = rows[g + 21] if g + 21 < len(rows) else []
+
+        def first_numeric(row) -> float:
+            for cell in row:
+                if isinstance(cell, (int, float)) and not isinstance(cell, bool) and cell > 0:
+                    return float(cell)
+            return 0.0
+
+        sofa1_principal = first_numeric(sofa1_principal_row)
+        sofa2_principal = first_numeric(sofa2_principal_row)
 
         def get(row, col_idx):
             val = row[col_idx] if col_idx < len(row) else None
@@ -158,9 +170,11 @@ def parse_sheet(ws, village_name: str) -> list[dict]:
                 "int_interest": int_interest,
                 "to_bank": to_bank,
                 "from_bank": from_bank,
+                "sofa1_principal": sofa1_principal,
                 "sofa1_dis": sofa1_dis,
                 "sofa1_ret": sofa1_ret,
                 "sofa1_int": sofa1_int,
+                "sofa2_principal": sofa2_principal,
                 "sofa2_dis": sofa2_dis,
                 "sofa2_ret": sofa2_ret,
                 "sofa2_int": sofa2_int,
@@ -188,6 +202,22 @@ def run():
     print(f"\nTotal month-records to insert: {len(all_records)}")
 
     with Session(engine) as session:
+        # --- villages ---
+        village_id: dict[str, int] = {}
+        for village_name in sorted({r["village_name"] for r in all_records}):
+            result = session.execute(
+                text("""
+                    INSERT INTO villages (name, created_at, updated_at)
+                    VALUES (:name, NOW(), NOW())
+                    ON CONFLICT (name) DO UPDATE SET
+                        updated_at = NOW()
+                    RETURNING id
+                """),
+                {"name": village_name},
+            )
+            village_id[village_name] = result.scalar_one()
+        print(f"Inserted {len(village_id)} villages")
+
         # --- groups ---
         # Take opening_balance from the first record seen for each group
         group_opening: dict[tuple[str, str], float] = {}
@@ -204,19 +234,20 @@ def run():
             result = session.execute(
                 text("""
                     INSERT INTO groups
-                        (name, village_name, code, register_template, is_active,
+                        (name, village_id, code, register_template, is_active,
                          opening_bank_balance, created_at, updated_at)
                     VALUES
-                        (:name, :village_name, :code, 'default_v1', true,
+                        (:name, :village_id, :code, 'default_v1', true,
                          :opening_balance, NOW(), NOW())
                     ON CONFLICT (code) DO UPDATE SET
                         name = EXCLUDED.name,
+                        village_id = EXCLUDED.village_id,
                         opening_bank_balance = EXCLUDED.opening_bank_balance
                     RETURNING id
                 """),
                 {
                     "name": group_name,
-                    "village_name": vill_name,
+                    "village_id": village_id[vill_name],
                     "code": code,
                     "opening_balance": group_opening[(group_name, vill_name)],
                 },
@@ -224,8 +255,9 @@ def run():
             group_id[(group_name, vill_name)] = result.scalar_one()
         print(f"Inserted {len(group_id)} groups")
 
-        # --- month_entries + sofa_loan_entries ---
+        # --- month_entries (no SOFA columns — linked via sofa_loan_entry_id) ---
         entry_count = 0
+        entry_id_map: dict[tuple, int] = {}  # (group_key, entry_month) -> month_entry id
         for r in all_records:
             gid = group_id[(r["group_name"], r["village_name"])]
             result = session.execute(
@@ -234,12 +266,10 @@ def run():
                         group_id, entry_month, entry_mode, status,
                         savings_collected, internal_loan_principal_disbursed,
                         internal_loan_interest_collected, to_bank, from_bank,
-                        sofa_loan_disbursed, sofa_loan_repayment, sofa_loan_interest_collected,
                         warning_flags, source_count, created_at, updated_at
                     ) VALUES (
                         :group_id, :entry_month, 'manual', 'synced',
                         :savings, :int_principal, :int_interest, :to_bank, :from_bank,
-                        :sofa_dis, :sofa_ret, :sofa_int,
                         '[]', 0, NOW(), NOW()
                     )
                     ON CONFLICT (group_id, entry_month) DO UPDATE SET
@@ -248,9 +278,6 @@ def run():
                         internal_loan_interest_collected = EXCLUDED.internal_loan_interest_collected,
                         to_bank                         = EXCLUDED.to_bank,
                         from_bank                       = EXCLUDED.from_bank,
-                        sofa_loan_disbursed             = EXCLUDED.sofa_loan_disbursed,
-                        sofa_loan_repayment             = EXCLUDED.sofa_loan_repayment,
-                        sofa_loan_interest_collected    = EXCLUDED.sofa_loan_interest_collected,
                         updated_at                      = NOW()
                     RETURNING id
                 """),
@@ -262,44 +289,148 @@ def run():
                     "int_interest": r["int_interest"],
                     "to_bank": r["to_bank"],
                     "from_bank": r["from_bank"],
-                    "sofa_dis": r["sofa1_dis"] + r["sofa2_dis"],
-                    "sofa_ret": r["sofa1_ret"] + r["sofa2_ret"],
-                    "sofa_int": r["sofa1_int"] + r["sofa2_int"],
                 },
             )
-            entry_id = result.scalar_one()
+            eid = result.scalar_one()
+            entry_id_map[((r["group_name"], r["village_name"]), r["entry_month"])] = eid
             entry_count += 1
 
-            # Populate per-slot breakdown in sofa_loan_entries
-            for slot, (dis, ret, intr) in enumerate(
-                [
-                    (r["sofa1_dis"], r["sofa1_ret"], r["sofa1_int"]),
-                    (r["sofa2_dis"], r["sofa2_ret"], r["sofa2_int"]),
-                ],
-                start=1,
-            ):
-                if dis or ret or intr:
+        # --- sofa_loans + sofa_loan_entries ---
+        sofa_loan_id_map: dict[tuple, int] = {}  # (group_key, slot) -> sofa_loan id
+        sofa_loan_meta: dict[tuple, dict[str, float | date]] = {}
+        for group_key in sorted(group_id.keys()):
+            gid = group_id[group_key]
+            code = f"{group_key[0]} ({group_key[1]})"[:50]
+            group_records = [
+                r for r in all_records
+                if (r["group_name"], r["village_name"]) == group_key
+            ]
+
+            for slot in (1, 2):
+                active = [
+                    r for r in group_records
+                    if r[f"sofa{slot}_dis"] or r[f"sofa{slot}_ret"] or r[f"sofa{slot}_int"]
+                ]
+                if not active:
+                    continue
+
+                principal = next(
+                    (r[f"sofa{slot}_principal"] for r in group_records if r[f"sofa{slot}_principal"] > 0),
+                    0.0,
+                )
+                min_date = min(r["entry_month"] for r in active)
+
+                result = session.execute(
+                    text("""
+                        INSERT INTO sofa_loans
+                            (group_id, name, principal_amount, disbursed_date, status,
+                             created_at, updated_at)
+                        VALUES
+                            (:gid, :name, :principal, :disbursed_date, 'closed', NOW(), NOW())
+                        ON CONFLICT (group_id, name) DO UPDATE SET
+                            principal_amount = EXCLUDED.principal_amount,
+                            updated_at       = NOW()
+                        RETURNING id
+                    """),
+                    {
+                        "gid": gid,
+                        "name": f"{code}-sofaloan-{slot}",
+                        "principal": principal if principal > 0 else 1,
+                        "disbursed_date": min_date,
+                    },
+                )
+                loan_id = result.scalar_one()
+                sofa_loan_id_map[(group_key, slot)] = loan_id
+                total_repaid = sum(r[f"sofa{slot}_ret"] for r in active)
+                sofa_loan_meta[(group_key, slot)] = {
+                    "principal": principal if principal > 0 else 1.0,
+                    "total_repaid": total_repaid,
+                    "disbursed_date": min_date,
+                }
+
+                for r in active:
                     session.execute(
                         text("""
                             INSERT INTO sofa_loan_entries
-                                (month_entry_id, loan_slot, disbursed, repayment,
+                                (sofa_loan_id, entry_month, disbursed, repayment,
                                  interest_collected, created_at, updated_at)
                             VALUES
-                                (:entry_id, :slot, :disbursed, :repayment, :interest, NOW(), NOW())
-                            ON CONFLICT (month_entry_id, loan_slot) DO UPDATE SET
+                                (:loan_id, :entry_month, :disbursed, :repayment,
+                                 :interest, NOW(), NOW())
+                            ON CONFLICT (sofa_loan_id, entry_month) DO UPDATE SET
                                 disbursed          = EXCLUDED.disbursed,
                                 repayment          = EXCLUDED.repayment,
                                 interest_collected = EXCLUDED.interest_collected,
                                 updated_at         = NOW()
+                            RETURNING id
                         """),
                         {
-                            "entry_id": entry_id,
-                            "slot": slot,
-                            "disbursed": dis,
-                            "repayment": ret,
-                            "interest": intr,
+                            "loan_id": loan_id,
+                            "entry_month": r["entry_month"],
+                            "disbursed": r[f"sofa{slot}_dis"],
+                            "repayment": r[f"sofa{slot}_ret"],
+                            "interest": r[f"sofa{slot}_int"],
                         },
                     )
+
+        # --- backfill month_entries.sofa_loan_entry_id ---
+        for r in all_records:
+            group_key = (r["group_name"], r["village_name"])
+            gid = group_id[group_key]
+            for slot in (1, 2):
+                if not (r[f"sofa{slot}_dis"] or r[f"sofa{slot}_ret"] or r[f"sofa{slot}_int"]):
+                    continue
+                if (group_key, slot) not in sofa_loan_id_map:
+                    continue
+                loan_id = sofa_loan_id_map[(group_key, slot)]
+                sle_id = session.execute(
+                    text(
+                        "SELECT id FROM sofa_loan_entries"
+                        " WHERE sofa_loan_id=:lid AND entry_month=:em"
+                    ),
+                    {"lid": loan_id, "em": r["entry_month"]},
+                ).scalar_one()
+                session.execute(
+                    text(
+                            "UPDATE month_entries SET sofa_loan_entry_id=:sle_id"
+                        " WHERE group_id=:gid AND entry_month=:em"
+                    ),
+                    {"sle_id": sle_id, "gid": gid, "em": r["entry_month"]},
+                )
+
+        # Mark at most one imported loan per group as active:
+        # the latest loan whose repayments do not yet cover principal.
+        for group_key in sorted(group_id.keys()):
+            candidates: list[tuple[date, int]] = []
+            for slot in (1, 2):
+                meta = sofa_loan_meta.get((group_key, slot))
+                loan_id = sofa_loan_id_map.get((group_key, slot))
+                if meta is None or loan_id is None:
+                    continue
+                if float(meta["total_repaid"]) < float(meta["principal"]):
+                    candidates.append((meta["disbursed_date"], loan_id))
+
+            if not candidates:
+                continue
+
+            candidates.sort()
+            active_loan_id = candidates[-1][1]
+            session.execute(
+                text(
+                    "UPDATE sofa_loans"
+                    " SET status='closed', closed_date=NULL, updated_at=NOW()"
+                    " WHERE group_id=:gid"
+                ),
+                {"gid": group_id[group_key]},
+            )
+            session.execute(
+                text(
+                    "UPDATE sofa_loans"
+                    " SET status='active', closed_date=NULL, updated_at=NOW()"
+                    " WHERE id=:loan_id"
+                ),
+                {"loan_id": active_loan_id},
+            )
 
         session.commit()
 

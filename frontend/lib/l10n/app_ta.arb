@@ -196,5 +196,25 @@
   "sortByVillage": "கிராமம்",
   "noGroupsFound": "குழுக்கள் கிடைக்கவில்லை",
   "stripOpening": "தொடக்கம்",
-  "stripAfterSave": "சேமிப்புக்கு பின்"
+  "stripAfterSave": "சேமிப்புக்கு பின்",
+
+  "sofaLoansScreenTitle": "SOFA கடன்கள்",
+  "sofaActiveLoan": "செயலில் உள்ள கடன்",
+  "sofaNewLoan": "புதிய கடன்",
+  "sofaPastLoans": "கடந்த கடன்கள்",
+  "sofaPrincipal": "அசல்",
+  "sofaDisbursedDate": "வழங்கிய தேதி",
+  "sofaTotalRepaid": "மொத்த திரும்பப் பெறப்பட்டது",
+  "sofaOutstanding": "நிலுவை",
+  "sofaCloseLoan": "கடனை மூடு",
+  "sofaCloseConfirmTitle": "இந்த கடனை மூட வேண்டுமா?",
+  "sofaCloseConfirmBody": "கடனை முழுமையாக திரும்பப் பெறப்பட்டதாக குறிக்கவும். இதை மாற்ற முடியாது.",
+  "sofaCreateLoanTitle": "புதிய கடன் உருவாக்கு",
+  "sofaPrincipalHint": "அசல் தொகை (₹)",
+  "sofaCreateButton": "கடன் உருவாக்கு",
+  "sofaNoActiveLoanHint": "இந்த குழுவிற்கு செயலில் உள்ள SOFA கடன் இல்லை.",
+  "sofaActiveLoanChip": "செயலில் உள்ள கடன் — ₹{outstanding} நிலுவை",
+  "@sofaActiveLoanChip": {
+    "placeholders": { "outstanding": { "type": "String" } }
+  }
 }

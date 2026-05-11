@@ -12,17 +12,20 @@ class CreateVillageScreen extends ConsumerStatefulWidget {
 
 class _CreateVillageScreenState extends ConsumerState<CreateVillageScreen> {
   final _nameController = TextEditingController();
+  final _abbrController = TextEditingController();
   bool _saving = false;
   String? _error;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _abbrController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     final name = _nameController.text.trim();
+    final abbr = _abbrController.text.trim();
     if (name.isEmpty) return;
 
     setState(() {
@@ -30,7 +33,7 @@ class _CreateVillageScreenState extends ConsumerState<CreateVillageScreen> {
       _error = null;
     });
     try {
-      await ref.read(apiClientProvider).createVillage(name);
+      await ref.read(apiClientProvider).createVillage(name, abbreviation: abbr);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Village "$name" created.')),
@@ -67,7 +70,20 @@ class _CreateVillageScreenState extends ConsumerState<CreateVillageScreen> {
                   textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(
                     labelText: 'Village name',
+                    hintText: 'e.g. Sittilingi',
                     border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _abbrController,
+                  textCapitalization: TextCapitalization.characters,
+                  maxLength: 10,
+                  decoration: const InputDecoration(
+                    labelText: 'Abbreviation',
+                    hintText: 'e.g. SL',
+                    border: OutlineInputBorder(),
+                    counterText: '',
                   ),
                   onSubmitted: (_) => _submit(),
                 ),

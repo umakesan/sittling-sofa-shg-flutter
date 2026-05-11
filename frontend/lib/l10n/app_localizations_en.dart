@@ -385,7 +385,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noEntriesYet => 'No entries recorded yet.';
 
   @override
-  String lastEntryMonth(String month) => 'Last: $month';
+  String lastEntryMonth(String month) {
+    return 'Last: $month';
+  }
 
   @override
   String get sortBy => 'Sort by';
@@ -414,24 +416,59 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get comingSoon => 'Coming soon';
 
-  @override String get sofaLoansReport => 'SOFA Loans';
-  @override String get bankFlowReport => 'Bank Flow';
-  @override String get villageCompareReport => 'Village Compare';
-  @override String get overdueAlertsReport => 'Overdue Alerts';
-  @override String get trendsReport => 'Trends';
-  @override String get groupHealthReport => 'Group Health';
-  @override String get recoveryRateReport => 'Recovery Rate';
-  @override String get auditLogReport => 'Audit Log';
-  @override String get outstanding => 'Outstanding';
-  @override String get recoveryRate => 'Recovery %';
-  @override String get netFlow => 'Net Flow';
-  @override String get deposited => 'Deposited';
-  @override String get withdrawn => 'Withdrawn';
-  @override String get noAlerts => 'All groups are up to date';
-  @override String get regularity => 'Regularity';
-  @override String get missingMonths => 'Missing months';
-  @override String get corpusGrowth => 'Corpus Growth';
-  @override String get monthlyContributions => 'Monthly Contributions';
+  @override
+  String get sofaLoansReport => 'SOFA Loans';
+
+  @override
+  String get bankFlowReport => 'Bank Flow';
+
+  @override
+  String get villageCompareReport => 'Village Compare';
+
+  @override
+  String get overdueAlertsReport => 'Overdue Alerts';
+
+  @override
+  String get trendsReport => 'Trends';
+
+  @override
+  String get groupHealthReport => 'Group Health';
+
+  @override
+  String get recoveryRateReport => 'Recovery Rate';
+
+  @override
+  String get auditLogReport => 'Audit Log';
+
+  @override
+  String get outstanding => 'Outstanding';
+
+  @override
+  String get recoveryRate => 'Recovery %';
+
+  @override
+  String get netFlow => 'Net Flow';
+
+  @override
+  String get deposited => 'Deposited';
+
+  @override
+  String get withdrawn => 'Withdrawn';
+
+  @override
+  String get noAlerts => 'All groups are up to date';
+
+  @override
+  String get regularity => 'Regularity';
+
+  @override
+  String get missingMonths => 'Missing months';
+
+  @override
+  String get corpusGrowth => 'Corpus Growth';
+
+  @override
+  String get monthlyContributions => 'Monthly Contributions';
 
   @override
   String get thisMonthSavings => 'This month\'s savings';
@@ -468,4 +505,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stripAfterSave => 'After save';
+
+  @override
+  String get sofaLoansScreenTitle => 'SOFA Loans';
+
+  @override
+  String get sofaActiveLoan => 'Active Loan';
+
+  @override
+  String get sofaNewLoan => 'New Loan';
+
+  @override
+  String get sofaPastLoans => 'Past Loans';
+
+  @override
+  String get sofaPrincipal => 'Principal';
+
+  @override
+  String get sofaDisbursedDate => 'Disbursed Date';
+
+  @override
+  String get sofaTotalRepaid => 'Total Repaid';
+
+  @override
+  String get sofaOutstanding => 'Outstanding';
+
+  @override
+  String get sofaCloseLoan => 'Close Loan';
+
+  @override
+  String get sofaCloseConfirmTitle => 'Close this loan?';
+
+  @override
+  String get sofaCloseConfirmBody =>
+      'Mark the loan as fully repaid and close it. This cannot be undone.';
+
+  @override
+  String get sofaCreateLoanTitle => 'Create New Loan';
+
+  @override
+  String get sofaPrincipalHint => 'Principal amount (₹)';
+
+  @override
+  String get sofaCreateButton => 'Create Loan';
+
+  @override
+  String get sofaNoActiveLoanHint => 'No active SOFA loan for this group.';
+
+  @override
+  String sofaActiveLoanChip(String outstanding) {
+    return 'Active loan — ₹$outstanding outstanding';
+  }
 }

@@ -8,6 +8,7 @@ import '../models/group.dart';
 import '../models/month_entry.dart';
 import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
+import '../providers/sofa_loans_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -29,10 +30,25 @@ class LedgerScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final entriesAsync = ref.watch(entriesProvider);
     final groupsAsync = ref.watch(groupsProvider);
+    final sofaLoansAsync = ref.watch(sofaLoansProvider(groupId));
 
     final group = groupsAsync.maybeWhen(
       data: (groups) => groups.where((g) => g.id == groupId).firstOrNull,
       orElse: () => null,
+    );
+    final activeLoanOutstanding = sofaLoansAsync.maybeWhen(
+      data: (loans) {
+        try {
+          return loans.firstWhere((loan) => loan.isActive).outstanding;
+        } catch (_) {
+          return null;
+        }
+      },
+      orElse: () => null,
+    );
+    final hasPastLoans = sofaLoansAsync.maybeWhen(
+      data: (loans) => loans.any((loan) => !loan.isActive),
+      orElse: () => false,
     );
 
     return Scaffold(
@@ -70,6 +86,8 @@ class LedgerScreen extends ConsumerWidget {
                       monthsRecorded: groupEntries.length,
                       lastEntry: lastEntry,
                       l10n: l10n,
+                      activeLoanOutstanding: activeLoanOutstanding,
+                      hasPastLoans: hasPastLoans,
                     ),
                   ),
                   if (groupEntries.isEmpty)
@@ -110,6 +128,8 @@ class _LedgerHero extends StatelessWidget {
   final int monthsRecorded;
   final MonthEntry? lastEntry;
   final AppLocalizations l10n;
+  final double? activeLoanOutstanding;
+  final bool hasPastLoans;
 
   const _LedgerHero({
     required this.group,
@@ -117,6 +137,8 @@ class _LedgerHero extends StatelessWidget {
     required this.monthsRecorded,
     required this.lastEntry,
     required this.l10n,
+    required this.activeLoanOutstanding,
+    required this.hasPastLoans,
   });
 
   @override
@@ -245,6 +267,24 @@ class _LedgerHero extends StatelessWidget {
                             value: lastMonthText,
                           ),
                         ),
+                        VerticalDivider(
+                          color: Colors.white.withOpacity(0.15),
+                          width: 24,
+                          thickness: 1,
+                        ),
+                        Expanded(
+                          child: _SofaLoanStat(
+                            label: 'SOFA Loan',
+                            value: activeLoanOutstanding != null
+                                ? '${fmt.format(activeLoanOutstanding)} outstanding'
+                                : hasPastLoans
+                                    ? 'View past loans'
+                                    : 'Create / View loans',
+                            onPressed: group == null
+                                ? null
+                                : () => context.push('/groups/${group!.id}/sofa'),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -297,6 +337,80 @@ class _HeroStat extends StatelessWidget {
   }
 }
 
+class _SofaLoanStat extends StatelessWidget {
+  final String label;
+  final String value;
+  final VoidCallback? onPressed;
+
+  const _SofaLoanStat({
+    required this.label,
+    required this.value,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0x77FFFFFF),
+                        fontWeight: FontWeight.w400,
+                        height: 1.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Color(0xEEFFFFFF),
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ── Ledger row ────────────────────────────────────────────────────────────────
 
 class _LedgerRow extends StatelessWidget {
@@ -311,15 +425,8 @@ class _LedgerRow extends StatelessWidget {
     final monthLabel = DateFormat('MMM').format(date).toUpperCase();
     final yearLabel = DateFormat('yyyy').format(date);
     final fmt = NumberFormat('#,##0', 'en_IN');
-    // Recompute warnings locally — mirrors entries_provider._buildWarnings()
-    // so the ledger icon always matches what the edit screen shows, regardless
-    // of whether the stored warning_flags from the server is up-to-date.
-    final hasWarning = entry.warningFlags.isNotEmpty ||
-        entry.toBank > entry.savingsCollected + entry.internalLoanInterestCollected + 1 ||
-        (entry.fromBank > 0 && entry.toBank == 0);
-
-    final Color badgeBg = hasWarning ? AppColors.warningBg : AppColors.syncedBg;
-    final Color badgeText = hasWarning ? AppColors.warning : AppColors.synced;
+    const Color badgeBg = AppColors.primaryContainer;
+    const Color badgeText = AppColors.primary;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -404,13 +511,6 @@ class _LedgerRow extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              if (hasWarning)
-                const Icon(Icons.warning_amber_rounded,
-                    size: 18, color: AppColors.warningIcon)
-              else
-                const Icon(Icons.check_circle_rounded,
-                    size: 18, color: AppColors.synced),
             ],
           ),
         ),

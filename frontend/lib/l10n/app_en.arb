@@ -196,5 +196,25 @@
   "sortByVillage": "Village",
   "noGroupsFound": "No groups found",
   "stripOpening": "Opening",
-  "stripAfterSave": "After save"
+  "stripAfterSave": "After save",
+
+  "sofaLoansScreenTitle": "SOFA Loans",
+  "sofaActiveLoan": "Active Loan",
+  "sofaNewLoan": "New Loan",
+  "sofaPastLoans": "Past Loans",
+  "sofaPrincipal": "Principal",
+  "sofaDisbursedDate": "Disbursed Date",
+  "sofaTotalRepaid": "Total Repaid",
+  "sofaOutstanding": "Outstanding",
+  "sofaCloseLoan": "Close Loan",
+  "sofaCloseConfirmTitle": "Close this loan?",
+  "sofaCloseConfirmBody": "Mark the loan as fully repaid and close it. This cannot be undone.",
+  "sofaCreateLoanTitle": "Create New Loan",
+  "sofaPrincipalHint": "Principal amount (₹)",
+  "sofaCreateButton": "Create Loan",
+  "sofaNoActiveLoanHint": "No active SOFA loan for this group.",
+  "sofaActiveLoanChip": "Active loan — ₹{outstanding} outstanding",
+  "@sofaActiveLoanChip": {
+    "placeholders": { "outstanding": { "type": "String" } }
+  }
 }

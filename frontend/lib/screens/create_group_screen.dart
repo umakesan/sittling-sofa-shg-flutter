@@ -1,21 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/village_option.dart';
 import '../providers/groups_provider.dart';
 import '../providers/shared_providers.dart';
 
-const _weekdays = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
-];
-
-final _villageNamesProvider = FutureProvider<List<String>>((ref) {
-  return ref.read(apiClientProvider).fetchVillageNames();
+final _villagesProvider = FutureProvider<List<VillageOption>>((ref) {
+  return ref.read(apiClientProvider).fetchVillages();
 });
 
 class CreateGroupScreen extends ConsumerStatefulWidget {
@@ -29,10 +20,18 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _codeController = TextEditingController();
-  String? _selectedVillage;
-  String? _selectedMeetingDay;
+
+  VillageOption? _selectedVillage;
+  int? _selectedDate;
   bool _saving = false;
   String? _error;
+  bool _codeEdited = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(_autoFillCode);
+  }
 
   @override
   void dispose() {
@@ -41,14 +40,31 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
     super.dispose();
   }
 
+  void _autoFillCode() {
+    if (_codeEdited) return;
+    _updateCode();
+  }
+
+  void _updateCode() {
+    if (_codeEdited) return;
+    final name = _nameController.text.trim();
+    final date = _selectedDate;
+    if (name.isEmpty || date == null) return;
+
+    final abbr = _selectedVillage?.abbreviation;
+    _codeController.text = (abbr != null && abbr.isNotEmpty)
+        ? '$name - $abbr - $date'
+        : '$name - $date';
+  }
+
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_selectedVillage == null) {
       setState(() => _error = 'Please select a village.');
       return;
     }
-    if (_selectedMeetingDay == null) {
-      setState(() => _error = 'Please select a meeting day.');
+    if (_selectedDate == null) {
+      setState(() => _error = 'Please select a meeting date.');
       return;
     }
 
@@ -60,8 +76,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
       await ref.read(apiClientProvider).createGroup(
             name: _nameController.text.trim(),
             code: _codeController.text.trim(),
-            villageName: _selectedVillage!,
-            meetingDay: _selectedMeetingDay,
+            villageName: _selectedVillage!.name,
+            meetingDay: _selectedDate.toString(),
           );
       ref.invalidate(groupsProvider);
       if (mounted) {
@@ -79,7 +95,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final villagesAsync = ref.watch(_villageNamesProvider);
+    final villagesAsync = ref.watch(_villagesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -98,7 +114,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Village must be selected first
+                  // Village
                   villagesAsync.when(
                     loading: () => const Center(child: CircularProgressIndicator()),
                     error: (_, __) => Column(
@@ -110,7 +126,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                         ),
                         const SizedBox(height: 8),
                         TextButton.icon(
-                          onPressed: () => ref.invalidate(_villageNamesProvider),
+                          onPressed: () => ref.invalidate(_villagesProvider),
                           icon: const Icon(Icons.refresh),
                           label: const Text('Retry'),
                         ),
@@ -121,63 +137,98 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                             'No villages found. Create a village first.',
                             style: TextStyle(color: Colors.orange),
                           )
-                        : DropdownButtonFormField<String>(
+                        : DropdownButtonFormField<VillageOption>(
                             value: _selectedVillage,
                             decoration: const InputDecoration(
                               labelText: 'Village',
                               border: OutlineInputBorder(),
                             ),
                             items: villages
-                                .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+                                .map((v) => DropdownMenuItem(
+                                      value: v,
+                                      child: Text(v.name),
+                                    ))
                                 .toList(),
-                            onChanged: (v) => setState(() => _selectedVillage = v),
-                            validator: (v) =>
-                                (v == null || v.isEmpty) ? 'Please select a village' : null,
+                            onChanged: (v) {
+                              setState(() {
+                                _selectedVillage = v;
+                                _updateCode();
+                              });
+                            },
+                            validator: (_) =>
+                                _selectedVillage == null ? 'Please select a village' : null,
                           ),
                   ),
                   const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: _selectedMeetingDay,
+
+                  // Meeting date
+                  DropdownButtonFormField<int>(
+                    value: _selectedDate,
                     decoration: const InputDecoration(
-                      labelText: 'Meeting day',
+                      labelText: 'Meeting date',
+                      hintText: 'Day of month the group meets',
                       border: OutlineInputBorder(),
                     ),
-                    items: _weekdays
-                        .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                        .toList(),
-                    onChanged: (d) => setState(() => _selectedMeetingDay = d),
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Please select a meeting day' : null,
+                    items: List.generate(
+                      31,
+                      (i) => DropdownMenuItem(value: i + 1, child: Text('${i + 1}')),
+                    ),
+                    onChanged: (d) {
+                      setState(() {
+                        _selectedDate = d;
+                        _updateCode();
+                      });
+                    },
+                    validator: (_) =>
+                        _selectedDate == null ? 'Please select a meeting date' : null,
                   ),
                   const SizedBox(height: 16),
+
+                  // Group name
                   TextFormField(
                     controller: _nameController,
-                    autofocus: false,
+                    autofocus: true,
                     textCapitalization: TextCapitalization.words,
                     decoration: const InputDecoration(
                       labelText: 'Group name',
+                      hintText: 'e.g. Thamarai',
                       border: OutlineInputBorder(),
                     ),
                     validator: (v) =>
                         (v == null || v.trim().isEmpty) ? 'Required' : null,
                   ),
                   const SizedBox(height: 16),
+
+                  // Group code (auto-filled, editable)
                   TextFormField(
                     controller: _codeController,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
+                    textCapitalization: TextCapitalization.none,
+                    decoration: InputDecoration(
                       labelText: 'Group code',
-                      hintText: 'e.g. IYARKAI_SL',
-                      border: OutlineInputBorder(),
+                      hintText: 'Auto-filled from name, village & date',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: _codeEdited
+                          ? IconButton(
+                              icon: const Icon(Icons.refresh),
+                              tooltip: 'Reset to auto-generated',
+                              onPressed: () {
+                                setState(() => _codeEdited = false);
+                                _updateCode();
+                              },
+                            )
+                          : null,
                     ),
+                    onChanged: (_) => setState(() => _codeEdited = true),
                     validator: (v) =>
                         (v == null || v.trim().isEmpty) ? 'Required' : null,
                   ),
+
                   if (_error != null) ...[
                     const SizedBox(height: 12),
                     Text(_error!, style: const TextStyle(color: Colors.red)),
                   ],
                   const SizedBox(height: 24),
+
                   FilledButton(
                     onPressed: _saving ? null : _submit,
                     style: FilledButton.styleFrom(

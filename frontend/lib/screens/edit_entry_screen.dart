@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../models/month_entry.dart';
 import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
+import '../providers/sofa_loans_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -181,11 +182,19 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
       ),
     ];
 
+    final activeLoan = ref.watch(activeSofaLoanProvider(widget.entry.groupId));
+    final sofaEnabled = activeLoan != null || widget.entry.sofaLoanEntryId != null;
+
     final rightFields = <Widget>[
       _SectionHeader(l10n.sofaLoanSection),
-      _MoneyField(label: l10n.loanDisbursed, controller: _sofaDisbursed),
-      _MoneyField(label: l10n.loanReturn, controller: _sofaRepayment),
-      _MoneyField(label: l10n.interest, controller: _sofaInterest),
+      _SofaLoanBanner(
+        activeLoan: activeLoan,
+        groupId: widget.entry.groupId,
+        hasPriorEntry: widget.entry.sofaLoanEntryId != null,
+      ),
+      _MoneyField(label: l10n.loanDisbursed, controller: _sofaDisbursed, enabled: sofaEnabled),
+      _MoneyField(label: l10n.loanReturn, controller: _sofaRepayment, enabled: sofaEnabled),
+      _MoneyField(label: l10n.interest, controller: _sofaInterest, enabled: sofaEnabled),
       _BalanceStrip(
         opening: openingSofa,
         listenable: Listenable.merge([_sofaDisbursed, _sofaRepayment]),
@@ -296,8 +305,13 @@ class _SectionHeader extends StatelessWidget {
 class _MoneyField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
+  final bool enabled;
 
-  const _MoneyField({required this.label, required this.controller});
+  const _MoneyField({
+    required this.label,
+    required this.controller,
+    this.enabled = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -305,10 +319,92 @@ class _MoneyField extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6),
       child: TextField(
         controller: controller,
+        enabled: enabled,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: label,
           prefixText: '₹ ',
+        ),
+      ),
+    );
+  }
+}
+
+class _SofaLoanBanner extends StatelessWidget {
+  final dynamic activeLoan;
+  final int groupId;
+  final bool hasPriorEntry;
+
+  const _SofaLoanBanner({
+    required this.activeLoan,
+    required this.groupId,
+    required this.hasPriorEntry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    if (activeLoan != null) {
+      final outstanding = (activeLoan.outstanding as double);
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.primaryContainer,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.verified_outlined, size: 16, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.sofaActiveLoanChip(
+                    outstanding > 0
+                        ? NumberFormat('#,##0').format(outstanding)
+                        : '0',
+                  ),
+                  style: AppTextStyles.label.copyWith(color: AppColors.primary),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (hasPriorEntry) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceVariant,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline, size: 16, color: AppColors.textTertiary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                l10n.sofaNoActiveLoanHint,
+                style: AppTextStyles.label.copyWith(color: AppColors.textTertiary),
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              onPressed: () => context.push('/groups/$groupId/sofa'),
+              child: Text(l10n.sofaNewLoan,
+                  style: AppTextStyles.label.copyWith(color: AppColors.primary)),
+            ),
+          ],
         ),
       ),
     );

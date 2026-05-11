@@ -14,14 +14,14 @@ class MonthEntryBase(BaseModel):
     internal_loan_interest_collected: float = Field(default=0, ge=0)
     to_bank: float = Field(default=0, ge=0)
     from_bank: float = Field(default=0, ge=0)
-    sofa_loan_disbursed: float = Field(default=0, ge=0)
-    sofa_loan_repayment: float = Field(default=0, ge=0)
-    sofa_loan_interest_collected: float = Field(default=0, ge=0)
     notes: str | None = None
 
 
 class MonthEntryCreate(MonthEntryBase):
-    pass
+    # SOFA amounts — backend links them to the active sofa_loan for the group
+    sofa_disbursed: float = Field(default=0, ge=0)
+    sofa_repayment: float = Field(default=0, ge=0)
+    sofa_interest: float = Field(default=0, ge=0)
 
 
 class MonthEntryUpdate(BaseModel):
@@ -30,9 +30,9 @@ class MonthEntryUpdate(BaseModel):
     internal_loan_interest_collected: float | None = Field(default=None, ge=0)
     to_bank: float | None = Field(default=None, ge=0)
     from_bank: float | None = Field(default=None, ge=0)
-    sofa_loan_disbursed: float | None = Field(default=None, ge=0)
-    sofa_loan_repayment: float | None = Field(default=None, ge=0)
-    sofa_loan_interest_collected: float | None = Field(default=None, ge=0)
+    sofa_disbursed: float | None = Field(default=None, ge=0)
+    sofa_repayment: float | None = Field(default=None, ge=0)
+    sofa_interest: float | None = Field(default=None, ge=0)
     notes: str | None = None
     status: EntryStatus | None = None
 
@@ -42,6 +42,11 @@ class MonthEntryRead(MonthEntryBase):
     status: EntryStatus
     warning_flags: list[str]
     source_count: int
+    sofa_loan_entry_id: int | None = None
+    # Denormalized from sofa_loan_entries JOIN — default 0 when no linked entry
+    sofa_disbursed: float = 0.0
+    sofa_repayment: float = 0.0
+    sofa_interest: float = 0.0
     created_at: datetime
     updated_at: datetime
 
@@ -51,8 +56,5 @@ class MonthEntryRead(MonthEntryBase):
     internal_loan_interest_collected: float = 0
     to_bank: float = 0
     from_bank: float = 0
-    sofa_loan_disbursed: float = 0
-    sofa_loan_repayment: float = 0
-    sofa_loan_interest_collected: float = 0
 
     model_config = {"from_attributes": True}

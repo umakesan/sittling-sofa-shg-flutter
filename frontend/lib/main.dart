@@ -8,6 +8,7 @@ import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
 import 'screens/create_group_screen.dart';
 import 'screens/create_village_screen.dart';
+import 'screens/sofa_loan_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/edit_entry_screen.dart';
 import 'screens/home_screen.dart';
@@ -207,6 +208,13 @@ final _routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final entry = state.extra as MonthEntry;
           return EditEntryScreen(entry: entry);
+        },
+      ),
+      GoRoute(
+        path: '/groups/:groupId/sofa',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['groupId']!);
+          return GroupSofaLoanScreen(groupId: id);
         },
       ),
       GoRoute(
