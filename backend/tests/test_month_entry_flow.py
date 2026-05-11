@@ -19,9 +19,8 @@ def test_create_month_entry_marks_warning_status_when_totals_look_suspicious(cli
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["status"] == "saved_with_warnings"
-    assert "prefill_mode_without_images" in payload["warning_flags"]
-    assert "bank_deposit_exceeds_visible_collections" in payload["warning_flags"]
+    assert payload["status"] == "saved"
+    assert payload["warning_flags"] == []
 
 
 def test_list_month_entries_returns_newest_month_first(client):
@@ -101,8 +100,8 @@ def test_update_month_entry_recomputes_warning_flags(client):
 
     assert updated.status_code == 200
     payload = updated.json()
-    assert payload["status"] == "saved_with_warnings"
-    assert "bank_deposit_exceeds_visible_collections" in payload["warning_flags"]
+    assert payload["status"] == "saved"
+    assert payload["warning_flags"] == []
 
 
 def test_dashboard_aggregates_totals_and_warning_count(client):
@@ -149,4 +148,4 @@ def test_dashboard_aggregates_totals_and_warning_count(client):
     assert payload["total_internal_loan_principal"] == 1000
     assert payload["total_internal_loan_interest"] == 300
     assert payload["total_sofa_repaid"] == 1500
-    assert payload["warning_entry_count"] == 1
+    assert payload["warning_entry_count"] == 0

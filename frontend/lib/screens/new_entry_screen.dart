@@ -9,7 +9,6 @@ import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-import '../widgets/warning_panel.dart';
 
 class NewEntryScreen extends ConsumerStatefulWidget {
   const NewEntryScreen({super.key});
@@ -51,21 +50,6 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
 
   double _val(TextEditingController c) =>
       double.tryParse(c.text.trim()) ?? 0;
-
-  List<String> _getWarnings(AppLocalizations l10n) {
-    final w = <String>[];
-    final savings = _val(_savings);
-    final interest = _val(_internalInterest);
-    final toBank = _val(_toBank);
-    final fromBank = _val(_fromBank);
-    if (toBank > savings + interest + 1) {
-      w.add(l10n.warningToBankExceedsCollections);
-    }
-    if (fromBank > 0 && toBank == 0) {
-      w.add(l10n.warningBankWithdrawalNoDeposit);
-    }
-    return w;
-  }
 
   Future<void> _save(AppLocalizations l10n) async {
     setState(() { _saving = true; _saveError = null; });
@@ -133,7 +117,6 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
                   sofaRepayment: _sofaRepayment,
                   sofaInterest: _sofaInterest,
                   notes: _notes,
-                  warnings: _getWarnings(l10n),
                   saving: _saving,
                   saveError: _saveError,
                   onSave: () => _save(l10n),
@@ -289,7 +272,6 @@ class _StepForm extends StatelessWidget {
   final TextEditingController sofaRepayment;
   final TextEditingController sofaInterest;
   final TextEditingController notes;
-  final List<String> warnings;
   final bool saving;
   final String? saveError;
   final VoidCallback onSave;
@@ -304,7 +286,6 @@ class _StepForm extends StatelessWidget {
     required this.sofaRepayment,
     required this.sofaInterest,
     required this.notes,
-    required this.warnings,
     required this.saving,
     required this.saveError,
     required this.onSave,
@@ -358,7 +339,6 @@ class _StepForm extends StatelessWidget {
         maxLines: 2,
       ),
       const SizedBox(height: 16),
-      WarningPanel(warnings: warnings),
       if (saveError != null)
         Padding(
           padding: const EdgeInsets.only(bottom: 12),

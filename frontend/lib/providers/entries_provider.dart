@@ -39,12 +39,7 @@ class EntriesNotifier extends AsyncNotifier<List<MonthEntry>> {
       sofaLoanRepayment: sofaLoanRepayment,
       sofaLoanInterestCollected: sofaLoanInterestCollected,
       notes: notes,
-      warningFlags: _buildWarnings(
-        savingsCollected: savingsCollected,
-        internalLoanInterestCollected: internalLoanInterestCollected,
-        toBank: toBank,
-        fromBank: fromBank,
-      ),
+      warningFlags: [],
       createdAt: now,
       updatedAt: now,
     );
@@ -55,12 +50,7 @@ class EntriesNotifier extends AsyncNotifier<List<MonthEntry>> {
 
   Future<void> updateEntry(MonthEntry entry) async {
     final updated = entry.copyWith(
-      warningFlags: _buildWarnings(
-        savingsCollected: entry.savingsCollected,
-        internalLoanInterestCollected: entry.internalLoanInterestCollected,
-        toBank: entry.toBank,
-        fromBank: entry.fromBank,
-      ),
+      warningFlags: [],
       updatedAt: DateTime.now(),
     );
     await ref.read(entryRepositoryProvider).update(updated);
@@ -73,22 +63,6 @@ class EntriesNotifier extends AsyncNotifier<List<MonthEntry>> {
     return report;
   }
 
-  // Mirrors backend/app/services/validation.py
-  List<String> _buildWarnings({
-    required double savingsCollected,
-    required double internalLoanInterestCollected,
-    required double toBank,
-    required double fromBank,
-  }) {
-    final warnings = <String>[];
-    if (toBank > savingsCollected + internalLoanInterestCollected + 1) {
-      warnings.add('To bank exceeds visible collections. Check the figures.');
-    }
-    if (fromBank > 0 && toBank == 0) {
-      warnings.add('Bank withdrawal present with no deposit this month.');
-    }
-    return warnings;
-  }
 }
 
 final entriesProvider =

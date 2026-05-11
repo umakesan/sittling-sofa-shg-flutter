@@ -67,11 +67,13 @@ class ApiClient {
     required String name,
     required String code,
     required String villageName,
+    String? meetingDay,
   }) async {
     final response = await _dio.post('/groups', data: {
       'name': name,
       'code': code,
       'village_name': villageName,
+      if (meetingDay != null) 'meeting_day': meetingDay,
     });
     return Group.fromJson(response.data as Map<String, dynamic>);
   }

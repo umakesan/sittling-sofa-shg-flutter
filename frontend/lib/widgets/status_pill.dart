@@ -54,10 +54,10 @@ class StatusPill extends StatelessWidget {
           l10n.statusSynced,
         ),
       EntryStatus.savedWithWarnings => (
-          AppColors.warning,
-          AppColors.warningBg,
-          AppColors.warningBorder,
-          l10n.statusSavedWithWarnings,
+          AppColors.primary,
+          AppColors.primaryContainer,
+          AppColors.border,
+          l10n.statusSaved,
         ),
       EntryStatus.saved => (
           AppColors.primary,

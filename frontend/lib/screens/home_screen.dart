@@ -726,7 +726,6 @@ class _GroupTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasEntry = entry != null;
-    final hasWarning = hasEntry && entry!.warningFlags.isNotEmpty;
     final isPending =
         hasEntry && entry!.syncStatus == SyncStatus.pendingSync;
     final day = _extractDay(group.name);
@@ -746,11 +745,6 @@ class _GroupTile extends StatelessWidget {
       badgeText = const Color(0xFFD4621A);
       leftBorderColor = const Color(0xFFD4621A);
       leftBorderWidth = 3;
-    } else if (hasWarning) {
-      badgeBg = const Color(0xFFFEFCE8);
-      badgeText = const Color(0xFF92400E);
-      leftBorderColor = AppColors.warningIcon;
-      leftBorderWidth = 3;
     } else {
       badgeBg = const Color(0xFFE8F5EE);
       badgeText = AppColors.primary;
@@ -760,11 +754,9 @@ class _GroupTile extends StatelessWidget {
 
     final Color dotColor = !hasEntry
         ? AppColors.textTertiary
-        : hasWarning
-            ? AppColors.warningIcon
-            : isPending
-                ? AppColors.pending
-                : AppColors.synced;
+        : isPending
+            ? AppColors.pending
+            : AppColors.synced;
 
     final String? savingsText = hasEntry
         ? NumberFormat.currency(

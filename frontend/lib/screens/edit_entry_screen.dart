@@ -9,7 +9,6 @@ import '../providers/entries_provider.dart';
 import '../providers/groups_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-import '../widgets/warning_panel.dart';
 
 final _numFmt = NumberFormat('#,##0');
 
@@ -67,21 +66,6 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
       v == 0 ? '' : v.toStringAsFixed(v.truncateToDouble() == v ? 0 : 2);
   double _val(TextEditingController c) =>
       double.tryParse(c.text.trim()) ?? 0;
-
-  List<String> _getWarnings(AppLocalizations l10n) {
-    final w = <String>[];
-    final savings = _val(_savings);
-    final interest = _val(_internalInterest);
-    final toBank = _val(_toBank);
-    final fromBank = _val(_fromBank);
-    if (toBank > savings + interest + 1) {
-      w.add(l10n.warningToBankExceedsCollections);
-    }
-    if (fromBank > 0 && toBank == 0) {
-      w.add(l10n.warningBankWithdrawalNoDeposit);
-    }
-    return w;
-  }
 
   Future<void> _save(AppLocalizations l10n) async {
     setState(() { _saving = true; _saveError = null; });
@@ -158,13 +142,6 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
       },
     );
 
-    final warningPanel = ListenableBuilder(
-      listenable: Listenable.merge(
-          [_savings, _internalInterest, _toBank, _fromBank]),
-      builder: (ctx, __) =>
-          WarningPanel(warnings: _getWarnings(AppLocalizations.of(ctx))),
-    );
-
     final leftFields = <Widget>[
       _SectionHeader(l10n.savingsSection),
       _MoneyField(label: l10n.savingsCollected, controller: _savings),
@@ -223,7 +200,6 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
         maxLines: 2,
       ),
       const SizedBox(height: 16),
-      warningPanel,
       if (_saveError != null)
         Padding(
           padding: const EdgeInsets.only(bottom: 12),

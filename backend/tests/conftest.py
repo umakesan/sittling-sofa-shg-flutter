@@ -11,6 +11,7 @@ from app.db.base import Group, MonthEntry, User
 from app.db.session import Base
 from app.main import app
 from app.models.user import UserRole
+from app.models.village import Village
 
 
 @pytest.fixture()
@@ -25,11 +26,14 @@ def db() -> Generator[Session, None, None]:
     Base.metadata.create_all(bind=engine)
 
     session = TestingSessionLocal()
+    village = Village(name="Sittilingi")
+    session.add(village)
+    session.flush()
     session.add_all(
         [
-            User(name="Field Worker", role=UserRole.FIELD_WORKER),
-            Group(name="Iyarkai - SL-13", village_name="Sittilingi", code="IYARKAI_SL_13"),
-            Group(name="Sevvanthi - SL-13", village_name="Sittilingi", code="SEV_SL_13"),
+            User(user_id="field1", password_hash="x", name="Field Worker", role=UserRole.FIELD_WORKER),
+            Group(name="Iyarkai - SL-13", village_id=village.id, code="IYARKAI_SL_13"),
+            Group(name="Sevvanthi - SL-13", village_id=village.id, code="SEV_SL_13"),
         ]
     )
     session.commit()
