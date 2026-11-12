@@ -210,7 +210,7 @@ uvicorn app.main:app --reload --port 8000
 Run tests (SQLite in-memory — no Docker needed):
 ```bash
 cd backend && pytest
-pytest tests/test_month_entry_flow.py::test_create_month_entry_marks_warning_status_when_totals_look_suspicious
+pytest tests/test_month_entry_flow.py::test_sofa_loan_lifecycle
 ```
 
 ### Flutter frontend
@@ -263,7 +263,7 @@ Use `context.push()` for stack navigation (back button), `context.go()` only for
 
 **Local DB:** Drift schema in `database/local_db.dart`. After any schema change, run `build_runner build` to regenerate `local_db.g.dart`. The SQLite connection is split by platform: `database/connection/native.dart` uses `NativeDatabase.createBackgroundConnection()` (with `sqlite3_flutter_libs` + `path_provider`); `database/connection/web.dart` throws `UnsupportedError`. **Do not add `drift_flutter`** — it requires Dart 3.4+ and was removed because the project is locked to 3.3.x.
 
-**Warning logic is duplicated intentionally:** `entries_provider.dart::_buildWarnings()` mirrors `backend/app/services/validation.py::build_warning_flags()`. Both must stay in sync. See `docs/warning-logic.txt` for the full spec.
+**Warning logic is specified but not implemented:** `backend/app/services/validation.py::build_warning_flags()` currently returns `[]`, and the frontend has no `_buildWarnings()`. See `docs/warning-logic.txt` for the intended spec.
 
 **API client:** `api/api_client.dart` uses Dio + `flutter_secure_storage` for JWT. Base URL set via `String.fromEnvironment('API_URL')` — never hardcoded. Methods: `login`, `fetchGroups`, `createGroup`, `fetchVillageNames`, `createVillage`, `createEntry`, `updateEntry`, `fetchEntries`, `fetchDashboard`.
 
@@ -278,7 +278,7 @@ Use `context.push()` for stack navigation (back button), `context.go()` only for
 **Request path:** `main.py` → `api/router.py` → `api/v1/endpoints/{auth,groups,villages,month_entries,reports}.py`
 
 - `api/deps.py` — yields SQLAlchemy `Session` via `Depends(db_session)`.
-- `services/validation.py` — `build_warning_flags(entry)` + `derive_status()` called on every create/update.
+- `services/validation.py` — `build_warning_flags(entry)` + `derive_status()` called on every create/update (currently stubs: no flags, status always `saved`).
 - `core/config.py` — Pydantic-settings; reads `.env`. Key: `DATABASE_URL`, `CORS_ORIGINS`.
 - The `month_entries` table has a unique constraint on `(group_id, entry_month)`.
 - The `groups` table uses a `village_id` FK to the `villages` table (migration `e5f6a7b8c9d0` re-created `villages`, backfilled from `village_name`, wired up the FK, and dropped `village_name`). Groups also have `opening_bank_balance NUMERIC(12,2)` (migration `c3d4e5f6a7b8`) and `meeting_day VARCHAR(10)` nullable (migration `e5f6a7b8c9d0`).
@@ -396,7 +396,7 @@ Auto-sync on launch: `AuthService.restoreSession()` fires `_initialSync()` in th
 
 ### Warning logic
 
-Three checks run on every entry (see `docs/warning-logic.txt` for full spec):
+Three checks are specified for every entry but none are implemented yet (see `docs/warning-logic.txt` for full spec):
 
 | # | Condition | Flag |
 |---|-----------|------|
@@ -404,7 +404,7 @@ Three checks run on every entry (see `docs/warning-logic.txt` for full spec):
 | 2 | `from_bank > 0` AND `to_bank == 0` | `bank_withdrawal_present_check_context` |
 | 3 | `entry_mode == "prefill"` AND `source_count == 0` | `prefill_mode_without_images` (backend only) |
 
-Warnings are non-blocking — entry is saved with status `SAVED_WITH_WARNINGS`. Checks 1 & 2 run on the backend (`services/validation.py`). **Frontend does not display warning icons or banners** — the warning icon was removed from the ledger list and the warning banner was removed from the entry form. The `warningFlags` field is still stored locally and synced, but not shown to users.
+Once implemented, warnings are non-blocking — entry is saved with status `SAVED_WITH_WARNINGS`. Today `services/validation.py` is a stub, so entries always save as `saved` with empty `warning_flags`. **Frontend does not display warning icons or banners** — the warning icon was removed from the ledger list and the warning banner was removed from the entry form. The `warningFlags` field is still stored locally and synced, but not shown to users.
 
 ### Key widgets
 
@@ -480,4 +480,14 @@ The app declares `<supports-screens>` for all screen sizes and uses `Constrained
 - AI image extraction (models defined, no service or upload endpoint)
 - Month-on-month jump validation
 - Role-based access enforcement beyond the `role` field in JWT (dashboard tiles are filtered client-side; routes are not server-protected)
-- Prefill warning (check #3 — `prefill_mode_without_images`) exists in backend only; frontend has no image upload yet
+- Warning checks 1–3 (including `prefill_mode_without_images`) are specified in `docs/warning-logic.txt` but not implemented on either side; frontend has no image upload yet
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues on `umakesan/sittling-sofa-shg-flutter`. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
